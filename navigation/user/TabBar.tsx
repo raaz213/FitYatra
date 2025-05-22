@@ -1,11 +1,10 @@
-import { Text, View } from "react-native";
-import { NavigationContainer, CommonActions } from "@react-navigation/native";
+import { View } from "react-native";
+import { CommonActions } from "@react-navigation/native";
 import {
   BottomTabBarProps,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
-import { Provider, BottomNavigation } from "react-native-paper";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { BottomNavigation } from "react-native-paper";
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +16,7 @@ export default function TabBar({
 }: BottomTabBarProps) {
   return (
     <BottomNavigation.Bar
-        style={{ marginTop:750 }}
+   
       navigationState={state}
       safeAreaInsets={insets}
       onTabPress={({ route, preventDefault }) => {
