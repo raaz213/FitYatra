@@ -1,142 +1,139 @@
-import { ScrollView, StyleSheet, Text, View, StatusBar } from "react-native";
 import React from "react";
-import MyCarousel from "../../components/user/MyCarousel";
-import MySearchBar from "../../components/user/MySearchBar";
-import StepTracker from "../../components/user/StepTracker";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import MySearchBar from "../../components/user/home/MySearchBar";
+import FeaturedContent from "../../components/user/home/FeaturedContent";
+import StepTracker from "../../components/user/home/StepTracker";
+import TestimonialsList from "../../components/user/home/TestimonialList";
+import WaterIntake from "../../components/user/home/WaterIntake";
 
 const HomeScreen = () => {
   return (
-    <>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
-      <ScrollView 
+    <LinearGradient colors={["#6f6f73", "#fafafc"]} style={styles.gradient}>
+      <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Header Section */}
+        {/* Header */}
         <View style={styles.header}>
           <MySearchBar />
         </View>
 
-        {/* Main Content Section */}
-        <View style={styles.mainContent}>
-          {/* Welcome Section */}
-          <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeText}>Welcome Back!</Text>
-            <Text style={styles.subtitleText}>Ready to achieve your goals?</Text>
-          </View>
+        {/* Welcome Section */}
+        <View style={styles.welcomeSection}>
+          <Text style={styles.welcomeText}>
+            Welcome <Text style={styles.highlightText}>fitYatra</Text>
+          </Text>
+          <Text style={styles.subtitleText}>Ready to achieve your goals?</Text>
+        </View>
 
-          {/* Motivational Quote Section */}
-          <View style={styles.quoteSection}>
-            <View style={styles.quoteContainer}>
-              <Text style={styles.quoteText}>"No Pain, No Gain"</Text>
-              <View style={styles.quoteLine} />
-            </View>
-          </View>
+        {/* Motivational Quote */}
+        <View style={styles.quoteSection}>
+          <Text style={styles.quoteText}>"No Pain, No Gain"</Text>
+          <View style={styles.quoteLine} />
+        </View>
 
-          {/* Carousel Section */}
-          <View style={styles.carouselSection}>
-            <Text style={styles.sectionTitle}>Featured Content</Text>
-            <MyCarousel />
-          </View>
-          {/* StepTracker Section */}
-          <View style={{marginTop: 20}}>
-            <StepTracker />
-          </View>
+        {/* Featured Content */}
+        <View style={styles.featuredContentSection}>
+          <Text style={styles.featuredTitle}>Featured Content</Text>
+          <FeaturedContent />
+        </View>
+
+        {/* Step Tracker */}
+        <View style={styles.stepTrackerSection}>
+          <StepTracker />
+        </View>
+        <View style={styles.waterIntakeSection}>
+          <WaterIntake />
+        </View>
+
+        {/* Testimonials */}
+        <View style={styles.testimonialSection}>
+          <TestimonialsList />
         </View>
       </ScrollView>
-    </>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 10,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  mainContent: {
-    paddingHorizontal: 16,
+    marginTop: 24,
   },
   welcomeSection: {
-    marginTop: 24,
-    marginBottom: 20,
+    marginTop: 20,
   },
   welcomeText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#212529',
-    marginBottom: 4,
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "white",
+    letterSpacing: 0.3,
+  },
+  highlightText: {
+    color: "#FF3B30",
   },
   subtitleText: {
-    fontSize: 16,
-    color: '#6c757d',
-    fontWeight: '400',
+    fontSize: 17,
+    color: "black",
+    fontWeight: "500",
+    letterSpacing: 0.2,
   },
   quoteSection: {
-    marginBottom: 32,
-    alignItems: 'center',
-  },
-  quoteContainer: {
-    backgroundColor: '#ffffff',
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: '#007bff',
-    width: '100%',
-    alignItems: 'center',
+    marginTop: 14,
+    paddingVertical: 28,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    backgroundColor: "#c7c7c7",
+    borderLeftWidth: 5,
+    borderLeftColor: "#4361ee",
+    alignItems: "center",
+    elevation: 10,
   },
   quoteText: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#343a40',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    letterSpacing: 0.5,
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#2b2d42",
+    fontStyle: "italic",
+    textAlign: "center",
+    letterSpacing: 0.7,
+    lineHeight: 32,
   },
   quoteLine: {
-    width: 60,
-    height: 3,
-    backgroundColor: '#007bff',
-    marginTop: 12,
-    borderRadius: 2,
+    width: 70,
+    height: 4,
+    backgroundColor: "#4361ee",
+    marginTop: 16,
+    borderRadius: 4,
   },
-  carouselSection: {
-    marginBottom: 20,
+  featuredContentSection: {
+    marginTop: 14,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#212529',
-    marginBottom: 16,
-    paddingLeft: 4,
+  featuredTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "white",
+    letterSpacing: 0.3,
+  },
+  stepTrackerSection: {
+    marginTop: 6,
+  },
+  waterIntakeSection: {
+    marginTop: 14,
+  },
+  testimonialSection: {
+    marginTop: 14,
   },
 });
 

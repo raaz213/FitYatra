@@ -6,16 +6,18 @@ import ProfileScreen from '../../screens/user/ProfileScreen';
 import AboutScreen from '../../screens/user/AboutScreen';
 import ChatScreen from '../../screens/user/ChatScreen';
 import TabBar from './TabBar';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
-export default function TabNavigator() {
+export default function TabNavigator({ isNestedScreen = false }) {
+  const navigation = useNavigation<any>();
   return (
     <Tab.Navigator 
     
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
        animation: 'shift',
        
       }}
