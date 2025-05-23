@@ -1,6 +1,5 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import TabNavigator from "./TabNavigator";
-import { StyleSheet, View } from "react-native";
 import NutritionScreen from "../../screens/user/NutritionScreen";
 import ExerciseScreen from "../../screens/user/ExerciseScreen";
 
@@ -21,7 +20,7 @@ const DrawerNavigator = () => {
         },
       }}
     >
-      <Drawer.Screen name="Main" component={TabNavigator} />
+      <Drawer.Screen name="Dashboard" component={TabNavigator} />
       <Drawer.Screen name="Exercise" component={ExerciseScreen} />
       <Drawer.Screen name="Nutrition" component={NutritionScreen} />
     </Drawer.Navigator>

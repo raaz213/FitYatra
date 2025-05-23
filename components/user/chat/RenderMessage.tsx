@@ -28,7 +28,7 @@ const RenderMessage = ({ item }: { item: Message }) => {
             {
               backgroundColor: isUser
                 ? `#667eea`
-                : '#c7c7c7',
+                : '#f0efed',
               elevation: 2,
             },
           ]}

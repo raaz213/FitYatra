@@ -24,8 +24,8 @@ const CaloriesBurnChart = () => {
   );
 
   const chartConfig = {
-    backgroundGradientFrom: "#c7c7c7",
-    backgroundGradientTo: "#c7c7c7",
+    backgroundGradientFrom: "#f0efed",
+    backgroundGradientTo: "#f0efed",
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(56, 189, 248, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(51, 65, 85, ${opacity})`,
@@ -86,7 +86,7 @@ const CaloriesBurnChart = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#c7c7c7",
+    backgroundColor: "#f0efed",
     borderRadius: 16,
     padding: 16,
     margin: 12,

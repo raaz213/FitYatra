@@ -63,7 +63,7 @@ const StepTracker: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#c7c7c7",
+    backgroundColor: "#f0efed",
     borderRadius: 5,
     paddingVertical: 10,
   },

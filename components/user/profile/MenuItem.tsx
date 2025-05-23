@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     margin: 12,
     borderRadius: 12,
     elevation: 2,
-    backgroundColor: "#c7c7c7",
+    backgroundColor: "#f0efed",
   },
   menuContent: {
     paddingVertical: 0,
