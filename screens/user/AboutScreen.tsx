@@ -44,7 +44,7 @@ const AboutScreen: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient
-        colors={["#6f6f73", "#fafafc"]}
+         colors={["#d3e1ed", "#d3e1ed"]}
         style={StyleSheet.absoluteFill}
       />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -86,13 +86,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "white",
+    color: "#545353",
     textAlign: "center",
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "#787575",
     textAlign: "center",
   },
   content: {

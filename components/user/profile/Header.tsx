@@ -34,12 +34,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
+    color: "#545353",
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: "rgba(255, 255, 255, 0.8)",
+    color: "#787575",
     marginBottom: 16,
   },
 });

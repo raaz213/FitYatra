@@ -10,7 +10,7 @@ import CaloriesBurnChart from "../../components/user/profile/CaloriesBurnChart";
 
 const ProfileScreen: React.FC = () => {
   return (
-    <LinearGradient colors={["#6f6f73", "#fafafc"]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#d3e1ed", "#d3e1ed"]} style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <Header />
         <CaloriesBurnChart />

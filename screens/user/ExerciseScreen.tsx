@@ -81,7 +81,7 @@ const ExerciseScreen = () => {
   const animateValue = useRef(new Animated.Value(0)).current;
 
   return (
-    <LinearGradient colors={["#6f6f73", "#fafafc"]} style={styles.container}>
+    <LinearGradient  colors={["#d3e1ed", "#d3e1ed"]} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" />
 
