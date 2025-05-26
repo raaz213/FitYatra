@@ -7,10 +7,13 @@ import FeaturedContent from "../../components/user/home/FeaturedContent";
 import StepTracker from "../../components/user/home/StepTracker";
 import TestimonialsList from "../../components/user/home/TestimonialList";
 import WaterIntake from "../../components/user/home/WaterIntake";
+import { StatusBar } from "expo-status-bar";
+import ExerciseCategory from "../../components/user/home/ExerciseCategory";
 
 const HomeScreen = () => {
   return (
-    <LinearGradient colors={["#6f6f73", "#fafafc"]} style={styles.gradient}>
+    <LinearGradient colors={["#d3e1ed", "#d3e1ed"]} style={styles.gradient}>
+      <StatusBar style="light" />
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -24,20 +27,26 @@ const HomeScreen = () => {
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeText}>
-            Welcome <Text style={styles.highlightText}>fitYatra</Text>
+            Welcome to <Text style={styles.highlightText}>fitYatra</Text>
           </Text>
-          <Text style={styles.subtitleText}>Ready to achieve your goals?</Text>
+          <Text style={styles.subtitleText}>
+            Your journey to fitness starts here.
+          </Text>
+        </View>
+
+        <View style={{ marginVertical: 20 }}>
+          <ExerciseCategory />
         </View>
 
         {/* Motivational Quote */}
-        <View style={styles.quoteSection}>
+
+        {/*<View style={styles.quoteSection}>
           <Text style={styles.quoteText}>"No Pain, No Gain"</Text>
           <View style={styles.quoteLine} />
-        </View>
+        </View>*/}
 
         {/* Featured Content */}
         <View style={styles.featuredContentSection}>
-          <Text style={styles.featuredTitle}>Featured Content</Text>
           <FeaturedContent />
         </View>
 
@@ -74,21 +83,26 @@ const styles = StyleSheet.create({
   },
   welcomeSection: {
     marginTop: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#f8f9fa", 
+    alignItems: "center",
   },
   welcomeText: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "white",
-    letterSpacing: 0.3,
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 8,
   },
   highlightText: {
-    color: "#FF3B30",
+    color: "#1e90ff", // Bright, energetic blue
   },
   subtitleText: {
-    fontSize: 17,
-    color: "black",
-    fontWeight: "500",
-    letterSpacing: 0.2,
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
   },
   quoteSection: {
     marginTop: 14,
@@ -118,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   featuredContentSection: {
-    marginTop: 14,
+    marginTop: -30,
   },
   featuredTitle: {
     fontSize: 22,
