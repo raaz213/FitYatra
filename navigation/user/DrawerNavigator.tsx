@@ -6,10 +6,29 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native";
 import { DrawerActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { createStackNavigator } from "@react-navigation/stack";
+import WorkoutScreen from "../../screens/user/WorkoutScreen";
+import WorkoutDetailsScreen from "../../screens/user/WorkoutDetailsScreen";
+import WorkoutStartScreen from "../../screens/user/WorkoutStartScreen";
 
 const Drawer = createDrawerNavigator();
 
+const Stack = createStackNavigator();
+
+const ExerciseStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ExerciseHome" component={ExerciseScreen} />
+      <Stack.Screen name="Workout" component={WorkoutScreen} />
+      <Stack.Screen name="WorkoutDetails" component={WorkoutDetailsScreen} />
+      <Stack.Screen name="WorkoutStart" component={WorkoutStartScreen} />
+    </Stack.Navigator>
+  )
+}
+
+
 const DrawerNavigator = () => {
+
   return (
     <Drawer.Navigator
       screenOptions={({ navigation }) => ({
@@ -45,7 +64,7 @@ const DrawerNavigator = () => {
       })}
     >
       <Drawer.Screen name="Dashboard" component={TabNavigator} />
-      <Drawer.Screen name="Exercise" component={ExerciseScreen} />
+      <Drawer.Screen name="Exercise" component={ExerciseStack} />
       <Drawer.Screen name="Nutrition" component={NutritionScreen} />
     </Drawer.Navigator>
   );

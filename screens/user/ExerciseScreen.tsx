@@ -11,6 +11,7 @@ import { Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import CategoryCard from "../../components/user/exercise/CategoryCard";
+import { TouchableOpacity } from "react-native";
 
 export type DifficultyLevel =
   | "Beginner"
@@ -76,9 +77,27 @@ const categories: Category[] = [
   },
 ];
 
-const ExerciseScreen = () => {
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  Workout: { categoryId: number | null };
+  // add other routes here if needed
+};
+
+type ExerciseScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'Workout'>;
+};
+
+const ExerciseScreen = ({ navigation }: ExerciseScreenProps) => {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const animateValue = useRef(new Animated.Value(0)).current;
+
+  const handleWorkoutPress = (categoryId:number) => {
+    navigation.navigate("Workout", {
+      categoryId: selectedCategory,
+    });
+  }
+
 
   return (
     <LinearGradient  colors={["#d3e1ed", "#d3e1ed"]} style={styles.container}>
@@ -93,7 +112,6 @@ const ExerciseScreen = () => {
             <Text style={styles.headerSubtitle}>Choose your focus area</Text>
           </View>
 
-          <View style={styles.grid}>
             {categories.map((category: Category) => (
               <CategoryCard
                 key={category.id}
@@ -103,7 +121,6 @@ const ExerciseScreen = () => {
                 animatedValue={animateValue}
               />
             ))}
-          </View>
         </ScrollView>
 
         {selectedCategory && (
@@ -126,13 +143,16 @@ const ExerciseScreen = () => {
               colors={["#8A4FFF", "#6C3CEB"]}
               style={styles.continueButton}
             >
-              <Text style={styles.continueText}>Start Training Now</Text>
-              <Ionicons
-                name="arrow-forward-circle"
-                size={28}
-                color="#FFFFFF"
-                style={styles.continueIcon}
-              />
+              <TouchableOpacity
+                onPress={()=> handleWorkoutPress(1)}>
+                <Text style={styles.continueText}>Start Training Now</Text>
+                <Ionicons
+                  name="arrow-forward-circle"
+                  size={28}
+                  color="#FFFFFF"
+                  style={styles.continueIcon}
+                />
+              </TouchableOpacity>
             </LinearGradient>
           </Animated.View>
         )}
@@ -155,7 +175,8 @@ const styles = StyleSheet.create({
   },
 
   headerSubtitle: {
-    color: "white",
+    color: "#363535",
+    fontWeight: 'bold',
     fontSize: 24,
     marginTop: 8,
   },
@@ -165,12 +186,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 120,
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 16,
   },
 
   bottomContainer: {
