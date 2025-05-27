@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Animated, ImageBackground } from "r
 import { Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Category, DifficultyLevel } from "../../../screens/user/ExerciseScreen";
+import { Category, DifficultyLevel } from "../../../screens/user/exercise/ExerciseScreen";
 import { window } from "../../../constants/sizes";
 
 const CARD_HEIGHT = 260;

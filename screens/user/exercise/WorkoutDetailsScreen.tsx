@@ -2,11 +2,11 @@ import { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import AppbarHeader from "../../components/user/workoutDetails/AppbarHeader";
-import Illustration from "../../components/user/workoutDetails/Illustration";
-import TabNavigation from "../../components/user/workoutDetails/TabNavigation";
-import InstructionAndFocusArea from "../../components/user/workoutDetails/InstructionAndFocusArea";
-import BottomNavigation from "../../components/user/workoutDetails/BottomNavigation";
+import AppbarHeader from "../../../components/user/workoutDetails/AppbarHeader";
+import Illustration from "../../../components/user/workoutDetails/Illustration";
+import TabNavigation from "../../../components/user/workoutDetails/TabNavigation";
+import InstructionAndFocusArea from "../../../components/user/workoutDetails/InstructionAndFocusArea";
+import BottomNavigation from "../../../components/user/workoutDetails/BottomNavigation";
 
 interface Exercise {
   id: string;

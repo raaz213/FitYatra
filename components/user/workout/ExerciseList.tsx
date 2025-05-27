@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-import { Exercise } from "../../../screens/user/WorkoutScreen";
+import { Exercise } from "../../../screens/user/exercise/WorkoutScreen";
 
 type currentWorkoutType = {
     exercises: Exercise[];

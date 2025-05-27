@@ -8,8 +8,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import CategoryCard from "../../components/user/exercise/CategoryCard";
-import StartTrainingButton from "../../components/user/exercise/StartTrainingButton";
+import CategoryCard from "../../../components/user/exercise/CategoryCard";
+import StartTrainingButton from "../../../components/user/exercise/StartTrainingButton";
 
 export type DifficultyLevel =
   | "Beginner"
