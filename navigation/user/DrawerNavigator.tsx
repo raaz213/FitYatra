@@ -1,6 +1,5 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import TabNavigator from "./TabNavigator";
-import NutritionScreen from "../../screens/user/nutrition/NutritionCategoryScreen";
 import ExerciseScreen from "../../screens/user/exercise/ExerciseScreen";
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native";
@@ -10,8 +9,10 @@ import { createStackNavigator } from "@react-navigation/stack";
 import WorkoutScreen from "../../screens/user/exercise/WorkoutScreen";
 import WorkoutDetailsScreen from "../../screens/user/exercise/WorkoutDetailsScreen";
 import WorkoutStartScreen from "../../screens/user/exercise/WorkoutStartScreen";
-import DietScreen from "../../screens/user/nutrition/DietScreen";
 import NutritionCategoryScreen from "../../screens/user/nutrition/NutritionCategoryScreen";
+import NutritionFoodsScreen from "../../screens/user/nutrition/NutritionFoodsScreen";
+import NutritionDetailsScreen from "../../screens/user/nutrition/NutritionDetailsScreen";
+import CameraScreen from "../../screens/user/nutrition/CameraScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -32,7 +33,9 @@ const NutritionStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="NutritionCategory" component={NutritionCategoryScreen} />
-      <Stack.Screen name="Diet" component={DietScreen} />
+      <Stack.Screen name="NutritionFoods" component={NutritionFoodsScreen} />
+      <Stack.Screen name="NutritionDetails" component={NutritionDetailsScreen} />
+      <Stack.Screen name="Camera" component={CameraScreen} />
     </Stack.Navigator>
   );
 }
