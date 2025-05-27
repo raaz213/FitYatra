@@ -1,6 +1,5 @@
 import React from "react";
 import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
-import { Button } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import Header from "../../components/user/profile/Header";
 import GoalCard from "../../components/user/profile/GoalCard";
