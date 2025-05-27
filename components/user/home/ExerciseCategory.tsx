@@ -41,7 +41,7 @@ const TodaysWorkout = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>TODAY'S WORKOUT</Text>
+        <Text style={styles.headerTitle}>Today's Workout</Text>
         <TouchableOpacity>
           <Text style={styles.viewAllButton}>View All</Text>
         </TouchableOpacity>
@@ -51,7 +51,7 @@ const TodaysWorkout = () => {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
+        
       >
         {workoutSessions.map((session) => (
           <TouchableOpacity key={session.id} style={styles.sessionCard}>
@@ -99,18 +99,16 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "500",
     color: "#343536",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   viewAllButton: {
     fontSize: 16,
     fontWeight: "600",
     color: "red",
   },
-  scrollContainer: {
-    paddingHorizontal: 15,
-  },
+ 
   sessionCard: {
     marginHorizontal: 5,
     width: width * 0.45,

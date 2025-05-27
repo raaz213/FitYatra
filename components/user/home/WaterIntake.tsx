@@ -17,6 +17,7 @@ import { Text, Button, Surface, IconButton } from "react-native-paper";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 
@@ -200,122 +201,128 @@ const WaterIntake = () => {
   );
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          💧 Water Intake
-        </Text>
-        <Text variant="bodyMedium" style={styles.date}>
-          {moment().format("dddd, MMMM D")}
-        </Text>
-      </View>
-
-      <Surface style={styles.progressContainer} elevation={3}>
-        <View style={styles.progressInner}>
-          <AnimatedCircularProgress
-            size={180}
-            width={15}
-            fill={progress}
-            tintColor="#2196F3"
-            backgroundColor="#E0E0E0"
-            rotation={0}
-            lineCap="round"
-            backgroundWidth={8}
-          >
-            {() => (
-              <View style={styles.progressTextContainer}>
-                <Text variant="displaySmall" style={styles.progressValue}>
-                  {Math.round(progress)}%
-                </Text>
-                <Text variant="bodyMedium" style={styles.progressLabel}>
-                  {intake} / {goal} ml
-                </Text>
-              </View>
-            )}
-          </AnimatedCircularProgress>
-
-          <View style={styles.statusContainer}>
-            <Text
-              variant="titleMedium"
-              style={[styles.statusText, { color: hydrationStatus.color }]}
-            >
-              {hydrationStatus.text}
-            </Text>
-            <Text variant="bodyMedium" style={styles.remainingText}>
-              {Math.max(goal - intake, 0)} ml remaining
-            </Text>
-          </View>
+    <LinearGradient
+      colors={["#1e3c72", "#2a5298", "#1e3c72"]}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+      style={{ flex: 1, borderRadius: 5, }}
+      
+    >
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={styles.title}>
+            💧 Water Intake
+          </Text>
+          <Text variant="bodyMedium" style={styles.date}>
+            {moment().format("dddd, MMMM D")}
+          </Text>
         </View>
-      </Surface>
 
-      <Text variant="titleMedium" style={styles.sectionTitle}>
-        Quick Add
-      </Text>
-      <View style={styles.quickAddContainer}>
-        {[250, 500, 750].map((amount) => (
-          <TouchableOpacity
-            key={amount}
-            style={styles.quickAddButton}
-            onPress={() => addWater(amount)}
-            activeOpacity={0.7}
+        <Surface style={styles.progressContainer} elevation={3}>
+          <View style={styles.progressInner}>
+            <AnimatedCircularProgress
+              size={180}
+              width={15}
+              fill={progress}
+              tintColor="#2196F3"
+              backgroundColor="#E0E0E0"
+              rotation={0}
+              lineCap="round"
+              backgroundWidth={8}
+            >
+              {() => (
+                <View style={styles.progressTextContainer}>
+                  <Text variant="displaySmall" style={styles.progressValue}>
+                    {Math.round(progress)}%
+                  </Text>
+                  <Text variant="bodyMedium" style={styles.progressLabel}>
+                    {intake} / {goal} ml
+                  </Text>
+                </View>
+              )}
+            </AnimatedCircularProgress>
+
+            <View style={styles.statusContainer}>
+              <Text
+                variant="titleMedium"
+                style={[styles.statusText, { color: hydrationStatus.color }]}
+              >
+                {hydrationStatus.text}
+              </Text>
+              <Text variant="bodyMedium" style={styles.remainingText}>
+                {Math.max(goal - intake, 0)} ml remaining
+              </Text>
+            </View>
+          </View>
+        </Surface>
+
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          Quick Add
+        </Text>
+        <View style={styles.quickAddContainer}>
+          {[250, 500, 750].map((amount) => (
+            <TouchableOpacity
+              key={amount}
+              style={styles.quickAddButton}
+              onPress={() => addWater(amount)}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons
+                name="cup-water"
+                size={28}
+                color="#2196F3"
+              />
+              <Text variant="bodyLarge" style={styles.quickAddText}>
+                {amount} ml
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.actionsContainer}>
+          <Button
+            mode="outlined"
+            onPress={resetIntake}
+            icon="refresh"
+            labelStyle={{ color: "#2196F3" }}
+            style={styles.resetButton}
+            contentStyle={styles.buttonContent}
           >
-            <MaterialCommunityIcons
-              name="cup-water"
-              size={28}
-              color="#2196F3"
-            />
-            <Text variant="bodyLarge" style={styles.quickAddText}>
-              {amount} ml
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+            Reset
+          </Button>
+          <Button
+            mode="contained"
+            onPress={() => setCustomModalVisible(true)}
+            icon="plus"
+            style={styles.customButton}
+            contentStyle={styles.buttonContent}
+          >
+            Custom
+          </Button>
+        </View>
 
-      <View style={styles.actionsContainer}>
         <Button
           mode="outlined"
-          onPress={resetIntake}
-          icon="refresh"
-          labelStyle={{ color: "#2196F3"}}
-          style={styles.resetButton}
-          contentStyle={styles.buttonContent}
+          onPress={() => setLogModalVisible(true)}
+          icon="history"
+          labelStyle={{ color: "#2196F3" }}
+          style={styles.logButton}
+          contentStyle={styles.logButtonContent}
         >
-          Reset
+          View Water Log
         </Button>
-        <Button
-          mode="contained"
-          onPress={() => setCustomModalVisible(true)}
-          icon="plus"
-          style={styles.customButton}
-          contentStyle={styles.buttonContent}
-        >
-          Custom
-        </Button>
-      </View>
 
-      <Button
-        mode="outlined"
-        onPress={() => setLogModalVisible(true)}
-        icon="history"
-        labelStyle={{ color: "#2196F3"}}
-        style={styles.logButton}
-        contentStyle={styles.logButtonContent}
-      >
-        View Water Log
-      </Button>
-
-      <LogModal />
-      <CustomModal />
-    </ScrollView>
+        <LogModal />
+        <CustomModal />
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#4a4a4a",
-    borderRadius: 5,
-    paddingBottom: 10,
+    paddingBottom: 20,
   },
   contentContainer: {
     paddingBottom: 30,

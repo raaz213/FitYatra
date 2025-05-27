@@ -27,8 +27,8 @@ const RenderMessage = ({ item }: { item: Message }) => {
             styles.bubbleContent,
             {
               backgroundColor: isUser
-                ? `#667eea`
-                : '#f0efed',
+                ? `#06407a`
+                : '#ffffff',
               elevation: 2,
             },
           ]}
@@ -36,7 +36,7 @@ const RenderMessage = ({ item }: { item: Message }) => {
           {!isUser && (
             <Text
               variant="labelSmall"
-              style={[styles.senderName, { color: '#667eea' }]}
+              style={[styles.senderName, { color: '#06407a' }]}
             >
               {item.senderName}
             </Text>
@@ -55,7 +55,7 @@ const RenderMessage = ({ item }: { item: Message }) => {
             style={{
               marginTop: 4,
               alignSelf: "flex-end",
-              color: isUser ? `#667eea` : "#e0e0e0",
+              color: isUser ? `#06407a` : "#e0e0e0",
             }}
           >
             {formatTime(item.timestamp)}

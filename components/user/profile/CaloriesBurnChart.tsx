@@ -24,18 +24,18 @@ const CaloriesBurnChart = () => {
   );
 
   const chartConfig = {
-    backgroundGradientFrom: "#f0efed",
-    backgroundGradientTo: "#f0efed",
+    backgroundGradientFrom: "#ffffff",
+    backgroundGradientTo: "#ffffff",
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(56, 189, 248, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(51, 65, 85, ${opacity})`,
+    color: (opacity = 1) => `#06407a`,
+    labelColor: (opacity = 1) => `#06407a`,
     style: {
       borderRadius: 16,
     },
     propsForDots: {
       r: "4",
       strokeWidth: "2",
-      stroke: "#0ea5e9",
+      stroke: "#06407a",
       fill: "#ffffff",
     },
     propsForBackgroundLines: {
@@ -86,7 +86,7 @@ const CaloriesBurnChart = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f0efed",
+    backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 16,
     margin: 12,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1e293b",
+    color: "#06407a",
     flexShrink: 1,
     flexWrap: "wrap"
     
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   averageValue: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#0ea5e9",
+    color: "#06407a",
   },
   chartContainer: {
     alignItems: "center",
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: "#64748b",
+    color: "#06407a",
   },
 });
 

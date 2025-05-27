@@ -12,12 +12,12 @@ const GoalCard = () => {
           <Text style={styles.goalTitle}>
             Weekly Goal Progress
           </Text>
-          <IconButton icon="target" size={24} iconColor="#667eea" />
+          <IconButton icon="target" size={24} iconColor="#06407a" />
         </View>
         <View style={styles.progressContainer}>
           <ProgressBar
             progress={weeklyGoal}
-            color="#667eea"
+            color="#06407a"
             style={styles.progressBar}
           />
           <Text style={styles.progressText}>
@@ -35,8 +35,7 @@ const styles = StyleSheet.create({
   goalCard: {
     margin: 12,
     borderRadius: 12,
-    elevation: 3,
-    backgroundColor: "#4a4a4a",
+    backgroundColor: "#ffffff",
   },
   goalHeader: {
     flexDirection: "row",
@@ -46,7 +45,7 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontWeight: "600",
-    color: "#f0f0f0",
+    color: "#616263",
   },
   progressContainer: {
     gap: 8,
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     textAlign: "center",
-    color: "#667eea",
+    color: "#06407a",
     fontWeight: "600",
   },
 });

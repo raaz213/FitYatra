@@ -49,12 +49,12 @@ export default Team;
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 32,
+    marginBottom: 2,
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: "#06407a",
     marginBottom: 16,
   },
   sectionText: {
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
-    backgroundColor: "#f0efed",
+    backgroundColor: "#ffffff",
     padding: 16,
     borderRadius: 12,
     shadowColor: "#000",
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#667eea",
+    backgroundColor: "#06407a",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   memberRole: {
     fontSize: 14,
-    color: "#667eea",
+    color: "#06407a",
     marginBottom: 6,
   },
   memberBio: {

@@ -1,20 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import {
-  Text,
-  StyleSheet,
-  ScrollView,
-  Animated,
-  Dimensions,
-  View,
-} from "react-native";
+import { Text, StyleSheet, ScrollView, Animated, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Mission from "../../components/user/about/Mission";
 import Story from "../../components/user/about/Story";
 import Values from "../../components/user/about/Values";
 import Team from "../../components/user/about/Team";
 import Footer from "../../components/user/about/Footer";
-
-const { height } = Dimensions.get("window");
+import Header from "../../components/user/about/Header";
 
 const AboutScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -44,24 +36,11 @@ const AboutScreen: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient
-         colors={["#d3e1ed", "#d3e1ed"]}
+        colors={["#d3e1ed", "#d3e1ed"]}
         style={StyleSheet.absoluteFill}
       />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Animated.View
-          style={[
-            styles.headerContent,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
-            },
-          ]}
-        >
-          <Text style={styles.headerTitle}>FitTracker Pro</Text>
-          <Text style={styles.headerSubtitle}>
-            Your Personal Wellness Companion
-          </Text>
-        </Animated.View>
+        <Header fadeAnim={fadeAnim} slideAnim={slideAnim} scaleAnim={scaleAnim} />
 
         <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
           <Mission />
@@ -79,22 +58,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingBottom: 40,
   },
-  headerContent: {
-    alignItems: "center",
-    marginVertical: 40,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#545353",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: "#787575",
-    textAlign: "center",
-  },
+  
   content: {
     padding: 20,
   },

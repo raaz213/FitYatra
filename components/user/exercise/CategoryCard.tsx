@@ -130,8 +130,9 @@ const styles = StyleSheet.create({
   },
   selectedCard: {
     borderWidth: 3,
-    borderColor: "#8A4FFF",
-    shadowColor: "#8A4FFF",
+    borderColor: "#1e3c72",
+    
+    shadowColor: "#1e3c72",
     shadowOpacity: 0.4,
   },
   cardContent: {

@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingTop: 32,
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    borderTopColor: "#06407a",
   },
   footerText: {
     fontSize: 14,

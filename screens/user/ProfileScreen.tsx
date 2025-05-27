@@ -7,6 +7,7 @@ import GoalCard from "../../components/user/profile/GoalCard";
 import MenuItem from "../../components/user/profile/MenuItem";
 import UserStats from "../../components/user/profile/UserStats";
 import CaloriesBurnChart from "../../components/user/profile/CaloriesBurnChart";
+import EditProfileButton from "../../components/user/profile/EditProfileButton";
 
 const ProfileScreen: React.FC = () => {
   return (
@@ -17,19 +18,7 @@ const ProfileScreen: React.FC = () => {
         <GoalCard />
         <UserStats />
         <MenuItem />
-
-        {/* Edit Profile Button */}
-        <View style={styles.buttonContainer}>
-          <Button
-            mode="contained"
-            onPress={() => {}}
-            style={styles.editButton}
-            contentStyle={styles.editButtonContent}
-            labelStyle={styles.editButtonLabel}
-          >
-            Edit Profile
-          </Button>
-        </View>
+        <EditProfileButton />
         <View style={styles.bottomSpacing} />
       </ScrollView>
     </LinearGradient>
@@ -39,22 +28,6 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-
-  buttonContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  editButton: {
-    borderRadius: 25,
-    backgroundColor: "#667eea",
-  },
-  editButtonContent: {
-    paddingVertical: 8,
-  },
-  editButtonLabel: {
-    fontSize: 16,
-    fontWeight: "600",
   },
   bottomSpacing: {
     height: 30,

@@ -160,7 +160,7 @@ export default function WorkoutSScreen() {
         <Image source={{ uri: exerciseData.image }} style={styles.exerciseImage} resizeMode="contain" />
       </Animated.View>
 
-      <Text style={[styles.readyText, { color: theme.colors.primary }]}>READY TO GO!</Text>
+      <Text style={[styles.readyText, { color: '#06407a' }]}>READY TO GO!</Text>
       <View style={styles.exerciseNameContainer}>
         <Text style={[styles.exerciseName, { color: theme.colors.onSurface }]}>{exerciseData.name}</Text>
         <TouchableOpacity style={styles.infoButton}>
@@ -169,12 +169,12 @@ export default function WorkoutSScreen() {
       </View>
 
       <View style={styles.timerContainer}>
-        <View style={[styles.circularTimer, { borderColor: theme.colors.primary }]}>
+        <View style={[styles.circularTimer, { borderColor: '#06407a' }]}>
           <Animated.View
             style={[
               styles.progressRing,
               {
-                borderColor: theme.colors.primary,
+                borderColor: '#06407a',
                 transform: [
                   {
                     rotate: progressAnim.interpolate({
@@ -213,7 +213,7 @@ export default function WorkoutSScreen() {
       <Text style={[styles.repCounter, { color: theme.colors.onSurface }]}>×{exerciseData.reps}</Text>
 
       <TouchableOpacity
-        style={[styles.doneButton, { backgroundColor: theme.colors.primary }]}
+        style={[styles.doneButton, { backgroundColor: '#06407a' }]}
         onPress={handleExerciseComplete}
       >
         <Text style={[styles.doneButtonText, { color: theme.colors.background }]}>✓ DONE</Text>
@@ -264,7 +264,7 @@ export default function WorkoutSScreen() {
             style={[
               styles.progressFill,
               {
-                backgroundColor: theme.colors.primary,
+                backgroundColor: '#06407a',
                 width: progressAnim.interpolate({
                   inputRange: [0, 1],
                   outputRange: ["0%", "100%"],

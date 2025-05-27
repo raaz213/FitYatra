@@ -1,33 +1,42 @@
 import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Searchbar } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const MySearchBar = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
-    <Searchbar
-      placeholder="Search for workouts, exercises..."
-      onChangeText={setSearchQuery}
-      value={searchQuery}
-      style={styles.searchBar}
-      inputStyle={styles.searchInput}
-      iconColor="#d6d1d0"
-      placeholderTextColor="#d6d1d0"
-      elevation={0}
-      mode="bar"
-    />
+    <LinearGradient
+      colors={['#f5f5f5', '#ffffff', '#f5f5f5']}
+      start={{ x: 0 , y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={styles.gradientContainer}
+    >
+      <Searchbar
+        placeholder="Search for workouts, exercises"
+        onChangeText={setSearchQuery}
+        value={searchQuery}
+        style={styles.searchBar}
+        inputStyle={styles.searchInput}
+        iconColor="#616263"
+        placeholderTextColor='#616263'
+        elevation={0}
+        mode="bar"
+      />
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  searchBar: {
+  gradientContainer: {
     width: '100%',
-    backgroundColor: '#5e5e5e',
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    elevation: 2,
+    padding: 1,
+  },
+  searchBar: {
+    backgroundColor: 'transparent',
+    borderRadius: 12,
   },
   searchInput: {
     fontSize: 16,
@@ -37,4 +46,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MySearchBar; 
+export default MySearchBar;

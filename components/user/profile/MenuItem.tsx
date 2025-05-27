@@ -12,7 +12,7 @@ const MenuItem = () => {
           titleStyle={styles.menuText}
           descriptionStyle={styles.menuText}
           left={(props) => (
-            <List.Icon {...props} icon="history" color="#667eea" />
+            <List.Icon {...props} icon="history" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => {}}
@@ -25,7 +25,7 @@ const MenuItem = () => {
           titleStyle={styles.menuText}
           descriptionStyle={styles.menuText}
           left={(props) => (
-            <List.Icon {...props} icon="chart-line" color="#667eea" />
+            <List.Icon {...props} icon="chart-line" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => {}}
@@ -38,7 +38,7 @@ const MenuItem = () => {
           titleStyle={styles.menuText}
           descriptionStyle={styles.menuText}
           left={(props) => (
-            <List.Icon {...props} icon="human" color="#667eea" />
+            <List.Icon {...props} icon="human" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => {}}
@@ -51,7 +51,7 @@ const MenuItem = () => {
           titleStyle={styles.menuText}
           descriptionStyle={styles.menuText}
           left={(props) => (
-            <List.Icon {...props} icon="food-apple" color="#667eea" />
+            <List.Icon {...props} icon="food-apple" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" color="#f0f0f0" />}
           onPress={() => {}}
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     margin: 12,
     borderRadius: 12,
     elevation: 2,
-    backgroundColor: "#f0efed",
+    backgroundColor: "#ffffff",
   },
   menuContent: {
     paddingVertical: 0,

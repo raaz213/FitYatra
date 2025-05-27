@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: "#06407a",
     marginBottom: 16,
   },
   sectionText: {
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
-    backgroundColor: "#f0efed",
+    backgroundColor: "#ffffff",
     padding: 16,
     borderRadius: 12,
     shadowColor: "#000",

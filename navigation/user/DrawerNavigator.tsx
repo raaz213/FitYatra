@@ -18,13 +18,13 @@ const Stack = createStackNavigator();
 const ExerciseStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ExerciseHome" component={ExerciseScreen} />
+      <Stack.Screen name="WorkoutExercise" component={ExerciseScreen} />
       <Stack.Screen name="Workout" component={WorkoutScreen} />
       <Stack.Screen name="WorkoutDetails" component={WorkoutDetailsScreen} />
       <Stack.Screen name="WorkoutStart" component={WorkoutStartScreen} />
     </Stack.Navigator>
-  )
-}
+  );
+};
 
 
 const DrawerNavigator = () => {

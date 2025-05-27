@@ -3,7 +3,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import DrawerNavigator from "../../navigation/user/DrawerNavigator";
 
-const Layout = () => {
+const UserLayoutScreen = () => {
   return (
     <>
       <NavigationContainer>
@@ -13,4 +13,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default UserLayoutScreen;
