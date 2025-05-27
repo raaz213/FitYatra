@@ -4,17 +4,18 @@ import { Avatar } from "react-native-paper";
 
 const Header = () => {
   return (
-    <View style={styles.header}>
-      <Avatar.Image
-        size={80}
-        source={{
-          uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-        }}
-        style={styles.avatar}
-      
-      />
-      <Text style={styles.userName}>Alex Johnson</Text>
-      <Text style={styles.userEmail}>alex.johnson@email.com</Text>
+    <View style={styles.headerContainer}>
+      <View style={styles.headerCard}>
+        <Avatar.Image
+          size={90}
+          source={{
+            uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+          }}
+          style={styles.avatar}
+        />
+        <Text style={styles.userName}>Alex Johnson</Text>
+        <Text style={styles.userEmail}>alex.johnson@email.com</Text>
+      </View>
     </View>
   );
 };
@@ -22,24 +23,47 @@ const Header = () => {
 export default Header;
 
 const styles = StyleSheet.create({
-  header: {
+  headerContainer: {
+ 
+    paddingVertical: 18,
+ 
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-
+  },
+  headerCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 20,
+    paddingVertical: 32,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 12,
+    width: "100%",
+    maxWidth: 360,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   avatar: {
-    marginTop: 10,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
   userName: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#545353",
-    marginBottom: 4,
+    fontWeight: "700",
+    color: "#1e293b",
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   userEmail: {
-    fontSize: 16,
-    color: "#787575",
-    marginBottom: 16,
+    fontSize: 15,
+    color: "#64748b",
+    fontWeight: "500",
+    letterSpacing: 0.2,
   },
 });

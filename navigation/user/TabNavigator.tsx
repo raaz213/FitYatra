@@ -26,7 +26,7 @@ export default function TabNavigator() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="home" color={"white"} size={24} />
+            <MaterialCommunityIcons name="home" color={color} size={24} />
           ),
         }}
       />
@@ -35,7 +35,7 @@ export default function TabNavigator() {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account" color={"white"} size={24} />
+            <MaterialCommunityIcons name="account" color={color} size={24} />
           ),
         }}
       />
@@ -44,7 +44,7 @@ export default function TabNavigator() {
         component={ChatScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="chat" color={"white"} size={24} />
+            <MaterialCommunityIcons name="chat" color={color} size={24} />
           ),
         }}
       />
@@ -53,7 +53,7 @@ export default function TabNavigator() {
         component={AboutScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="book" color={"white"} size={24} />
+            <MaterialCommunityIcons name="alert-circle" color={color} size={24} />
           ),
         }}
       />

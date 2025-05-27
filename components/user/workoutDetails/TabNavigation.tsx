@@ -19,10 +19,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
   const theme = useTheme();
   return (
     <View
-      style={[
-        styles.tabContainer,
-        { backgroundColor: theme.colors.surfaceVariant },
-      ]}
+      style={styles.tabContainer}
     >
       {tabs.map((tab) => (
         <TouchableOpacity
@@ -42,7 +39,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
                 color:
                   selectedTab === tab
                     ? theme.colors.background
-                    : theme.colors.onSurfaceVariant,
+                    : '#06407a',
                 fontWeight: selectedTab === tab ? "700" : "500",
               },
             ]}
@@ -63,6 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     padding: 4,
     marginBottom: 24,
+    backgroundColor: 'white'
   },
   tab: { flex: 1, paddingVertical: 12, borderRadius: 21, alignItems: "center" },
   tabText: { fontSize: 14, letterSpacing: 0.3 },

@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-import { Exercise } from "../../../screens/user/WorkoutScreen";
+import { Exercise } from "../../../screens/user/exercise/WorkoutScreen";
 
 type currentWorkoutType = {
     exercises: Exercise[];
@@ -98,8 +98,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   exerciseNumber: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   numberText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "800",
   },
   exerciseInfo: {
@@ -115,14 +115,14 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   exerciseName: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
     marginBottom: 6,
     lineHeight: 20,
     letterSpacing: 0.3,
   },
   exerciseSets: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: "500",
     opacity: 0.8,
     letterSpacing: 0.2,

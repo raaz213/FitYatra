@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     elevation: 6,
     height: 220,
     overflow: "hidden",
-    backgroundColor: "#f0efed"
+    backgroundColor: "#ffffff"
   },
   review: {
     fontSize: 16,

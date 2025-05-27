@@ -2,11 +2,12 @@ import { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import WeekCalender from "../../components/user/workout/WeekCalender";
-import AppbarHeader from "../../components/user/workout/AppbarHeader";
-import WorkoutCategory from "../../components/user/workout/WorkoutCategory";
-import ExerciseList from "../../components/user/workout/ExerciseList";
-import WorkoutSummary from "../../components/user/workout/WorkoutSummary";
+import WeekCalender from "../../../components/user/workout/WeekCalender";
+import AppbarHeader from "../../../components/user/workout/AppbarHeader";
+import WorkoutCategory from "../../../components/user/workout/WorkoutCategory";
+import ExerciseList from "../../../components/user/workout/ExerciseList";
+import WorkoutSummary from "../../../components/user/workout/WorkoutSummary";
+import { LinearGradient } from "expo-linear-gradient";
 
 export interface Exercise {
   id: string;
@@ -301,36 +302,36 @@ export default function WorkoutScreen({ navigation }: { navigation: any }) {
     workoutData.find((workout) => workout.id === selectedDay) || workoutData[4];
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
-      >
-        <AppbarHeader currentWorkout={currentWorkout} />
+    <LinearGradient colors={["#d3e1ed", "#d3e1ed"]} style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <AppbarHeader currentWorkout={currentWorkout} navigation={navigation} />
 
-        <ScrollView style={styles.content}>
-          {/* Week Calendar */}
-          <WeekCalender
-            setSelectedDay={setSelectedDay}
-            selectedDay={selectedDay}
-          />
+          <ScrollView style={styles.content}>
+            {/* Week Calendar */}
+            <WeekCalender
+              setSelectedDay={setSelectedDay}
+              selectedDay={selectedDay}
+            />
 
-          {/* Workout Category */}
-          <WorkoutCategory currentWorkout={currentWorkout} />
+            {/* Workout Category */}
+            <WorkoutCategory currentWorkout={currentWorkout} />
 
-          {/* Exercise List */}
-          <ExerciseList
-            currentWorkout={currentWorkout}
-            navigation={navigation}
-          />
+            {/* Exercise List */}
+            <ExerciseList
+              currentWorkout={currentWorkout}
+              navigation={navigation}
+            />
 
-          {/* Workout Summary */}
-          <WorkoutSummary
-            currentWorkout={currentWorkout}
-            selectedDay={selectedDay}
-          />
-        </ScrollView>
-      </SafeAreaView>
-    </SafeAreaProvider>
+            {/* Workout Summary */}
+            <WorkoutSummary
+              currentWorkout={currentWorkout}
+              selectedDay={selectedDay}
+            />
+          </ScrollView>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </LinearGradient>
   );
 }
 

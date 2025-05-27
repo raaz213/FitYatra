@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statNumber: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "800",
     marginBottom: 4,
   },

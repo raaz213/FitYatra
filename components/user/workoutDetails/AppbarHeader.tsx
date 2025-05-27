@@ -21,5 +21,5 @@ const AppbarHeader = ({ navigation, exerciseData }: {navigation: any, exerciseDa
 export default AppbarHeader;
 
 const styles = StyleSheet.create({
-  headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 0.5 },
+  headerTitle: { fontSize: 12, fontWeight: "700", letterSpacing: 0.5 },
 });

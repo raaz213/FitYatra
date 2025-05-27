@@ -61,7 +61,7 @@ const WaterIntake = () => {
     if (progress < 30) return { text: "Need More Water", color: "#FF5252" };
     if (progress < 70) return { text: "Getting There", color: "#FFB300" };
     if (progress < 100) return { text: "Almost There", color: "#4CAF50" };
-    return { text: "Goal Reached!", color: "#2196F3" };
+    return { text: "Goal Reached!", color: "#06407a" };
   };
 
   const hydrationStatus = getHydrationStatus();
@@ -178,6 +178,7 @@ const WaterIntake = () => {
                 <Button
                   mode="outlined"
                   onPress={() => setCustomModalVisible(false)}
+                  labelStyle={{color: '#06407a'}}
                   style={styles.cancelButton}
                 >
                   Cancel
@@ -185,6 +186,7 @@ const WaterIntake = () => {
                 <Button
                   mode="contained"
                   onPress={handleCustomAdd}
+                  labelStyle={{ color: "#FFFFFF" }}
                   style={styles.addButton}
                   disabled={
                     !customAmount || isNaN(Number.parseInt(customAmount))
@@ -201,13 +203,7 @@ const WaterIntake = () => {
   );
 
   return (
-    <LinearGradient
-      colors={["#1e3c72", "#2a5298", "#1e3c72"]}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 1, y: 0 }}
-      style={{ flex: 1, borderRadius: 5, }}
-      
-    >
+   
       <ScrollView style={styles.container}>
         <View style={styles.header}>
           <Text variant="headlineMedium" style={styles.title}>
@@ -224,7 +220,7 @@ const WaterIntake = () => {
               size={180}
               width={15}
               fill={progress}
-              tintColor="#2196F3"
+              tintColor="#06407a"
               backgroundColor="#E0E0E0"
               rotation={0}
               lineCap="round"
@@ -270,7 +266,7 @@ const WaterIntake = () => {
               <MaterialCommunityIcons
                 name="cup-water"
                 size={28}
-                color="#2196F3"
+                color="#06407a"
               />
               <Text variant="bodyLarge" style={styles.quickAddText}>
                 {amount} ml
@@ -284,7 +280,7 @@ const WaterIntake = () => {
             mode="outlined"
             onPress={resetIntake}
             icon="refresh"
-            labelStyle={{ color: "#2196F3" }}
+            labelStyle={{ color: "#06407a" }}
             style={styles.resetButton}
             contentStyle={styles.buttonContent}
           >
@@ -305,7 +301,7 @@ const WaterIntake = () => {
           mode="outlined"
           onPress={() => setLogModalVisible(true)}
           icon="history"
-          labelStyle={{ color: "#2196F3" }}
+          labelStyle={{ color: "#06407a" }}
           style={styles.logButton}
           contentStyle={styles.logButtonContent}
         >
@@ -315,7 +311,7 @@ const WaterIntake = () => {
         <LogModal />
         <CustomModal />
       </ScrollView>
-    </LinearGradient>
+
   );
 };
 
@@ -323,6 +319,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 5,
   },
   contentContainer: {
     paddingBottom: 30,
@@ -334,10 +332,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    color: "white",
+    color: "#06407a",
   },
   date: {
-    color: "#f0f0f0",
+    color: "#444757",
     marginTop: 4,
   },
   progressContainer: {
@@ -363,10 +361,10 @@ const styles = StyleSheet.create({
   },
   progressValue: {
     fontWeight: "bold",
-    color: "#f0f0f0",
+    color: "#06407a",
   },
   progressLabel: {
-    color: "#64748B",
+    color: "#06407a",
     marginTop: 4,
   },
   statusContainer: {
@@ -382,7 +380,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: "600",
-    color: "#f0f0f0",
+    color: "#06407a",
     marginTop: 6,
     marginBottom: 16,
     paddingHorizontal: 24,
@@ -408,7 +406,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   quickAddText: {
-    color: "#2196F3",
+    color: "#06407a",
     fontWeight: "600",
     marginTop: 8,
   },
@@ -422,13 +420,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
     borderRadius: 12,
-    borderColor: "#2196F3",
+    borderColor: "#06407a",
   },
   customButton: {
     flex: 1,
     marginLeft: 8,
     borderRadius: 12,
-    backgroundColor: "#2196F3",
+    backgroundColor: "#06407a",
   },
   buttonContent: {
     height: 48,
@@ -437,7 +435,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginTop: 16,
     borderRadius: 12,
-    borderColor: "#2196F3",
+    borderColor: "#06407a",
   },
   logButtonContent: {
     height: 48,
@@ -465,7 +463,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontWeight: "bold",
-    color: "#1E293B",
+    color: "#06407a",
   },
   modalButton: {
     marginTop: 16,
@@ -561,7 +559,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     borderRadius: 12,
-    backgroundColor: "#2196F3",
+    backgroundColor: "#06407a",
+  
   },
 });
 

@@ -84,7 +84,7 @@ function FeaturedContent() {
         }}
         loop={true}
         height={258}
-        width={window.width}
+        width={window.width-20}
         autoPlayInterval={2000}
         mode="parallax"
         modeConfig={{
@@ -119,6 +119,7 @@ const styles = StyleSheet.create<Style>({
     marginHorizontal: 10,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 25
   },
   imageContainer: {
     width: "100%",

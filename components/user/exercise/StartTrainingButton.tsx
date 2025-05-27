@@ -42,7 +42,7 @@ const StartTrainingButton: React.FC<StartTrainingButtonProps> = ({
       ]}
     >
       <LinearGradient
-        colors={["#1e3c72", "#2a5298", "#1e3c72"]}
+        colors={["#06407a", "#06407a"]}
         style={styles.continueButton}
       >
         <TouchableOpacity

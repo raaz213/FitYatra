@@ -59,7 +59,7 @@ const TestimonialsList = () => {
       paginationDotStyle={{ backgroundColor: 'white', borderRadius: 50 }}
       paginationContainerStyle={{ gap: 5, }}
       style={{ marginBottom: 20 }}
-      
+    
        />
      
     </ScrollView>

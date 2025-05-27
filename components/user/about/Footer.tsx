@@ -17,10 +17,10 @@ export default Footer;
 const styles = StyleSheet.create({
   footer: {
     alignItems: "center",
-    marginTop: 32,
+ 
     paddingTop: 32,
-    borderTopWidth: 1,
-    borderTopColor: "#06407a",
+    
+    
   },
   footerText: {
     fontSize: 14,

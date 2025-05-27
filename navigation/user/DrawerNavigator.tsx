@@ -1,15 +1,17 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import TabNavigator from "./TabNavigator";
-import NutritionScreen from "../../screens/user/NutritionScreen";
-import ExerciseScreen from "../../screens/user/ExerciseScreen";
+import NutritionScreen from "../../screens/user/nutrition/NutritionCategoryScreen";
+import ExerciseScreen from "../../screens/user/exercise/ExerciseScreen";
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native";
 import { DrawerActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { createStackNavigator } from "@react-navigation/stack";
-import WorkoutScreen from "../../screens/user/WorkoutScreen";
-import WorkoutDetailsScreen from "../../screens/user/WorkoutDetailsScreen";
-import WorkoutStartScreen from "../../screens/user/WorkoutStartScreen";
+import WorkoutScreen from "../../screens/user/exercise/WorkoutScreen";
+import WorkoutDetailsScreen from "../../screens/user/exercise/WorkoutDetailsScreen";
+import WorkoutStartScreen from "../../screens/user/exercise/WorkoutStartScreen";
+import DietScreen from "../../screens/user/nutrition/DietScreen";
+import NutritionCategoryScreen from "../../screens/user/nutrition/NutritionCategoryScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -18,7 +20,7 @@ const Stack = createStackNavigator();
 const ExerciseStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="WorkoutExercise" component={ExerciseScreen} />
+      <Stack.Screen name="ExerciseHome" component={ExerciseScreen} />
       <Stack.Screen name="Workout" component={WorkoutScreen} />
       <Stack.Screen name="WorkoutDetails" component={WorkoutDetailsScreen} />
       <Stack.Screen name="WorkoutStart" component={WorkoutStartScreen} />
@@ -26,6 +28,14 @@ const ExerciseStack = () => {
   );
 };
 
+const NutritionStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="NutritionCategory" component={NutritionCategoryScreen} />
+      <Stack.Screen name="Diet" component={DietScreen} />
+    </Stack.Navigator>
+  );
+}
 
 const DrawerNavigator = () => {
 
@@ -41,7 +51,7 @@ const DrawerNavigator = () => {
         },
         headerBackground: () => (
           <LinearGradient
-            colors={["#4c669f", "#3b5998", "#192f6a"]}
+            colors={["#06407a", "#3b5998", "#06407a"]}
             style={{ flex: 1 }}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -65,7 +75,7 @@ const DrawerNavigator = () => {
     >
       <Drawer.Screen name="Dashboard" component={TabNavigator} />
       <Drawer.Screen name="Exercise" component={ExerciseStack} />
-      <Drawer.Screen name="Nutrition" component={NutritionScreen} />
+      <Drawer.Screen name="Nutrition" component={NutritionStack} />
     </Drawer.Navigator>
   );
 };

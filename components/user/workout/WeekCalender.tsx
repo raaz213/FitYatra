@@ -1,6 +1,7 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { Text, useTheme } from "react-native-paper";
+import { window } from "../../../constants/sizes";
 
 interface DaySchedule {
   day: string;
@@ -96,35 +97,35 @@ const styles = StyleSheet.create({
   weekContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 24,
-    paddingHorizontal: 4,
-    marginBottom: 8,
+    paddingVertical: 20,
+    marginHorizontal: 8,
+    marginBottom: 4,
   },
   dayContainer: {
     alignItems: "center",
-    minWidth: 44,
+    width: window.width / 10, 
   },
   dayText: {
     fontSize: 11,
     fontWeight: "600",
-    marginBottom: 12,
-    letterSpacing: 0.5,
+    marginBottom: 8,
+    textAlign: "center",
   },
   dateContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: window.width / 10,
+    height: window.width / 10,
+    borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 4,
     elevation: 2,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3,
   },
   dateText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
   },
   activeDot: {

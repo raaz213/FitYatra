@@ -72,7 +72,7 @@ const InstructionAndFocusArea: React.FC<IllustrationAndFocusAreaProps> = ({
 export default InstructionAndFocusArea;
 
 const styles = StyleSheet.create({
-  instructionsContent: { gap: 20 },
+  instructionsContent: { gap: 20, marginBottom: 20 },
   instructionsCard: { borderRadius: 16, elevation: 3 },
   instructionsCardContent: { paddingVertical: 20 },
   instructionsTitle: {

@@ -67,18 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 10,
   },
-  // header: {
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-between',
-  //   alignItems: 'center',
-  //   paddingHorizontal: 20,
-  //   paddingVertical: 15,
-  // },
-  // headerTitle: {
-  //   color: '#fff',
-  //   fontSize: 18,
-  //   fontWeight: '600',
-  // },
+  
   content: {
     flex: 1,
     paddingHorizontal: 20,
