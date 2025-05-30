@@ -137,13 +137,13 @@ export default function ExerciseSubcategoryScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>FitYatra</Text>
+        <Text style={styles.headerTitle}>Exercise Subcategories</Text>
       </View>
 
       <ScrollView style={styles.content}>
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.title}>Exercise Subcategories</Title>
+           
 
             <View style={styles.form}>
               <View style={styles.inputContainer}>
@@ -250,15 +250,15 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#0047AB", // Dark blue header similar to the image
-    paddingVertical: 16,
+    paddingVertical: 8,
     paddingHorizontal: 20,
     elevation: 4,
   },
   headerTitle: {
     color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-    letterSpacing: 2,
+    fontSize: 14,
+  
+    letterSpacing: 1.5,
   },
   content: {
     flex: 1,
