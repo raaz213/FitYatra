@@ -1,46 +1,74 @@
-"use client"
-
-import { useState } from "react"
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from "react-native"
-import { TextInput, Button, Text, Card, Title, useTheme, Chip, Menu, Divider } from "react-native-paper"
+import { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import {
+  TextInput,
+  Button,
+  Text,
+  Card,
+  useTheme,
+  Divider,
+} from "react-native-paper";
 import {
   Plus,
   Image as ImageIcon,
   Hash,
   Clock,
   FileText,
-  Target,
   Youtube,
   User,
   ChevronDown,
-} from "lucide-react-native"
-import { StatusBar } from "expo-status-bar"
-import * as ImagePicker from "expo-image-picker"
-
-interface Exercise {
-  id: string
-  name: string
-  imageUri: string
-  sets: number
-  duration: string
-  instruction: string
-  focusArea: string
-  youtubeUrl: string
-}
-
-const focusAreas = ["Chest", "Back", "Shoulders", "Arms", "Legs", "Core", "Cardio", "Full Body", "Glutes", "Calves"]
+} from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
+import * as ImagePicker from "expo-image-picker";
+import { Exercise } from "../../../types/user/exercise/Exercise";
+import DropDownPicker from "react-native-dropdown-picker";
+import { fetchAllCategories } from "../../../services/user/exercise/Category";
+import { Category } from "../../../types/user/exercise/Category";
+import {
+  getExerciseSubcategories,
+  getExerciseSubcategoriesByCategory,
+} from "../../../services/user/exercise/Subcategory";
+import { Subcategory } from "../../../types/user/exercise/Subcategory";
+import { addExercise } from "../../../services/user/exercise/Exercise";
+import { Toast } from "toastify-react-native";
 
 export default function CreateExercise() {
-  const theme = useTheme()
-  const [name, setName] = useState("")
-  const [imageUri, setImageUri] = useState<string | null>(null)
-  const [sets, setSets] = useState("")
-  const [duration, setDuration] = useState("")
-  const [instruction, setInstruction] = useState("")
-  const [focusArea, setFocusArea] = useState("")
-  const [youtubeUrl, setYoutubeUrl] = useState("")
-  const [menuVisible, setMenuVisible] = useState(false)
-  const [exercises, setExercises] = useState<Exercise[]>([])
+  const theme = useTheme();
+  const [data, setData] = useState<{
+    name: string;
+    focusArea: string;
+    instructions: string;
+    videoUrl: string;
+    sets: number;
+    duration: number;
+    image: string;
+  }>({
+    name: "",
+    focusArea: "",
+    instructions: "",
+    videoUrl: "",
+    sets: 0,
+    duration: 0,
+    image: "",
+  });
+
+  const [openCategories, setOpenCategories] = useState(false);
+  const [openSubCategories, setOpenSubCategories] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [categories, setCategories] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [subCategories, setSubCategories] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -48,88 +76,75 @@ export default function CreateExercise() {
       allowsEditing: true,
       aspect: [16, 9],
       quality: 0.8,
-    })
+    });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri)
+      setData((prev) => ({ ...prev, image: result.assets[0].uri }));
     }
-  }
+  };
 
-  const validateForm = () => {
-    if (!name.trim()) {
-      Alert.alert("Validation Error", "Please enter exercise name")
-      return false
+  const handleChange = (fieldName: any, value: any) => {
+    setData((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+  };
+
+  const getCategories = async () => {
+    const response = await fetchAllCategories();
+    const dropdownItems = response.map((category: Category) => {
+      return {
+        label: category.name,
+        value: category._id,
+      };
+    });
+    setCategories(dropdownItems);
+  };
+
+  const getSubCategories = async () => {
+    const response = await getExerciseSubcategoriesByCategory(selectedCategory);
+    const dropdownItems = response.map((subcategory: Subcategory) => {
+      return {
+        label: subcategory.name,
+        value: subcategory._id,
+      };
+    });
+    setSubCategories(dropdownItems);
+  };
+
+  useEffect(() => {
+    getCategories();
+    if (selectedCategory) {
+      getSubCategories();
     }
-    if (!sets || isNaN(Number(sets)) || Number(sets) <= 0) {
-      Alert.alert("Validation Error", "Please enter a valid number of sets")
-      return false
+  }, [selectedCategory]);
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("sets", data.sets.toString());
+    formData.append("duration", data.duration.toString());
+    formData.append("subcategory", selectedSubCategory);
+    formData.append("videoUrl", data.videoUrl);
+    formData.append("instructions", data.instructions);
+    formData.append("focusArea", data.focusArea);
+
+    if (data.image) {
+      const fileName = data.image.split("/").pop() || "photo.jpg";
+      const fileType = fileName.split(".").pop();
+      formData.append("image", {
+        uri: data.image,
+        name: fileName,
+        type: `image/${fileType}`,
+      } as any);
     }
-    if (!duration.trim()) {
-      Alert.alert("Validation Error", "Please enter duration")
-      return false
+    try {
+      await addExercise(formData);
+      Toast.success("exercise added successfully");
+    } catch (error) {
+      Toast.error("Error adding exercise");
     }
-    if (!instruction.trim()) {
-      Alert.alert("Validation Error", "Please enter instructions")
-      return false
-    }
-    if (!focusArea) {
-      Alert.alert("Validation Error", "Please select a focus area")
-      return false
-    }
-    if (youtubeUrl && !isValidYouTubeUrl(youtubeUrl)) {
-      Alert.alert("Validation Error", "Please enter a valid YouTube URL")
-      return false
-    }
-    return true
-  }
-
-  const isValidYouTubeUrl = (url: string) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/
-    return youtubeRegex.test(url)
-  }
-
-  const handleSave = () => {
-    if (!validateForm()) return
-
-    const newExercise: Exercise = {
-      id: Date.now().toString(),
-      name,
-      imageUri: imageUri || "https://via.placeholder.com/300x200",
-      sets: Number(sets),
-      duration,
-      instruction,
-      focusArea,
-      youtubeUrl,
-    }
-
-    setExercises([...exercises, newExercise])
-
-    // Reset form
-    setName("")
-    setImageUri(null)
-    setSets("")
-    setDuration("")
-    setInstruction("")
-    setFocusArea("")
-    setYoutubeUrl("")
-
-    Alert.alert("Success", "Exercise created successfully!", [
-      {
-        text: "OK",
-        onPress: () => console.log("Exercise saved:", newExercise),
-      },
-    ])
-  }
-
-  const handleReset = () => {
-    setName("")
-    setImageUri(null)
-    setSets("")
-    setDuration("")
-    setInstruction("")
-    setFocusArea("")
-    setYoutubeUrl("")
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -142,15 +157,19 @@ export default function CreateExercise() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.title}>Exercise Details</Title>
+            <Text style={styles.title}>Exercise Details</Text>
 
             {/* Exercise Name */}
             <View style={styles.inputContainer}>
-              <User size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <User
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Exercise Name"
-                value={name}
-                onChangeText={setName}
+                value={data.name}
+                onChangeText={(text) => handleChange("name", text)}
                 style={styles.input}
                 mode="outlined"
                 placeholder="e.g., Push-ups, Squats"
@@ -159,29 +178,110 @@ export default function CreateExercise() {
 
             {/* Image Picker */}
             <View style={styles.inputContainer}>
-              <ImageIcon size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <ImageIcon
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <View style={styles.imageSection}>
                 <Text style={styles.inputLabel}>Exercise Image</Text>
-                <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-                  {imageUri ? (
-                    <Image source={{ uri: imageUri }} style={styles.previewImage} />
+                <TouchableOpacity
+                  onPress={pickImage}
+                  style={styles.imagePicker}
+                >
+                  {data.image ? (
+                    <Image
+                      source={{ uri: data.image }}
+                      style={styles.previewImage}
+                    />
                   ) : (
-                    <View style={[styles.placeholderImage, { backgroundColor: theme.colors.surfaceVariant }]}>
-                      <ImageIcon size={32} color={theme.colors.onSurfaceVariant} />
-                      <Text style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>Tap to select image</Text>
+                    <View
+                      style={[
+                        styles.placeholderImage,
+                        { backgroundColor: theme.colors.surfaceVariant },
+                      ]}
+                    >
+                      <ImageIcon
+                        size={32}
+                        color={theme.colors.onSurfaceVariant}
+                      />
+                      <Text
+                        style={{
+                          color: theme.colors.onSurfaceVariant,
+                          marginTop: 8,
+                        }}
+                      >
+                        Tap to select image
+                      </Text>
                     </View>
                   )}
                 </TouchableOpacity>
               </View>
             </View>
+            <View style={[styles.inputContainer, { zIndex: 1000 }]}>
+              <DropDownPicker
+                open={openCategories}
+                value={selectedCategory}
+                items={categories}
+                setOpen={setOpenCategories}
+                setValue={setSelectedCategory}
+                setItems={setCategories}
+                placeholder="Category"
+                style={styles.dropdown}
+                dropDownDirection="BOTTOM"
+                textStyle={styles.dropdownText}
+                ArrowDownIconComponent={() => (
+                  <ChevronDown size={20} color={theme.colors.onSurface} />
+                )}
+                ArrowUpIconComponent={() => (
+                  <ChevronDown size={20} color={theme.colors.onSurface} />
+                )}
+              />
+            </View>
+
+            <View style={[styles.inputContainer, { zIndex: 500 }]}>
+              <DropDownPicker
+                open={openSubCategories}
+                value={selectedSubCategory}
+                items={subCategories}
+                setOpen={setOpenSubCategories}
+                setValue={setSelectedSubCategory}
+                setItems={setSubCategories}
+                placeholder="Subcategory"
+                dropDownDirection="BOTTOM"
+                style={
+                  selectedCategory
+                    ? styles.dropdown
+                    : { backgroundColor: "#f5f5f5", borderColor: "#e0e0e0" }
+                }
+                textStyle={
+                  selectedCategory ? styles.dropdownText : { color: "#ccc" }
+                }
+                disabled={!selectedCategory}
+                placeholderStyle={
+                  selectedCategory ? styles.dropdownText : { color: "#ccc" }
+                }
+                ArrowDownIconComponent={() => (
+                  <ChevronDown size={20} color={theme.colors.onSurface} />
+                )}
+                ArrowUpIconComponent={() => (
+                  <ChevronDown size={20} color={theme.colors.onSurface} />
+                )}
+              />
+            </View>
 
             {/* Sets */}
             <View style={styles.inputContainer}>
-              <Hash size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <Hash
+                size={20}
+                color={theme.colors.primary}
+                // placeholderStyle={styles.dropdownPlaceholder}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Number of Sets"
-                value={sets}
-                onChangeText={setSets}
+                value={data.sets.toString()}
+                onChangeText={(text) => handleChange("sets", text)}
                 keyboardType="numeric"
                 style={styles.input}
                 mode="outlined"
@@ -191,11 +291,15 @@ export default function CreateExercise() {
 
             {/* Duration */}
             <View style={styles.inputContainer}>
-              <Clock size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <Clock
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Duration"
-                value={duration}
-                onChangeText={setDuration}
+                value={data.duration.toString()}
+                onChangeText={(text) => handleChange("duration", text)}
                 style={styles.input}
                 mode="outlined"
                 placeholder="e.g., 30 seconds, 2 minutes"
@@ -204,50 +308,34 @@ export default function CreateExercise() {
 
             {/* Focus Area */}
             <View style={styles.inputContainer}>
-              <Target size={20} color={theme.colors.primary} style={styles.inputIcon} />
-              <View style={styles.dropdownContainer}>
-                <Text style={styles.inputLabel}>Focus Area</Text>
-                <Menu
-                  visible={menuVisible}
-                  onDismiss={() => setMenuVisible(false)}
-                  anchor={
-                    <TouchableOpacity
-                      style={[styles.dropdown, { borderColor: theme.colors.outline }]}
-                      onPress={() => setMenuVisible(true)}
-                    >
-                      <Text style={[styles.dropdownText, !focusArea && { color: theme.colors.onSurfaceVariant }]}>
-                        {focusArea || "Select focus area"}
-                      </Text>
-                      <ChevronDown size={20} color={theme.colors.onSurfaceVariant} />
-                    </TouchableOpacity>
-                  }
-                >
-                  {focusAreas.map((area) => (
-                    <Menu.Item
-                      key={area}
-                      onPress={() => {
-                        setFocusArea(area)
-                        setMenuVisible(false)
-                      }}
-                      title={area}
-                    />
-                  ))}
-                </Menu>
-                {focusArea && (
-                  <Chip mode="outlined" style={styles.selectedChip}>
-                    {focusArea}
-                  </Chip>
-                )}
-              </View>
+              <FileText
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                label="Focus Area"
+                value={data.focusArea}
+                onChangeText={(text) => handleChange("focusArea", text)}
+                multiline
+                numberOfLines={4}
+                style={styles.textArea}
+                mode="outlined"
+                placeholder="Detailed step-by-step instructions for performing the exercise..."
+              />
             </View>
 
             {/* Instructions */}
             <View style={styles.inputContainer}>
-              <FileText size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <FileText
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Instructions"
-                value={instruction}
-                onChangeText={setInstruction}
+                value={data.instructions}
+                onChangeText={(text) => handleChange("instructions", text)}
                 multiline
                 numberOfLines={4}
                 style={styles.textArea}
@@ -261,8 +349,8 @@ export default function CreateExercise() {
               <Youtube size={20} color="#FF0000" style={styles.inputIcon} />
               <TextInput
                 label="YouTube URL (Optional)"
-                value={youtubeUrl}
-                onChangeText={setYoutubeUrl}
+                value={data.videoUrl}
+                onChangeText={(text) => handleChange("videoUrl", text)}
                 style={styles.input}
                 mode="outlined"
                 placeholder="https://youtube.com/watch?v=..."
@@ -275,16 +363,8 @@ export default function CreateExercise() {
             {/* Action Buttons */}
             <View style={styles.buttonContainer}>
               <Button
-                mode="outlined"
-                onPress={handleReset}
-                style={[styles.button, styles.resetButton]}
-                labelStyle={{ color: theme.colors.error }}
-              >
-                Reset Form
-              </Button>
-              <Button
+                onPress={handleSubmit}
                 mode="contained"
-                onPress={handleSave}
                 style={[styles.button, styles.saveButton]}
                 icon={({ size, color }) => <Plus size={size} color={color} />}
               >
@@ -293,29 +373,9 @@ export default function CreateExercise() {
             </View>
           </Card.Content>
         </Card>
-
-        {/* Preview Section */}
-        {exercises.length > 0 && (
-          <Card style={styles.card}>
-            <Card.Content>
-              <Title style={styles.title}>Recently Created</Title>
-              {exercises.slice(-2).map((exercise) => (
-                <View key={exercise.id} style={styles.exercisePreview}>
-                  <Image source={{ uri: exercise.imageUri }} style={styles.previewThumb} />
-                  <View style={styles.previewContent}>
-                    <Text style={styles.previewName}>{exercise.name}</Text>
-                    <Text style={styles.previewDetails}>
-                      {exercise.sets} sets • {exercise.duration} • {exercise.focusArea}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </Card.Content>
-          </Card>
-        )}
       </ScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -360,106 +420,63 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   inputIcon: {
-    marginRight: 12,
-    marginTop: 16,
+    marginRight: 8,
+    marginTop: 12,
   },
   input: {
     flex: 1,
   },
   textArea: {
     flex: 1,
-    height: 100,
+    minHeight: 80,
   },
   imageSection: {
     flex: 1,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 8,
-    color: "#333",
+    flexDirection: "column",
   },
   imagePicker: {
-    marginBottom: 8,
+    marginTop: 8,
   },
-  previewImage: {
-    width: "100%",
-    height: 150,
-    borderRadius: 8,
-    resizeMode: "cover",
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 4,
   },
   placeholderImage: {
-    width: "100%",
-    height: 150,
+    height: 180,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderStyle: "dashed",
-    borderColor: "#ccc",
   },
-  dropdownContainer: {
-    flex: 1,
+  previewImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 8,
   },
   dropdown: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flex: 1,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 16,
-    backgroundColor: "white",
   },
   dropdownText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  selectedChip: {
-    alignSelf: "flex-start",
-    marginTop: 8,
+    fontSize: 14,
   },
   divider: {
     marginVertical: 20,
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
+    justifyContent: "center",
+    marginTop: 12,
   },
   button: {
-    flex: 1,
-  },
-  resetButton: {
-    borderColor: "#D32F2F",
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
   },
   saveButton: {
     backgroundColor: "#0047AB",
   },
-  exercisePreview: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  previewThumb: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  previewContent: {
-    flex: 1,
-  },
-  previewName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-  },
-  previewDetails: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 2,
-  },
-})
+});

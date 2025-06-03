@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -14,35 +12,22 @@ import {
   DataTable,
   Text,
   Card,
-  Title,
   Divider,
   useTheme,
 } from "react-native-paper";
 import { Plus, Image as ImageIcon, Edit, Trash2 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
+import { Toast } from "toastify-react-native";
+import { addExerciseCategoryResponse, fetchAllCategories  } from "../../../services/user/exercise/Category";
+import { Category } from "../../../types/user/exercise/Category";
+import { API_URL } from "../../../constants/apiUrl";
 
-interface Category {
-  id: string;
-  name: string;
-  imageUri: string;
-}
 
 export default function ExerciseCategoryScreen() {
   const theme = useTheme();
   const [name, setName] = useState("");
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([
-    { id: "1", name: "Cardio", imageUri: "https://via.placeholder.com/50" },
-    { id: "2", name: "Strength", imageUri: "https://via.placeholder.com/50" },
-    {
-      id: "3",
-      name: "Flexibility",
-      imageUri: "https://via.placeholder.com/50",
-    },
-  ]);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -53,165 +38,133 @@ export default function ExerciseCategoryScreen() {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
+      setImage(result.assets[0].uri);
     }
   };
-
-  const handleSave = () => {
-    if (!name.trim()) {
-      alert("Please enter a category name");
-      return;
+  
+  const handleAddCategory = async () => {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (image) {
+      const fileName = image.split("/").pop() || "photo.jpg";
+      const fileType = fileName.split(".").pop();
+      formData.append("image", {
+        uri: image,
+        name: fileName,
+        type: `image/${fileType}`,
+      } as any);
     }
-
-    if (editingId) {
-      // Update existing category
-      setCategories(
-        categories.map((cat) =>
-          cat.id === editingId
-            ? { ...cat, name, imageUri: imageUri || cat.imageUri }
-            : cat
-        )
-      );
-      setEditingId(null);
-    } else {
-      // Add new category
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name,
-        imageUri: imageUri || "https://via.placeholder.com/50",
-      };
-      setCategories([...categories, newCategory]);
-    }
-
-    // Reset form
-    setName("");
-    setImageUri(null);
-  };
-
-  const handleEdit = (category: Category) => {
-    setName(category.name);
-    setImageUri(category.imageUri);
-    setEditingId(category.id);
-  };
-
-  const handleDelete = (id: string) => {
-    setCategories(categories.filter((cat) => cat.id !== id));
-    if (editingId === id) {
+    try {
+      
+      await addExerciseCategoryResponse(formData);
+      Toast.success("Category added successfully!");
       setName("");
-      setImageUri(null);
-      setEditingId(null);
+      setImage(null);
+    } catch (error) {
+      Toast.error("Failed to add category. Please try again.");
     }
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await fetchAllCategories();
+      setCategories(response);
+    };
+    fetchCategories();
+  }, []);
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <StatusBar style="light" />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Exercise category</Text>
-        </View>
+    <ScrollView style={styles.container}>
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text style={styles.title}>Exercise Categories</Text>
 
-        <ScrollView style={styles.container}>
-          <Card style={styles.card}>
-            <Card.Content>
-              <View style={styles.form}>
-                <TextInput
-                  label="Category Name"
-                  value={name}
-                  onChangeText={setName}
-                  style={styles.input}
-                  mode="outlined"
-                />
+          <View style={styles.form}>
+            <TextInput
+              label="Category Name"
+              value={name}
+              onChangeText={setName}
+              style={styles.input}
+              mode="outlined"
+            />
 
-                <TouchableOpacity
-                  onPress={pickImage}
-                  style={styles.imagePicker}
+            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+              {image ? (
+                <Image source={{ uri: image }} style={styles.previewImage} />
+              ) : (
+                <View
+                  style={[
+                    styles.placeholderImage,
+                    { backgroundColor: theme.colors.surfaceVariant },
+                  ]}
                 >
-                  {imageUri ? (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.previewImage}
-                    />
-                  ) : (
-                    <View
-                      style={[
-                        styles.placeholderImage,
-                        { backgroundColor: theme.colors.surfaceVariant },
-                      ]}
+                  <ImageIcon size={24} color={theme.colors.onSurfaceVariant} />
+                  <Text
+                    style={{
+                      color: theme.colors.onSurfaceVariant,
+                      marginTop: 8,
+                    }}
+                  >
+                    Select Image
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <Button
+              onPress={handleAddCategory}
+              mode="contained"
+              style={styles.button}
+              icon={() => <Plus size={18} color="white" />}
+            >
+              Add Category{" "}
+            </Button>
+          </View>
+
+          <Divider style={styles.divider} />
+
+          <Text style={styles.tableTitle}>Categories</Text>
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title style={{ flex: 0.2 }}>Image</DataTable.Title>
+              <DataTable.Title style={{ flex: 0.5 }}>Name</DataTable.Title>
+              <DataTable.Title style={{ flex: 0.3 }}>Actions</DataTable.Title>
+            </DataTable.Header>
+
+            {categories.map((category, index) => (
+              <DataTable.Row key={index}>
+                <DataTable.Cell style={{ flex: 0.2 }}>
+                  <Image
+                    source={{ uri: `${API_URL}/uploads/${category.image}` }}
+                    style={styles.tableImage}
+                  />
+                </DataTable.Cell>
+                <DataTable.Cell style={{ flex: 0.5 }}>
+                  {category.name}
+                </DataTable.Cell>
+                <DataTable.Cell style={{ flex: 0.3 }}>
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                     
+                      style={styles.iconButton}
                     >
-                      <ImageIcon
-                        size={24}
-                        color={theme.colors.onSurfaceVariant}
-                      />
-                      <Text
-                        style={{
-                          color: theme.colors.onSurfaceVariant,
-                          marginTop: 8,
-                        }}
-                      >
-                        Select Image
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+                      <Edit size={18} color={theme.colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      
+                      style={styles.iconButton}
+                    >
+                      <Trash2 size={18} color={theme.colors.error} />
+                    </TouchableOpacity>
+                  </View>
+                </DataTable.Cell>
+              </DataTable.Row>
+            ))}
 
-                <Button
-                  mode="contained"
-                  onPress={handleSave}
-                  style={styles.button}
-                  icon={() => <Plus size={18} color="white" />}
-                >
-                  {editingId ? "Update Category" : "Add Category"}
-                </Button>
-              </View>
-
-              <Divider style={styles.divider} />
-
-              <Title style={styles.tableTitle}>Categories</Title>
-              <DataTable>
-                <DataTable.Header>
-                  <DataTable.Title style={{ flex: 0.2 }}>Image</DataTable.Title>
-                  <DataTable.Title style={{ flex: 0.5 }}>Name</DataTable.Title>
-                  <DataTable.Title style={{ flex: 0.3 }}>
-                    Actions
-                  </DataTable.Title>
-                </DataTable.Header>
-
-                {categories.map((category) => (
-                  <DataTable.Row key={category.id}>
-                    <DataTable.Cell style={{ flex: 0.2 }}>
-                      <Image
-                        source={{ uri: category.imageUri }}
-                        style={styles.tableImage}
-                      />
-                    </DataTable.Cell>
-                    <DataTable.Cell style={{ flex: 0.5 }}>
-                      {category.name}
-                    </DataTable.Cell>
-                    <DataTable.Cell style={{ flex: 0.3 }}>
-                      <View style={styles.actionButtons}>
-                        <TouchableOpacity
-                          onPress={() => handleEdit(category)}
-                          style={styles.iconButton}
-                        >
-                          <Edit size={18} color={theme.colors.primary} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => handleDelete(category.id)}
-                          style={styles.iconButton}
-                        >
-                          <Trash2 size={18} color={theme.colors.error} />
-                        </TouchableOpacity>
-                      </View>
-                    </DataTable.Cell>
-                  </DataTable.Row>
-                ))}
-              </DataTable>
-            </Card.Content>
-          </Card>
-        </ScrollView>
-      </SafeAreaView>
-    </SafeAreaProvider>
+          </DataTable>
+        </Card.Content>
+      </Card>
+    </ScrollView>
   );
 }
 

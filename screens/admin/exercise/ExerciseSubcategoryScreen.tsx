@@ -1,314 +1,341 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, StyleSheet, ScrollView } from "react-native"
+import { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import {
   TextInput,
   Button,
   DataTable,
   Text,
   Card,
-  Title,
-  Divider,
   useTheme,
   Chip,
   IconButton,
-} from "react-native-paper"
-import { Plus, Edit, Trash2, Calendar, FileText, Tag } from "lucide-react-native"
-import { StatusBar } from "expo-status-bar"
+  Surface,
+} from "react-native-paper";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Calendar,
+  FileText,
+  Tag,
+} from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
+import DropDownPicker from "react-native-dropdown-picker";
+import {
+  addExerciseSubcategory,
+  getExerciseSubcategories,
+} from "../../../services/user/exercise/Subcategory";
+import { Toast } from "toastify-react-native";
+import { fetchAllCategories } from "../../../services/user/exercise/Category";
+import { Subcategory } from "../../../types/user/exercise/Subcategory";
 
-interface Subcategory {
-  id: string
-  name: string
-  days: number
-  description: string
-  categoryName: string
-}
+
 
 export default function ExerciseSubcategoryScreen() {
-  const theme = useTheme()
-  const [name, setName] = useState("")
-  const [days, setDays] = useState("")
-  const [description, setDescription] = useState("")
-  const [subcategories, setSubcategories] = useState<Subcategory[]>([
-    {
-      id: "1",
-      name: "Chest & Triceps",
-      days: 2,
-      description: "Focus on upper body strength with chest press and tricep extensions",
-      categoryName: "Strength Training",
-    },
-    {
-      id: "2",
-      name: "Back & Biceps",
-      days: 2,
-      description: "Pull exercises focusing on back muscles and bicep curls",
-      categoryName: "Strength Training",
-    },
-    {
-      id: "3",
-      name: "Legs & Core",
-      days: 2,
-      description: "Lower body workout with squats, lunges and core exercises",
-      categoryName: "Strength Training",
-    },
-    {
-      id: "4",
-      name: "HIIT Cardio",
-      days: 1,
-      description: "High intensity interval training for cardiovascular health",
-      categoryName: "Cardio",
-    },
-  ])
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [page, setPage] = useState<number>(0)
-  const [itemsPerPage] = useState<number>(3)
+  const theme = useTheme();
+  const [name, setName] = useState("");
+  const [dayNumber, setDayNumber] = useState<number>(1);
+  const [description, setDescription] = useState("");
+  const [page, setPage] = useState<number>(0);
+  const [itemsPerPage] = useState<number>(10);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [items, setItems] = useState<{ label: string; value: string }[]>([]);
+  const [open, setOpen] = useState(false);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
-  const handleSave = () => {
-    if (!name.trim()) {
-      alert("Please enter a subcategory name")
-      return
+  const handleAddSubcategory = async () => {
+    setLoading(true);
+    try {
+      await addExerciseSubcategory({
+        name: name.trim(),
+        dayNumber,
+        description: description.trim(),
+        category: selectedCategory,
+      });
+      Toast.success("Subcategory added successfully");
+      setName("");
+      setDayNumber(1);
+      setDescription("");
+      setSelectedCategory("");
+      fetchSubcategories();
+    } catch (error) {
+      Toast.error("Failed to add subcategory");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (!days || isNaN(Number(days)) || Number(days) <= 0) {
-      alert("Please enter a valid number of days")
-      return
+  const fetchCategories = async () => {
+    try {
+      const response = await fetchAllCategories();
+      const dropdownItems = response.map((category) => ({
+        label: category.name,
+        value: category._id,
+      }));
+      setItems(dropdownItems);
+    } catch (error) {
+      Toast.error("Failed to load categories");
     }
+  };
 
-    if (!description.trim()) {
-      alert("Please enter a description")
-      return
+  const fetchSubcategories = async () => {
+    try {
+      const response = await getExerciseSubcategories();
+      
+      setSubcategories(response);
+    } catch (error) {
+      Toast.error("Failed to load subcategories");
     }
+  };
 
-    if (editingId) {
-      // Update existing subcategory
-      setSubcategories(
-        subcategories.map((subcat) =>
-          subcat.id === editingId
-            ? {
-                ...subcat,
-                name,
-                days: Number(days),
-                description,
-              }
-            : subcat,
-        ),
-      )
-      setEditingId(null)
-    } else {
-      // Add new subcategory
-      const newSubcategory: Subcategory = {
-        id: Date.now().toString(),
-        name,
-        days: Number(days),
-        description,
-        categoryName: "New Category", // This would typically come from a dropdown or parent screen
-      }
-      setSubcategories([...subcategories, newSubcategory])
-    }
+  useEffect(() => {
+    fetchCategories();
+    fetchSubcategories();
+  }, []);
 
-    // Reset form
-    setName("")
-    setDays("")
-    setDescription("")
-  }
-
-  const handleEdit = (subcategory: Subcategory) => {
-    setName(subcategory.name)
-    setDays(subcategory.days.toString())
-    setDescription(subcategory.description)
-    setEditingId(subcategory.id)
-  }
-
-  const handleDelete = (id: string) => {
-    setSubcategories(subcategories.filter((subcat) => subcat.id !== id))
-    if (editingId === id) {
-      setName("")
-      setDays("")
-      setDescription("")
-      setEditingId(null)
-    }
-  }
-
-  const from = page * itemsPerPage
-  const to = Math.min((page + 1) * itemsPerPage, subcategories.length)
+  const isFormValid = name.trim() && selectedCategory && dayNumber >= 1;
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <StatusBar style="light" />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Exercise Subcategories</Text>
-      </View>
 
-      <ScrollView style={styles.content}>
-        <Card style={styles.card}>
-          <Card.Content>
-           
+      <Surface style={styles.header} elevation={4}>
+        <Text style={styles.headerTitle}>Exercise Subcategories</Text>
+        <Text style={styles.headerSubtitle}>Manage your workout categories</Text>
+      </Surface>
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Card style={styles.formCard} elevation={2}>
+          <Card.Content style={styles.cardContent}>
+            <Text style={styles.sectionTitle}>Add New Subcategory</Text>
 
             <View style={styles.form}>
-              <View style={styles.inputContainer}>
-                <Tag size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <View style={styles.inputGroup}>
+                <View style={styles.inputHeader}>
+                  <Tag size={18} color={theme.colors.primary} />
+                  <Text style={styles.inputLabel}>Subcategory Name *</Text>
+                </View>
                 <TextInput
-                  label="Subcategory Name"
                   value={name}
                   onChangeText={setName}
                   style={styles.input}
                   mode="outlined"
+                  placeholder="Enter subcategory name"
                 />
               </View>
 
-              <View style={styles.inputContainer}>
-                <Calendar size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <View style={styles.inputGroup}>
+                <View style={styles.inputHeader}>
+                  <Tag size={18} color={theme.colors.primary} />
+                  <Text style={styles.inputLabel}>Category *</Text>
+                </View>
+                <View style={styles.dropdownContainer}>
+                  <DropDownPicker
+                    open={open}
+                    value={selectedCategory}
+                    items={items}
+                    setOpen={setOpen}
+                    setValue={setSelectedCategory}
+                    setItems={setItems}
+                    placeholder="Select a category"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <View style={styles.inputHeader}>
+                  <Calendar size={18} color={theme.colors.primary} />
+                  <Text style={styles.inputLabel}>Number of Days *</Text>
+                </View>
                 <TextInput
-                  label="Number of Days"
-                  value={days}
-                  onChangeText={setDays}
+                  value={dayNumber.toString()}
+                  onChangeText={(text) => {
+                    const num = parseInt(text) || 0;
+                    setDayNumber(Math.max(1, num));
+                  }}
                   keyboardType="numeric"
                   style={styles.input}
                   mode="outlined"
+                  placeholder="1"
                 />
               </View>
 
-              <View style={styles.inputContainer}>
-                <FileText size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <View style={styles.inputGroup}>
+                <View style={styles.inputHeader}>
+                  <FileText size={18} color={theme.colors.primary} />
+                  <Text style={styles.inputLabel}>Description</Text>
+                </View>
                 <TextInput
-                  label="Description"
                   value={description}
                   onChangeText={setDescription}
                   multiline
-                  numberOfLines={3}
-                  style={styles.textArea}
+                  numberOfLines={4}
+                  style={styles.input}
                   mode="outlined"
+                  placeholder="Enter description (optional)"
                 />
               </View>
 
               <Button
+                onPress={handleAddSubcategory}
                 mode="contained"
-                onPress={handleSave}
-                style={styles.button}
+                style={styles.submitButton}
+                disabled={!isFormValid || loading}
+                loading={loading}
                 icon={({ size, color }) => <Plus size={size} color={color} />}
               >
-                {editingId ? "Update Subcategory" : "Add Subcategory"}
+                {loading ? "Adding..." : "Add Subcategory"}
               </Button>
             </View>
+          </Card.Content>
+        </Card>
 
-            <Divider style={styles.divider} />
+        <Card style={styles.listCard} elevation={2}>
+          <Card.Content style={styles.cardContent}>
+            <View style={styles.listHeader}>
+              <Text style={styles.sectionTitle}>Subcategories</Text>
+              <Chip>{subcategories.length}</Chip>
+            </View>
 
-            <Title style={styles.tableTitle}>Subcategories</Title>
-            <DataTable>
-              <DataTable.Header>
-                <DataTable.Title>Name</DataTable.Title>
-                <DataTable.Title numeric>Days</DataTable.Title>
-                <DataTable.Title style={{ flex: 0.8 }}>Actions</DataTable.Title>
-              </DataTable.Header>
-
-              {subcategories.slice(from, to).map((subcategory) => (
-                <DataTable.Row key={subcategory.id}>
-                  <DataTable.Cell>{subcategory.name}</DataTable.Cell>
-                  <DataTable.Cell numeric>
-                    <Chip mode="outlined" style={styles.daysChip}>
-                      {subcategory.days}
-                    </Chip>
-                  </DataTable.Cell>
-               
-                  <DataTable.Cell style={{ flex: 0.8 }}>
-                    <View style={styles.actionButtons}>
-                      <IconButton
-                        icon={({ size, color }) => <Edit size={16} color={theme.colors.primary} />}
-                        size={20}
-                        onPress={() => handleEdit(subcategory)}
-                      />
-                      <IconButton
-                        icon={({ size, color }) => <Trash2 size={16} color={theme.colors.error} />}
-                        size={20}
-                        onPress={() => handleDelete(subcategory.id)}
-                      />
-                    </View>
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
-
-              <DataTable.Pagination
-                page={page}
-                numberOfPages={Math.ceil(subcategories.length / itemsPerPage)}
-                onPageChange={(page) => setPage(page)}
-                label={`${from + 1}-${to} of ${subcategories.length}`}
-                showFastPaginationControls
-              />
-            </DataTable>
+            {subcategories.length === 0 ? (
+              <Text>No subcategories yet</Text>
+            ) : (
+              <DataTable>
+                <DataTable.Header>
+                  <DataTable.Title>Name</DataTable.Title>
+                  <DataTable.Title numeric>Days</DataTable.Title>
+                  <DataTable.Title>Actions</DataTable.Title>
+                </DataTable.Header>
+                {subcategories
+                  .slice(page * itemsPerPage, (page + 1) * itemsPerPage)
+                  .map((sub, index) => (
+                    <DataTable.Row key={index}>
+                      <DataTable.Cell>{sub.name}</DataTable.Cell>
+                      <DataTable.Cell numeric>{sub.dayNumber}</DataTable.Cell>
+                      <DataTable.Cell>
+                        <View style={styles.actionButtons}>
+                          <IconButton
+                            icon={() => <Edit size={18} color={theme.colors.primary} />}
+                            size={20}
+                          />
+                          <IconButton
+                            icon={() => <Trash2 size={18} color="#e74c3c" />}
+                            size={20}
+                          />
+                        </View>
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  ))}
+                {subcategories.length > itemsPerPage && (
+                  <DataTable.Pagination
+                    page={page}
+                    numberOfPages={Math.ceil(subcategories.length / itemsPerPage)}
+                    onPageChange={(newPage) => setPage(newPage)}
+                    label={`${page * itemsPerPage + 1}-${Math.min(
+                      (page + 1) * itemsPerPage,
+                      subcategories.length
+                    )} of ${subcategories.length}`}
+                  />
+                )}
+              </DataTable>
+            )}
           </Card.Content>
         </Card>
       </ScrollView>
-    </View>
-  )
+    </KeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f8f9fa",
   },
   header: {
-    backgroundColor: "#0047AB", // Dark blue header similar to the image
-    paddingVertical: 8,
+    backgroundColor: "#1e40af",
+    paddingVertical: 20,
     paddingHorizontal: 20,
-    elevation: 4,
+    paddingTop: Platform.OS === "ios" ? 50 : 20,
   },
   headerTitle: {
     color: "white",
+    fontSize: 24,
+    fontWeight: "700",
+  },
+  headerSubtitle: {
+    color: "rgba(255, 255, 255, 0.8)",
     fontSize: 14,
-  
-    letterSpacing: 1.5,
+    marginTop: 4,
   },
-  content: {
-    flex: 1,
+  scrollContent: {
     padding: 16,
+    paddingBottom: 32,
   },
-  card: {
+  formCard: {
     marginBottom: 16,
-    elevation: 2,
+    borderRadius: 12,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 16,
+  listCard: {
+    borderRadius: 12,
+  },
+  cardContent: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
   },
   form: {
-    marginBottom: 24,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  inputIcon: {
-    marginRight: 10,
     marginTop: 8,
   },
+  inputGroup: {
+    marginBottom: 12,
+  },
+  inputHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  inputLabel: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: "500",
+  },
   input: {
-    flex: 1,
+    backgroundColor: "#fff",
   },
-  textArea: {
-    flex: 1,
-    height: 80,
+  dropdownContainer: {
+    zIndex: 10,
   },
-  button: {
-    marginTop: 16,
+  submitButton: {
+    marginTop: 12,
+    borderRadius: 8,
   },
-  divider: {
-    marginVertical: 16,
-  },
-  tableTitle: {
-    fontSize: 18,
-    marginBottom: 8,
+  listHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
   },
   actionButtons: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
   },
-  daysChip: {
-    height: 28,
-    alignSelf: "center",
-  },
-})
+});
