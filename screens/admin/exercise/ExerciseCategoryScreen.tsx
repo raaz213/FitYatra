@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -17,16 +15,19 @@ import {
   Divider,
   useTheme,
 } from "react-native-paper";
-import { Plus, Image as ImageIcon} from "lucide-react-native";
+import { Plus, Image as ImageIcon, Edit, Trash2 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Toast } from "toastify-react-native";
-import { addExerciseCategoryResponse } from "../../../services/user/exercise/Category";
+import { addExerciseCategoryResponse, fetchAllCategories  } from "../../../services/user/exercise/Category";
+import { Category } from "../../../types/user/exercise/Category";
+import { API_URL } from "../../../constants/apiUrl";
 
 
 export default function ExerciseCategoryScreen() {
   const theme = useTheme();
   const [name, setName] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -40,26 +41,37 @@ export default function ExerciseCategoryScreen() {
       setImage(result.assets[0].uri);
     }
   };
+  
+  const handleAddCategory = async () => {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (image) {
+      const fileName = image.split("/").pop() || "photo.jpg";
+      const fileType = fileName.split(".").pop();
+      formData.append("image", {
+        uri: image,
+        name: fileName,
+        type: `image/${fileType}`,
+      } as any);
+    }
+    try {
+      
+      await addExerciseCategoryResponse(formData);
+      Toast.success("Category added successfully!");
+      setName("");
+      setImage(null);
+    } catch (error) {
+      Toast.error("Failed to add category. Please try again.");
+    }
+  };
 
-// in your component file
-const handleAddCategory = async () => {
-  const formData = new FormData();
-  formData.append("name", name);
-  if (image) {
-    formData.append("image", image);
-  }
-
-  // Optional: Log all FormData entries
-
-  try {
-    await addExerciseCategoryResponse(formData);
-    Toast.success("Category added successfully!");
-    setName("");
-    setImage(null);
-  } catch (error) {
-    Toast.error("Failed to add category. Please try again.");
-  }
-};
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await fetchAllCategories();
+      setCategories(response);
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <ScrollView style={styles.container}>
@@ -119,11 +131,11 @@ const handleAddCategory = async () => {
               <DataTable.Title style={{ flex: 0.3 }}>Actions</DataTable.Title>
             </DataTable.Header>
 
-            {/* {categories.map((category) => (
-              <DataTable.Row key={category.id}>
+            {categories.map((category, index) => (
+              <DataTable.Row key={index}>
                 <DataTable.Cell style={{ flex: 0.2 }}>
                   <Image
-                    source={{ uri: category.imageUri }}
+                    source={{ uri: `${API_URL}/uploads/${category.image}` }}
                     style={styles.tableImage}
                   />
                 </DataTable.Cell>
@@ -133,13 +145,13 @@ const handleAddCategory = async () => {
                 <DataTable.Cell style={{ flex: 0.3 }}>
                   <View style={styles.actionButtons}>
                     <TouchableOpacity
-                      onPress={() => handleEdit(category)}
+                     
                       style={styles.iconButton}
                     >
                       <Edit size={18} color={theme.colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => handleDelete(category.id)}
+                      
                       style={styles.iconButton}
                     >
                       <Trash2 size={18} color={theme.colors.error} />
@@ -147,7 +159,8 @@ const handleAddCategory = async () => {
                   </View>
                 </DataTable.Cell>
               </DataTable.Row>
-            ))} */}
+            ))}
+
           </DataTable>
         </Card.Content>
       </Card>
@@ -160,6 +173,23 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  header: {
+    backgroundColor: "#0047AB",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    elevation: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  headerTitle: {
+    color: "white",
+    fontSize: 14,
+    opacity: 0.8,
+    marginTop: 4,
+  },
+
   card: {
     marginBottom: 16,
   },

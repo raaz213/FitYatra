@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import {
   DataTable,
@@ -18,161 +16,48 @@ import {
 } from "react-native-paper";
 import { Eye, Edit, Trash2, Search, Plus } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
+import { Toast } from "toastify-react-native";
+import { getAllExercises, getExerciseById } from "../../../services/user/exercise/Exercise";
+import { Exercise } from "../../../types/user/exercise/Exercise";
 
-interface Exercise {
-  id: string;
-  name: string;
-  duration: string;
-  sets: number;
-  focusArea: string;
-  instruction: string;
-  youtubeUrl?: string;
-  imageUri: string;
-}
 
-export default function ViewExercise({navigation}: any) {
+
+export default function ViewExercise({ navigation }: any) {
   const theme = useTheme();
-  const [exercises, setExercises] = useState<Exercise[]>([
-    {
-      id: "1",
-      name: "Push-ups",
-      duration: "30 seconds",
-      sets: 3,
-      focusArea: "Chest",
-      instruction:
-        "Start in plank position, lower body until chest nearly touches floor, push back up.",
-      youtubeUrl: "https://youtube.com/watch?v=example1",
-      imageUri: "https://via.placeholder.com/300x200",
-    },
-    {
-      id: "2",
-      name: "Squats",
-      duration: "45 seconds",
-      sets: 4,
-      focusArea: "Legs",
-      instruction:
-        "Stand with feet shoulder-width apart, lower body as if sitting back into chair, return to standing.",
-      youtubeUrl: "https://youtube.com/watch?v=example2",
-      imageUri: "https://via.placeholder.com/300x200",
-    },
-    {
-      id: "3",
-      name: "Plank",
-      duration: "60 seconds",
-      sets: 3,
-      focusArea: "Core",
-      instruction:
-        "Hold body in straight line from head to heels, engage core muscles throughout.",
-      imageUri: "https://via.placeholder.com/300x200",
-    },
-    {
-      id: "4",
-      name: "Burpees",
-      duration: "20 seconds",
-      sets: 3,
-      focusArea: "Full Body",
-      instruction:
-        "Start standing, drop to squat, jump back to plank, do push-up, jump feet to squat, jump up.",
-      youtubeUrl: "https://youtube.com/watch?v=example4",
-      imageUri: "https://via.placeholder.com/300x200",
-    },
-    {
-      id: "5",
-      name: "Mountain Climbers",
-      duration: "30 seconds",
-      sets: 3,
-      focusArea: "Cardio",
-      instruction:
-        "Start in plank position, alternate bringing knees to chest in running motion.",
-      imageUri: "https://via.placeholder.com/300x200",
-    },
-  ]);
 
-  const [page, setPage] = useState<number>(0);
-  const [itemsPerPage] = useState<number>(5);
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
-    null
-  );
+  // const [page, setPage] = useState<number>(0);
+  // const [itemsPerPage] = useState<number>(5);
+  
   const [detailsVisible, setDetailsVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredExercises, setFilteredExercises] =
-    useState<Exercise[]>(exercises);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
-  // Filter exercises based on search query
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim() === "") {
-      setFilteredExercises(exercises);
-    } else {
-      const filtered = exercises.filter(
-        (exercise) =>
-          exercise.name.toLowerCase().includes(query.toLowerCase()) ||
-          exercise.focusArea.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredExercises(filtered);
-    }
-    setPage(0); // Reset to first page when searching
-  };
   const handleAddExercise = () => {
     navigation.navigate("CreateExercise");
   };
 
-  const handleViewDetails = (exercise: Exercise) => {
-    setSelectedExercise(exercise);
+  const fetchAllExercises = async () => {
+    try{
+      const response = await getAllExercises();
+      setExercises(response);
+    }catch(error){
+      Toast.error('Error fetch in exercises');
+    }
+  }
+
+  useEffect(() => {
+    fetchAllExercises();
+  }, [])
+
+
+  const handleViewDetails = async (exerciseId: string) => {
     setDetailsVisible(true);
-  };
-
-  const handleEdit = (exercise: Exercise) => {
-    Alert.alert(
-      "Edit Exercise",
-      `Edit functionality for "${exercise.name}" would be implemented here.`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Edit",
-          onPress: () => {
-            // Navigate to edit screen or show edit modal
-            console.log("Edit exercise:", exercise.id);
-          },
-        },
-      ]
-    );
-  };
-
-  const handleDelete = (exercise: Exercise) => {
-    Alert.alert(
-      "Delete Exercise",
-      `Are you sure you want to delete "${exercise.name}"?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            const updatedExercises = exercises.filter(
-              (ex) => ex.id !== exercise.id
-            );
-            setExercises(updatedExercises);
-            setFilteredExercises(
-              updatedExercises.filter((ex) =>
-                ex.name.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-            );
-            Alert.alert("Success", "Exercise deleted successfully!");
-          },
-        },
-      ]
-    );
-  };
-
-  const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, filteredExercises.length);
+   const response = await getExerciseById(exerciseId)
+   
+   setSelectedExercise(response);
+  }
+  // const from = page * itemsPerPage;
+  // const to = Math.min((page + 1) * itemsPerPage, exercises.length);
 
   return (
     <View style={styles.container}>
@@ -185,8 +70,7 @@ export default function ViewExercise({navigation}: any) {
             <View style={styles.searchContainer}>
               <Searchbar
                 placeholder="Search exercises..."
-                onChangeText={handleSearch}
-                value={searchQuery}
+                value={""}
                 style={styles.searchbar}
                 icon={({ size, color }) => <Search size={size} color={color} />}
               />
@@ -199,7 +83,7 @@ export default function ViewExercise({navigation}: any) {
                 Add
               </Button>
             </View>
-            <View style={styles.statsContainer}>
+            {/* <View style={styles.statsContainer}>
               <Text style={styles.statsText}>
                 Total Exercises: {exercises.length}
               </Text>
@@ -207,7 +91,7 @@ export default function ViewExercise({navigation}: any) {
                 Showing: {filteredExercises.length}{" "}
                 {filteredExercises.length === 1 ? "exercise" : "exercises"}
               </Text>
-            </View>
+            </View> */}
           </Card.Content>
         </Card>
 
@@ -221,69 +105,51 @@ export default function ViewExercise({navigation}: any) {
                 <DataTable.Title style={{ flex: 1 }}>Sets</DataTable.Title>
                 <DataTable.Title style={{ flex: 2 }}>Actions</DataTable.Title>
               </DataTable.Header>
+              {exercises.map((exercise, index) => (
+               <DataTable.Row key={index}>
+                <DataTable.Cell style={{ flex: 2 }}>
+                  <View>
+                    <Text style={styles.exerciseName}>{exercise.name}</Text>
+                  </View>
+                </DataTable.Cell>
+                <DataTable.Cell style={{ flex: 1 }}>
+                  <Text style={styles.setsText}>{exercise.sets} sets</Text>
+                </DataTable.Cell>
+                <DataTable.Cell style={{ flex: 2 }}>
+                  <View style={styles.actionButtons}>
+                    <IconButton
+                      icon={({ size, color }) => (
+                        <Eye size={16} color={theme.colors.primary} />
+                      )}
+                      size={20}
+                      onPress={() => handleViewDetails(exercise._id)}
+                      style={styles.actionButton}
+                    />
+                    <IconButton
+                      icon={({ size, color }) => (
+                        <Edit size={16} color={theme.colors.secondary} />
+                      )}
+                      size={20}
+                      style={styles.actionButton}
+                    />
+                    <IconButton
+                      icon={({ size, color }) => (
+                        <Trash2 size={16} color={theme.colors.error} />
+                      )}
+                      size={20}
+                      style={styles.actionButton}
+                    />
+                  </View>
+                </DataTable.Cell>
+              </DataTable.Row>
 
-              {filteredExercises.slice(from, to).map((exercise) => (
-                <DataTable.Row key={exercise.id}>
-                  <DataTable.Cell style={{ flex: 2 }}>
-                    <View>
-                      <Text style={styles.exerciseName}>{exercise.name}</Text>
-                      {/* <Chip mode="outlined" style={styles.focusChip} compact>
-                        {exercise.focusArea}
-                      </Chip> */}
-                    </View>
-                  </DataTable.Cell>
-                  <DataTable.Cell style={{ flex: 1 }}>
-                    {/* <Text style={styles.durationText}>{exercise.duration}</Text> */}
-                    <Text style={styles.setsText}>{exercise.sets} sets</Text>
-                  </DataTable.Cell>
-                  <DataTable.Cell style={{ flex: 2 }}>
-                    <View style={styles.actionButtons}>
-                      <IconButton
-                        icon={({ size, color }) => (
-                          <Eye size={16} color={theme.colors.primary} />
-                        )}
-                        size={20}
-                        onPress={() => handleViewDetails(exercise)}
-                        style={styles.actionButton}
-                      />
-                      <IconButton
-                        icon={({ size, color }) => (
-                          <Edit size={16} color={theme.colors.secondary} />
-                        )}
-                        size={20}
-                        onPress={() => handleEdit(exercise)}
-                        style={styles.actionButton}
-                      />
-                      <IconButton
-                        icon={({ size, color }) => (
-                          <Trash2 size={16} color={theme.colors.error} />
-                        )}
-                        size={20}
-                        onPress={() => handleDelete(exercise)}
-                        style={styles.actionButton}
-                      />
-                    </View>
-                  </DataTable.Cell>
-                </DataTable.Row>
               ))}
-
-              {filteredExercises.length === 0 && (
-                <DataTable.Row>
-                  <DataTable.Cell style={{ flex: 1, justifyContent: "center" }}>
-                    <Text style={styles.noDataText}>No exercises found</Text>
-                  </DataTable.Cell>
-                </DataTable.Row>
-              )}
-
-              <DataTable.Pagination
-                page={page}
-                numberOfPages={Math.ceil(
-                  filteredExercises.length / itemsPerPage
-                )}
-                onPageChange={(page) => setPage(page)}
-                label={`${from + 1}-${to} of ${filteredExercises.length}`}
-                showFastPaginationControls
-              />
+             
+              <DataTable.Row>
+                <DataTable.Cell style={{ flex: 1, justifyContent: "center" }}>
+                  <Text style={styles.noDataText}>No exercises found</Text>
+                </DataTable.Cell>
+              </DataTable.Row>
             </DataTable>
           </Card.Content>
         </Card>
@@ -323,15 +189,15 @@ export default function ViewExercise({navigation}: any) {
               <View style={styles.detailSection}>
                 <Text style={styles.detailLabel}>Instructions:</Text>
                 <Text style={styles.instructionText}>
-                  {selectedExercise.instruction}
+                  {selectedExercise.instructions}
                 </Text>
               </View>
 
-              {selectedExercise.youtubeUrl && (
+              {selectedExercise.videoUrl && (
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>YouTube URL:</Text>
                   <Text style={styles.urlText} numberOfLines={1}>
-                    {selectedExercise.youtubeUrl}
+                    {selectedExercise.videoUrl}
                   </Text>
                 </View>
               )}
@@ -348,7 +214,6 @@ export default function ViewExercise({navigation}: any) {
                   mode="contained"
                   onPress={() => {
                     setDetailsVisible(false);
-                    handleEdit(selectedExercise);
                   }}
                   style={styles.modalButton}
                   icon={({ size, color }) => <Edit size={size} color={color} />}

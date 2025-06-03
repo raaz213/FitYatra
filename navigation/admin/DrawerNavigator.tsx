@@ -13,6 +13,7 @@ import ExerciseCategoryScreen from "../../screens/admin/exercise/ExerciseCategor
 import ExerciseSubcategoryScreen from "../../screens/admin/exercise/ExerciseSubcategoryScreen";
 import NutritionCategoryScreen from "../../screens/admin/nutrition/NutritionCategoryScreen";
 import NutritionSubcategoryScreen from "../../screens/admin/nutrition/NutritionSubcategoryScreen";
+import { window } from "../../constants/sizes";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -194,7 +195,9 @@ const styles = StyleSheet.create({
   },
   drawerHeader: {
     padding: 20,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#06407a',
+    borderRadius: 10,
+ 
     marginBottom: 10,
   },
   appTitle: {
@@ -202,10 +205,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     letterSpacing: 2,
+    textAlign: 'center'
   },
   menuContainer: {
     flex: 1,
-    paddingHorizontal: 10,
+  
   },
   menuItem: {
     flexDirection: 'row',
@@ -231,7 +235,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   submenuContainer: {
-    marginLeft: 20,
+   
     marginTop: 5,
     marginBottom: 10,
   },

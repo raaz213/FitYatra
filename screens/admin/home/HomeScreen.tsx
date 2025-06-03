@@ -1,29 +1,48 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, StyleSheet, ScrollView, Dimensions } from "react-native"
-import { Card, Title, Text, useTheme, Chip, IconButton } from "react-native-paper"
-import { BarChart, LineChart, PieChart, ProgressChart } from "react-native-chart-kit"
-import { TrendingUp, Users, Dumbbell, Apple, Activity, RefreshCw } from "lucide-react-native"
-import { StatusBar } from "expo-status-bar"
+import { useState } from "react";
+import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
+import {
+  Card,
+  Title,
+  Text,
+  useTheme,
+  Chip,
+  IconButton,
+} from "react-native-paper";
+import {
+  BarChart,
+  LineChart,
+  PieChart,
+  ProgressChart,
+} from "react-native-chart-kit";
+import {
+  TrendingUp,
+  Users,
+  Dumbbell,
+  Apple,
+  Activity,
+  RefreshCw,
+} from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
 
-const screenWidth = Dimensions.get("window").width
+const screenWidth = Dimensions.get("window").width;
 
 interface DashboardStats {
-  totalExercises: number
-  totalNutrition: number
-  activeUsers: number
-  weeklyGrowth: number
-  monthlyGrowth: number
-  popularCategories: { name: string; count: number; color: string }[]
-  exercisesByCategory: { name: string; count: number }[]
-  nutritionByType: { name: string; count: number }[]
-  weeklyActivity: number[]
-  userEngagement: number
+  totalExercises: number;
+  totalNutrition: number;
+  activeUsers: number;
+  weeklyGrowth: number;
+  monthlyGrowth: number;
+  popularCategories: { name: string; count: number; color: string }[];
+  exercisesByCategory: { name: string; count: number }[];
+  nutritionByType: { name: string; count: number }[];
+  weeklyActivity: number[];
+  userEngagement: number;
 }
 
 export default function HomeScreen() {
-  const theme = useTheme()
+  const theme = useTheme();
   const [stats, setStats] = useState<DashboardStats>({
     totalExercises: 156,
     totalNutrition: 89,
@@ -53,17 +72,17 @@ export default function HomeScreen() {
     ],
     weeklyActivity: [65, 78, 82, 95, 88, 92, 105],
     userEngagement: 0.78,
-  })
+  });
 
-  const [refreshing, setRefreshing] = useState(false)
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = () => {
-    setRefreshing(true)
+    setRefreshing(true);
     // Simulate API call
     setTimeout(() => {
-      setRefreshing(false)
-    }, 1000)
-  }
+      setRefreshing(false);
+    }, 1000);
+  };
 
   const chartConfig = {
     backgroundColor: "#ffffff",
@@ -80,7 +99,7 @@ export default function HomeScreen() {
       strokeWidth: "2",
       stroke: "#0047AB",
     },
-  }
+  };
 
   const pieData = stats.popularCategories.map((category) => ({
     name: category.name,
@@ -88,7 +107,7 @@ export default function HomeScreen() {
     color: category.color,
     legendFontColor: "#7F7F7F",
     legendFontSize: 12,
-  }))
+  }));
 
   const barData = {
     labels: stats.exercisesByCategory.map((item) => item.name),
@@ -97,7 +116,7 @@ export default function HomeScreen() {
         data: stats.exercisesByCategory.map((item) => item.count),
       },
     ],
-  }
+  };
 
   const lineData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -108,27 +127,18 @@ export default function HomeScreen() {
         strokeWidth: 2,
       },
     ],
-  }
+  };
 
   const progressData = {
     labels: ["Exercises", "Nutrition", "Users", "Engagement"],
     data: [0.8, 0.6, 0.9, stats.userEngagement],
-  }
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>FitYatra</Text>
-          <Text style={styles.headerSubtitle}>Admin Dashboard</Text>
-        </View>
-        <IconButton
-          icon={({ size, color }) => <RefreshCw size={size} color="white" />}
-          size={24}
-          onPress={handleRefresh}
-          style={[styles.refreshButton, refreshing && styles.refreshing]}
-        />
+        <Text style={styles.headerTitle}>Admin Dashboard</Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -171,7 +181,9 @@ export default function HomeScreen() {
                   <Text style={styles.trendText}>+15.2%</Text>
                 </View>
               </View>
-              <Text style={styles.metricValue}>{stats.activeUsers.toLocaleString()}</Text>
+              <Text style={styles.metricValue}>
+                {stats.activeUsers.toLocaleString()}
+              </Text>
               <Text style={styles.metricLabel}>Active Users</Text>
             </Card.Content>
           </Card>
@@ -185,7 +197,9 @@ export default function HomeScreen() {
                   <Text style={styles.trendText}>+5.8%</Text>
                 </View>
               </View>
-              <Text style={styles.metricValue}>{Math.round(stats.userEngagement * 100)}%</Text>
+              <Text style={styles.metricValue}>
+                {Math.round(stats.userEngagement * 100)}%
+              </Text>
               <Text style={styles.metricLabel}>Engagement Rate</Text>
             </Card.Content>
           </Card>
@@ -293,7 +307,12 @@ export default function HomeScreen() {
             <View style={styles.nutritionGrid}>
               {stats.nutritionByType.map((item, index) => (
                 <View key={index} style={styles.nutritionItem}>
-                  <View style={[styles.nutritionIcon, { backgroundColor: pieData[index]?.color || "#ccc" }]}>
+                  <View
+                    style={[
+                      styles.nutritionIcon,
+                      { backgroundColor: pieData[index]?.color || "#ccc" },
+                    ]}
+                  >
                     <Apple size={20} color="white" />
                   </View>
                   <Text style={styles.nutritionName}>{item.name}</Text>
@@ -305,7 +324,7 @@ export default function HomeScreen() {
         </Card>
       </ScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -315,31 +334,21 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#0047AB",
-    paddingVertical: 16,
+    paddingVertical: 8,
     paddingHorizontal: 20,
     elevation: 4,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+
   headerTitle: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-    letterSpacing: 2,
-  },
-  headerSubtitle: {
     color: "white",
     fontSize: 14,
     opacity: 0.8,
     marginTop: 4,
   },
-  refreshButton: {
-    margin: 0,
-  },
-  refreshing: {
-    transform: [{ rotate: "180deg" }],
-  },
+
   content: {
     flex: 1,
     padding: 16,
@@ -451,4 +460,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#0047AB",
   },
-})
+});
