@@ -7,8 +7,8 @@ import AdminLayoutScreen from "./screens/admin/AdminLayoutScreen";
 const App = () => {
   return (
     <PaperProvider>
-      <UserLayoutScreen />
-      {/* <AdminLayoutScreen /> */}
+      {/* <UserLayoutScreen /> */}
+      <AdminLayoutScreen />
     </PaperProvider>
   );
 };

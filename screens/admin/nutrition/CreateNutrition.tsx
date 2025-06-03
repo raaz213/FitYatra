@@ -1,183 +1,227 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { View, StyleSheet, ScrollView, Alert } from "react-native"
-import { TextInput, Button, Text, Card, Title, useTheme, Divider, Chip } from "react-native-paper"
-import { Plus, Apple, Hash, Zap, Star, FileText } from "lucide-react-native"
-import { StatusBar } from "expo-status-bar"
-
-interface NutritionItem {
-  id: string
-  name: string
-  totalIntake: number
-  proteinPer1g: number
-  carbsPer1g: number
-  fatsPer1g: number
-  features: string[]
-  keyBenefits: string
-  // Calculated values
-  totalProtein: number
-  totalCarbs: number
-  totalFats: number
-  totalCalories: number
-  proteinPercentage: number
-  carbsPercentage: number
-  fatsPercentage: number
-  createdAt: string
-}
+import { useState, useEffect } from "react";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import {
+  TextInput,
+  Button,
+  Text,
+  Card,
+  Title,
+  useTheme,
+  Divider,
+  Chip,
+} from "react-native-paper";
+import {
+  Plus,
+  Apple,
+  Hash,
+  Zap,
+  Star,
+  FileText,
+  ImageIcon,
+  Tag,
+} from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
+import { TouchableOpacity } from "react-native";
+import { Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import DropDownPicker from "react-native-dropdown-picker";
+import { fetchNutritionCategories } from "../../../services/user/nutrition/Category";
+import {
+  fetchNutritionSubcategories,
+  fetchNutritionSubcategoriesByCategory,
+} from "../../../services/user/nutrition/Subcategory";
+import { addNutritionDiet } from "../../../services/user/nutrition/Diet";
+import { Toast } from "toastify-react-native";
 
 export default function CreateNutrition() {
-  const theme = useTheme()
-  const [name, setName] = useState("")
-  const [totalIntake, setTotalIntake] = useState("")
-  const [proteinPer1g, setProteinPer1g] = useState("")
-  const [carbsPer1g, setCarbsPer1g] = useState("")
-  const [fatsPer1g, setFatsPer1g] = useState("")
-  const [feature1, setFeature1] = useState("")
-  const [feature2, setFeature2] = useState("")
-  const [keyBenefits, setKeyBenefits] = useState("")
-  const [nutritionItems, setNutritionItems] = useState<NutritionItem[]>([])
+  const theme = useTheme();
+  const [image, setImage] = useState<string | null>(null);
+  const [openCategory, setOpenCategory] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categoryItems, setCategoryItems] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [openSubcategory, setOpenSubcategory] = useState(false);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
+    null
+  );
+  const [subcategoryItems, setSubcategoryItems] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [dietFormData, setDietFormData] = useState<{
+    name: string;
+    totalIntake: number;
+    proteinPer1g: number;
+    carbsPer1g: number;
+    fatsPer1g: number;
+    feature1: string;
+    feature2: string;
+    benefits: string;
+    category: string;
+    subcategory: string;
+    image: string | null;
+  }>({
+    name: "",
+    totalIntake: 0,
+    proteinPer1g: 0,
+    carbsPer1g: 0,
+    fatsPer1g: 0,
+    feature1: "",
+    feature2: "",
+    benefits: "",
+    category: "",
+    subcategory: "",
+    image: null,
+  });
 
-  // Calculated values
-  const [calculations, setCalculations] = useState({
-    totalProtein: 0,
-    totalCarbs: 0,
-    totalFats: 0,
-    totalCalories: 0,
-    proteinPercentage: 0,
-    carbsPercentage: 0,
-    fatsPercentage: 0,
-  })
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
 
-  // Calculate macronutrients and calories whenever inputs change
-  useEffect(() => {
-    const intake = Number.parseFloat(totalIntake) || 0
-    const protein = Number.parseFloat(proteinPer1g) || 0
-    const carbs = Number.parseFloat(carbsPer1g) || 0
-    const fats = Number.parseFloat(fatsPer1g) || 0
-
-    const totalProtein = intake * protein
-    const totalCarbs = intake * carbs
-    const totalFats = intake * fats
-
-    // Calculate calories (Protein: 4 cal/g, Carbs: 4 cal/g, Fats: 9 cal/g)
-    const totalCalories = totalProtein * 4 + totalCarbs * 4 + totalFats * 9
-
-    // Calculate percentages
-    const proteinCalories = totalProtein * 4
-    const carbsCalories = totalCarbs * 4
-    const fatsCalories = totalFats * 9
-
-    const proteinPercentage = totalCalories > 0 ? (proteinCalories / totalCalories) * 100 : 0
-    const carbsPercentage = totalCalories > 0 ? (carbsCalories / totalCalories) * 100 : 0
-    const fatsPercentage = totalCalories > 0 ? (fatsCalories / totalCalories) * 100 : 0
-
-    setCalculations({
-      totalProtein: Math.round(totalProtein * 100) / 100,
-      totalCarbs: Math.round(totalCarbs * 100) / 100,
-      totalFats: Math.round(totalFats * 100) / 100,
-      totalCalories: Math.round(totalCalories * 100) / 100,
-      proteinPercentage: Math.round(proteinPercentage * 10) / 10,
-      carbsPercentage: Math.round(carbsPercentage * 10) / 10,
-      fatsPercentage: Math.round(fatsPercentage * 10) / 10,
-    })
-  }, [totalIntake, proteinPer1g, carbsPer1g, fatsPer1g])
-
-  const validateForm = () => {
-    if (!name.trim()) {
-      Alert.alert("Validation Error", "Please enter nutrition name")
-      return false
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
     }
-    if (!totalIntake || isNaN(Number(totalIntake)) || Number(totalIntake) <= 0) {
-      Alert.alert("Validation Error", "Please enter a valid total intake amount")
-      return false
-    }
-    if (!proteinPer1g || isNaN(Number(proteinPer1g)) || Number(proteinPer1g) < 0) {
-      Alert.alert("Validation Error", "Please enter a valid protein amount per 1g")
-      return false
-    }
-    if (!carbsPer1g || isNaN(Number(carbsPer1g)) || Number(carbsPer1g) < 0) {
-      Alert.alert("Validation Error", "Please enter a valid carbs amount per 1g")
-      return false
-    }
-    if (!fatsPer1g || isNaN(Number(fatsPer1g)) || Number(fatsPer1g) < 0) {
-      Alert.alert("Validation Error", "Please enter a valid fats amount per 1g")
-      return false
-    }
-    if (!feature1.trim() || !feature2.trim()) {
-      Alert.alert("Validation Error", "Please enter both features")
-      return false
-    }
-    if (!keyBenefits.trim()) {
-      Alert.alert("Validation Error", "Please enter key benefits")
-      return false
-    }
-
-    // Validate that macronutrients don't exceed 1g per 1g
-    const totalMacros = Number(proteinPer1g) + Number(carbsPer1g) + Number(fatsPer1g)
-    if (totalMacros > 1) {
-      Alert.alert(
-        "Validation Error",
-        "The sum of protein, carbs, and fats per 1g cannot exceed 1g. Please adjust the values.",
-      )
-      return false
-    }
-
-    return true
-  }
-
-  const handleSave = () => {
-    if (!validateForm()) return
-
-    const newNutritionItem: NutritionItem = {
-      id: Date.now().toString(),
-      name,
-      totalIntake: Number(totalIntake),
-      proteinPer1g: Number(proteinPer1g),
-      carbsPer1g: Number(carbsPer1g),
-      fatsPer1g: Number(fatsPer1g),
-      features: [feature1.trim(), feature2.trim()],
-      keyBenefits,
-      ...calculations,
-      createdAt: new Date().toISOString().split("T")[0],
-    }
-
-    setNutritionItems([...nutritionItems, newNutritionItem])
-
-    Alert.alert("Success", "Nutrition item created successfully!", [
-      {
-        text: "OK",
-        onPress: () => console.log("Nutrition saved:", newNutritionItem),
-      },
-    ])
-
-    // Reset form
-    handleReset()
-  }
-
-  const handleReset = () => {
-    setName("")
-    setTotalIntake("")
-    setProteinPer1g("")
-    setCarbsPer1g("")
-    setFatsPer1g("")
-    setFeature1("")
-    setFeature2("")
-    setKeyBenefits("")
-  }
+  };
 
   const getMacroColor = (macro: string) => {
     switch (macro) {
       case "protein":
-        return "#FF6B6B"
+        return "#FF6B6B";
       case "carbs":
-        return "#4ECDC4"
+        return "#4ECDC4";
       case "fats":
-        return "#45B7D1"
+        return "#45B7D1";
       default:
-        return "#95A5A6"
+        return "#95A5A6";
     }
-  }
+  };
+  const handleChange = (field: string, value: string) => {
+    setDietFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+
+  const calcProtein = (): {
+    proteinPercentage: number;
+    proteinAmount: number;
+  } => {
+    const { proteinPer1g, totalIntake } = dietFormData;
+    if (totalIntake === 0) return { proteinPercentage: 0, proteinAmount: 0 };
+    const proteinAmount = proteinPer1g * totalIntake;
+    const proteinPercentage = (proteinAmount / totalIntake) * 100;
+    return { proteinPercentage, proteinAmount };
+  };
+  const calcCarbs = (): { carbsPercentage: number; carbsAmount: number } => {
+    const { carbsPer1g, totalIntake } = dietFormData;
+    if (totalIntake === 0) return { carbsPercentage: 0, carbsAmount: 0 };
+    const carbsAmount = carbsPer1g * totalIntake;
+    const carbsPercentage = (carbsAmount / totalIntake) * 100;
+    return { carbsPercentage, carbsAmount };
+  };
+  const calcFats = (): { fatsPercentage: number; fatsAmount: number } => {
+    const { fatsPer1g, totalIntake } = dietFormData;
+    if (totalIntake === 0) return { fatsPercentage: 0, fatsAmount: 0 };
+    const fatsAmount = fatsPer1g * totalIntake;
+    const fatsPercentage = (fatsAmount / totalIntake) * 100;
+    return { fatsPercentage, fatsAmount };
+  };
+  const totalCalories = (): number => {
+    const { proteinAmount } = calcProtein();
+    const { carbsAmount } = calcCarbs();
+    const { fatsAmount } = calcFats();
+    return Math.round(proteinAmount * 4 + carbsAmount * 4 + fatsAmount * 9);
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetchNutritionCategories();
+      const dropDownCategoryItems = response.map((category) => ({
+        label: category.name,
+        value: category._id,
+      }));
+      setCategoryItems(dropDownCategoryItems);
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  };
+  const fetchSubCategoriesByCategory = async () => {
+    try {
+      const response = await fetchNutritionSubcategoriesByCategory(
+        selectedCategory!
+      );
+      const dropDownSubCategoryItems = response.map((subCategory) => ({
+        label: subCategory.name,
+        value: subCategory._id,
+      }));
+      setSubcategoryItems(dropDownSubCategoryItems);
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  };
+  useEffect(() => {
+    fetchCategories();
+    if (selectedCategory) {
+      fetchSubCategoriesByCategory();
+    }
+  }, [selectedCategory]);
+
+  const handleSave = async () => {
+    const formData = new FormData();
+    formData.append("name", dietFormData.name);
+    formData.append("intake", dietFormData.totalIntake.toString());
+    formData.append(
+      "macronutrient",
+      JSON.stringify({
+        protein: dietFormData.proteinPer1g * dietFormData.totalIntake,
+        carbohydrates: dietFormData.carbsPer1g * dietFormData.totalIntake,
+        fats: dietFormData.fatsPer1g * dietFormData.totalIntake,
+      })
+    );
+    formData.append("features", [dietFormData.feature1, dietFormData.feature2].join(", "));
+    formData.append("benefits", dietFormData.benefits);
+    formData.append("subcategory", selectedSubcategory!);
+    if (image) {
+      formData.append("image", {
+        uri: image,
+        name: image.split("/").pop() || "image.jpg",
+        type: `image/${image.split(".").pop()}`,
+      } as any);
+    }
+    try {
+      await addNutritionDiet(formData);
+      Toast.success("Nutrition created successfully!");
+      setDietFormData({
+        name: "",
+        totalIntake: 0,
+        proteinPer1g: 0,
+        carbsPer1g: 0,
+        fatsPer1g: 0,
+        feature1: "",
+        feature2: "",
+        benefits: "",
+        category: "",
+        subcategory: "",
+        image: null,
+      });
+      setImage(null);
+      setSelectedCategory(null);
+      setSelectedSubcategory(null);
+      setCategoryItems([]);
+      setSubcategoryItems([]);
+    } catch (error: any) {
+      Toast.error(`Error: ${error.message}`);
+    }
+  };
+  const { proteinPercentage, proteinAmount } = calcProtein();
+  const { carbsPercentage, carbsAmount } = calcCarbs();
+  const { fatsPercentage, fatsAmount } = calcFats();
 
   return (
     <View style={styles.container}>
@@ -191,28 +235,116 @@ export default function CreateNutrition() {
         {/* Basic Information */}
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.title}>Basic Information</Title>
-
+            <Text style={styles.title}>Basic Information</Text>
+            <View style={[styles.inputContainer, { zIndex: 1000 }]}>
+              <Tag
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
+              <DropDownPicker
+                open={openCategory}
+                value={selectedCategory}
+                items={categoryItems}
+                setOpen={setOpenCategory}
+                setValue={setSelectedCategory}
+                setItems={setCategoryItems}
+                placeholder="Select a category"
+                style={{ width: "90%" }}
+                dropDownContainerStyle={{ width: "90%" }}
+                dropDownDirection="BOTTOM"
+              />
+            </View>
+            <View style={[styles.inputContainer, { zIndex: 500 }]}>
+              <Tag
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
+              <DropDownPicker
+                open={openSubcategory}
+                value={selectedSubcategory}
+                items={subcategoryItems}
+                setOpen={setOpenSubcategory}
+                setValue={setSelectedSubcategory}
+                setItems={setSubcategoryItems}
+                placeholder="Select a subcategory"
+                style={{ width: "90%" }}
+                dropDownContainerStyle={{ width: "90%" }}
+                dropDownDirection="BOTTOM"
+              />
+            </View>
             {/* Nutrition Name */}
             <View style={styles.inputContainer}>
-              <Apple size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <Apple
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Nutrition Name"
-                value={name}
-                onChangeText={setName}
+                value={dietFormData.name}
+                onChangeText={(text) => handleChange("name", text)}
                 style={styles.input}
                 mode="outlined"
                 placeholder="e.g., Chicken Breast, Brown Rice"
               />
             </View>
 
+            {/* Image Picker */}
+            <View style={styles.inputContainer}>
+              <ImageIcon
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
+              <View style={styles.imageSection}>
+                <Text style={styles.inputLabel}>Nutrition Image</Text>
+                <TouchableOpacity
+                  onPress={pickImage}
+                  style={styles.imagePicker}
+                >
+                  {image ? (
+                    <Image
+                      source={{ uri: image }}
+                      style={styles.previewImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.placeholderImage,
+                        { backgroundColor: theme.colors.surfaceVariant },
+                      ]}
+                    >
+                      <ImageIcon
+                        size={32}
+                        color={theme.colors.onSurfaceVariant}
+                      />
+                      <Text
+                        style={{
+                          color: theme.colors.onSurfaceVariant,
+                          marginTop: 8,
+                        }}
+                      >
+                        Tap to select image
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {/* Total Intake */}
             <View style={styles.inputContainer}>
-              <Hash size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <Hash
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Total Intake (grams)"
-                value={totalIntake}
-                onChangeText={setTotalIntake}
+                value={dietFormData.totalIntake.toString()}
+                onChangeText={(text) => handleChange("totalIntake", text)}
                 keyboardType="numeric"
                 style={styles.input}
                 mode="outlined"
@@ -225,18 +357,27 @@ export default function CreateNutrition() {
         {/* Macronutrient Composition */}
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.title}>Macronutrient Composition (per 1g)</Title>
-            <Text style={styles.subtitle}>Enter the amount of each macronutrient in 1 gram of this food</Text>
+            <Title style={styles.title}>
+              Macronutrient Composition (per 1g)
+            </Title>
+            <Text style={styles.subtitle}>
+              Enter the amount of each macronutrient in 1 gram of this food
+            </Text>
 
             {/* Protein per 1g */}
             <View style={styles.inputContainer}>
-              <View style={[styles.macroIcon, { backgroundColor: getMacroColor("protein") }]}>
-                <Text style={styles.macroIconText}>P</Text>
+              <View
+                style={[
+                  styles.macroIcon,
+                  { backgroundColor: getMacroColor("protein") },
+                ]}
+              >
+                <Text style={styles.macroIconText}>Protein</Text>
               </View>
               <TextInput
                 label="Protein (g per 1g)"
-                value={proteinPer1g}
-                onChangeText={setProteinPer1g}
+                value={dietFormData.proteinPer1g.toString()}
+                onChangeText={(text) => handleChange("proteinPer1g", text)}
                 keyboardType="numeric"
                 style={styles.input}
                 mode="outlined"
@@ -246,13 +387,18 @@ export default function CreateNutrition() {
 
             {/* Carbs per 1g */}
             <View style={styles.inputContainer}>
-              <View style={[styles.macroIcon, { backgroundColor: getMacroColor("carbs") }]}>
+              <View
+                style={[
+                  styles.macroIcon,
+                  { backgroundColor: getMacroColor("carbs") },
+                ]}
+              >
                 <Text style={styles.macroIconText}>C</Text>
               </View>
               <TextInput
                 label="Carbohydrates (g per 1g)"
-                value={carbsPer1g}
-                onChangeText={setCarbsPer1g}
+                value={dietFormData.carbsPer1g.toString()}
+                onChangeText={(text) => handleChange("carbsPer1g", text)}
                 keyboardType="numeric"
                 style={styles.input}
                 mode="outlined"
@@ -262,24 +408,24 @@ export default function CreateNutrition() {
 
             {/* Fats per 1g */}
             <View style={styles.inputContainer}>
-              <View style={[styles.macroIcon, { backgroundColor: getMacroColor("fats") }]}>
+              <View
+                style={[
+                  styles.macroIcon,
+                  { backgroundColor: getMacroColor("fats") },
+                ]}
+              >
                 <Text style={styles.macroIconText}>F</Text>
               </View>
               <TextInput
                 label="Fats (g per 1g)"
-                value={fatsPer1g}
-                onChangeText={setFatsPer1g}
+                value={dietFormData.fatsPer1g.toString()}
+                onChangeText={(text) => handleChange("fatsPer1g", text)}
                 keyboardType="numeric"
                 style={styles.input}
                 mode="outlined"
                 placeholder="e.g., 0.03, 0.15"
               />
             </View>
-
-            {/* Validation Helper */}
-            {Number(proteinPer1g || 0) + Number(carbsPer1g || 0) + Number(fatsPer1g || 0) > 1 && (
-              <Text style={styles.warningText}>⚠️ Total macronutrients exceed 1g per 1g. Please adjust the values.</Text>
-            )}
           </Card.Content>
         </Card>
 
@@ -293,17 +439,36 @@ export default function CreateNutrition() {
               <Text style={styles.sectionTitle}>Total Macronutrients</Text>
               <View style={styles.macroGrid}>
                 <View style={styles.macroCard}>
-                  <Text style={[styles.macroValue, { color: getMacroColor("protein") }]}>
-                    {calculations.totalProtein}g
+                  <Text
+                    style={[
+                      styles.macroValue,
+                      { color: getMacroColor("protein") },
+                    ]}
+                  >
+                    {proteinAmount}g
                   </Text>
                   <Text style={styles.macroLabel}>Protein</Text>
                 </View>
                 <View style={styles.macroCard}>
-                  <Text style={[styles.macroValue, { color: getMacroColor("carbs") }]}>{calculations.totalCarbs}g</Text>
+                  <Text
+                    style={[
+                      styles.macroValue,
+                      { color: getMacroColor("carbs") },
+                    ]}
+                  >
+                    {carbsAmount}g
+                  </Text>
                   <Text style={styles.macroLabel}>Carbs</Text>
                 </View>
                 <View style={styles.macroCard}>
-                  <Text style={[styles.macroValue, { color: getMacroColor("fats") }]}>{calculations.totalFats}g</Text>
+                  <Text
+                    style={[
+                      styles.macroValue,
+                      { color: getMacroColor("fats") },
+                    ]}
+                  >
+                    {fatsAmount}g
+                  </Text>
                   <Text style={styles.macroLabel}>Fats</Text>
                 </View>
               </View>
@@ -317,24 +482,42 @@ export default function CreateNutrition() {
               <View style={styles.percentageContainer}>
                 <Chip
                   mode="flat"
-                  style={[styles.percentageChip, { backgroundColor: getMacroColor("protein") + "20" }]}
-                  textStyle={{ color: getMacroColor("protein"), fontWeight: "600" }}
+                  style={[
+                    styles.percentageChip,
+                    { backgroundColor: getMacroColor("protein") + "20" },
+                  ]}
+                  textStyle={{
+                    color: getMacroColor("protein"),
+                    fontWeight: "600",
+                  }}
                 >
-                  Protein: {calculations.proteinPercentage}%
+                  Protein: {proteinPercentage}%
                 </Chip>
                 <Chip
                   mode="flat"
-                  style={[styles.percentageChip, { backgroundColor: getMacroColor("carbs") + "20" }]}
-                  textStyle={{ color: getMacroColor("carbs"), fontWeight: "600" }}
+                  style={[
+                    styles.percentageChip,
+                    { backgroundColor: getMacroColor("carbs") + "20" },
+                  ]}
+                  textStyle={{
+                    color: getMacroColor("carbs"),
+                    fontWeight: "600",
+                  }}
                 >
-                  Carbs: {calculations.carbsPercentage}%
+                  Carbs: {carbsPercentage}%
                 </Chip>
                 <Chip
                   mode="flat"
-                  style={[styles.percentageChip, { backgroundColor: getMacroColor("fats") + "20" }]}
-                  textStyle={{ color: getMacroColor("fats"), fontWeight: "600" }}
+                  style={[
+                    styles.percentageChip,
+                    { backgroundColor: getMacroColor("fats") + "20" },
+                  ]}
+                  textStyle={{
+                    color: getMacroColor("fats"),
+                    fontWeight: "600",
+                  }}
                 >
-                  Fats: {calculations.fatsPercentage}%
+                  Fats: {fatsPercentage}%
                 </Chip>
               </View>
             </View>
@@ -345,7 +528,7 @@ export default function CreateNutrition() {
             <View style={styles.caloriesSection}>
               <Zap size={24} color="#FF9800" />
               <View style={styles.caloriesContent}>
-                <Text style={styles.caloriesValue}>{calculations.totalCalories}</Text>
+                <Text style={styles.caloriesValue}>{totalCalories()}kal</Text>
                 <Text style={styles.caloriesLabel}>Total Calories</Text>
               </View>
             </View>
@@ -362,8 +545,8 @@ export default function CreateNutrition() {
               <Star size={20} color="#FFD700" style={styles.inputIcon} />
               <TextInput
                 label="Feature 1"
-                value={feature1}
-                onChangeText={setFeature1}
+                value={dietFormData.feature1}
+                onChangeText={(text) => handleChange("feature1", text)}
                 style={styles.input}
                 mode="outlined"
                 placeholder="e.g., High in protein"
@@ -375,8 +558,8 @@ export default function CreateNutrition() {
               <Star size={20} color="#FFD700" style={styles.inputIcon} />
               <TextInput
                 label="Feature 2"
-                value={feature2}
-                onChangeText={setFeature2}
+                value={dietFormData.feature2}
+                onChangeText={(text) => handleChange("feature2", text)}
                 style={styles.input}
                 mode="outlined"
                 placeholder="e.g., Low in saturated fat"
@@ -385,11 +568,15 @@ export default function CreateNutrition() {
 
             {/* Key Benefits */}
             <View style={styles.inputContainer}>
-              <FileText size={20} color={theme.colors.primary} style={styles.inputIcon} />
+              <FileText
+                size={20}
+                color={theme.colors.primary}
+                style={styles.inputIcon}
+              />
               <TextInput
                 label="Key Benefits"
-                value={keyBenefits}
-                onChangeText={setKeyBenefits}
+                value={dietFormData.benefits}
+                onChangeText={(text) => handleChange("benefits", text)}
                 multiline
                 numberOfLines={3}
                 style={styles.textArea}
@@ -405,14 +592,6 @@ export default function CreateNutrition() {
           <Card.Content>
             <View style={styles.buttonContainer}>
               <Button
-                mode="outlined"
-                onPress={handleReset}
-                style={[styles.button, styles.resetButton]}
-                labelStyle={{ color: theme.colors.error }}
-              >
-                Reset Form
-              </Button>
-              <Button
                 mode="contained"
                 onPress={handleSave}
                 style={[styles.button, styles.saveButton]}
@@ -423,27 +602,9 @@ export default function CreateNutrition() {
             </View>
           </Card.Content>
         </Card>
-
-        {/* Recently Created */}
-        {nutritionItems.length > 0 && (
-          <Card style={styles.card}>
-            <Card.Content>
-              <Title style={styles.title}>Recently Created</Title>
-              {nutritionItems.slice(-2).map((item) => (
-                <View key={item.id} style={styles.recentItem}>
-                  <Text style={styles.recentName}>{item.name}</Text>
-                  <Text style={styles.recentDetails}>
-                    {item.totalIntake}g • {item.totalCalories} cal • P:{item.proteinPercentage}% C:
-                    {item.carbsPercentage}% F:{item.fatsPercentage}%
-                  </Text>
-                </View>
-              ))}
-            </Card.Content>
-          </Card>
-        )}
       </ScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -618,4 +779,32 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 2,
   },
-})
+  imageSection: {
+    flex: 1,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 8,
+    color: "#333",
+  },
+  imagePicker: {
+    marginBottom: 8,
+  },
+  previewImage: {
+    width: "100%",
+    height: 120,
+    borderRadius: 8,
+    resizeMode: "cover",
+  },
+  placeholderImage: {
+    width: "100%",
+    height: 120,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "#ccc",
+  },
+});
