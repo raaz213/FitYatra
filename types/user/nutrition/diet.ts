@@ -8,7 +8,13 @@ export interface Diet {
         carbohydrates: number;
         fats: number;
     }
+    macronutrientPercent:{
+        protein: number;
+        carbohydrates: number;
+        fats: number;
+    }
     subcategory: string;
     features: string[];
     benefits: string;
+    totalCalories: number;
 }

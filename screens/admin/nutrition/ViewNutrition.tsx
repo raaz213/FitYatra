@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, StyleSheet, ScrollView, Alert } from "react-native"
+import { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import {
   Text,
   Title,
@@ -13,219 +13,78 @@ import {
   Divider,
   Chip,
   ProgressBar,
-} from "react-native-paper"
-import { Eye, Edit, Trash2, Search, Zap } from "lucide-react-native"
-import { StatusBar } from "expo-status-bar"
+} from "react-native-paper";
+import { Eye, Edit, Trash2, Search, Zap } from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
+import {
+  fetchNutritionDietById,
+  fetchNutritionDiets,
+} from "../../../services/user/nutrition/Diet";
+import { Diet } from "../../../types/user/nutrition/diet";
 
-interface NutritionItem {
-  id: string
-  name: string
-  totalIntake: number
-  proteinPer1g: number
-  carbsPer1g: number
-  fatsPer1g: number
-  features: string[]
-  keyBenefits: string
-  totalProtein: number
-  totalCarbs: number
-  totalFats: number
-  totalCalories: number
-  proteinPercentage: number
-  carbsPercentage: number
-  fatsPercentage: number
-  createdAt: string
-}
+export default function ViewNutrition({ navigation }: any) {
+  const theme = useTheme();
+  const [diets, setDiets] = useState<Diet[]>([]);
+  const [detailsVisible, setDetailsVisible] = useState(false);
+  const [dietDetails, setDietDetails] = useState<Diet | null>(null);
 
-export default function ViewNutrition({navigation}:any) {
-  const theme = useTheme()
-  const [nutritionItems, setNutritionItems] = useState<NutritionItem[]>([
-    {
-      id: "1",
-      name: "Chicken Breast",
-      totalIntake: 100,
-      proteinPer1g: 0.31,
-      carbsPer1g: 0,
-      fatsPer1g: 0.036,
-      features: ["High in protein", "Low in fat"],
-      keyBenefits:
-        "Excellent source of lean protein for muscle building and repair. Low in saturated fat and calories.",
-      totalProtein: 31,
-      totalCarbs: 0,
-      totalFats: 3.6,
-      totalCalories: 156,
-      proteinPercentage: 79.2,
-      carbsPercentage: 0,
-      fatsPercentage: 20.8,
-      createdAt: "2024-01-15",
-    },
-    {
-      id: "2",
-      name: "Brown Rice",
-      totalIntake: 150,
-      proteinPer1g: 0.073,
-      carbsPer1g: 0.72,
-      fatsPer1g: 0.009,
-      features: ["Complex carbohydrates", "High in fiber"],
-      keyBenefits: "Provides sustained energy through complex carbohydrates. Rich in fiber and essential nutrients.",
-      totalProtein: 10.95,
-      totalCarbs: 108,
-      totalFats: 1.35,
-      totalCalories: 492,
-      proteinPercentage: 8.9,
-      carbsPercentage: 87.8,
-      fatsPercentage: 2.5,
-      createdAt: "2024-01-14",
-    },
-    {
-      id: "3",
-      name: "Avocado",
-      totalIntake: 80,
-      proteinPer1g: 0.02,
-      carbsPer1g: 0.085,
-      fatsPer1g: 0.147,
-      features: ["Healthy monounsaturated fats", "Rich in potassium"],
-      keyBenefits: "Excellent source of healthy fats and fiber. Supports heart health and nutrient absorption.",
-      totalProtein: 1.6,
-      totalCarbs: 6.8,
-      totalFats: 11.76,
-      totalCalories: 134,
-      proteinPercentage: 4.8,
-      carbsPercentage: 20.4,
-      fatsPercentage: 79.2,
-      createdAt: "2024-01-13",
-    },
-    {
-      id: "4",
-      name: "Greek Yogurt",
-      totalIntake: 170,
-      proteinPer1g: 0.1,
-      carbsPer1g: 0.036,
-      fatsPer1g: 0.004,
-      features: ["High protein content", "Probiotic benefits"],
-      keyBenefits: "Rich in protein and probiotics. Supports digestive health and muscle recovery.",
-      totalProtein: 17,
-      totalCarbs: 6.12,
-      totalFats: 0.68,
-      totalCalories: 100,
-      proteinPercentage: 68.3,
-      carbsPercentage: 24.6,
-      fatsPercentage: 6.1,
-      createdAt: "2024-01-12",
-    },
-    {
-      id: "5",
-      name: "Almonds",
-      totalIntake: 30,
-      proteinPer1g: 0.211,
-      carbsPer1g: 0.219,
-      fatsPer1g: 0.497,
-      features: ["Rich in vitamin E", "Heart-healthy fats"],
-      keyBenefits: "Packed with healthy fats, protein, and vitamin E. Supports heart health and brain function.",
-      totalProtein: 6.33,
-      totalCarbs: 6.57,
-      totalFats: 14.91,
-      totalCalories: 174,
-      proteinPercentage: 14.6,
-      carbsPercentage: 15.1,
-      fatsPercentage: 77.1,
-      createdAt: "2024-01-11",
-    },
-  ])
-
-  const [page, setPage] = useState<number>(0)
-  const [itemsPerPage] = useState<number>(4)
-  const [selectedNutrition, setSelectedNutrition] = useState<NutritionItem | null>(null)
-  const [detailsVisible, setDetailsVisible] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filteredNutrition, setFilteredNutrition] = useState<NutritionItem[]>(nutritionItems)
-
-  // Filter nutrition items based on search query
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    if (query.trim() === "") {
-      setFilteredNutrition(nutritionItems)
-    } else {
-      const filtered = nutritionItems.filter(
-        (item) =>
-          item.name.toLowerCase().includes(query.toLowerCase()) ||
-          item.features.some((feature) => feature.toLowerCase().includes(query.toLowerCase())),
-      )
-      setFilteredNutrition(filtered)
+  const fetchDiets = async () => {
+    try {
+      const response = await fetchNutritionDiets();
+      setDiets(response);
+    } catch (error) {
+      console.error(error);
     }
-    setPage(0)
-  }
+  };
 
-  const handleViewDetails = (nutrition: NutritionItem) => {
-    setSelectedNutrition(nutrition)
-    setDetailsVisible(true)
-  }
+  useEffect(() => {
+    fetchDiets();
+  }, []);
 
-  const handleEdit = (nutrition: NutritionItem) => {
-    Alert.alert("Edit Nutrition", `Edit functionality for "${nutrition.name}" would be implemented here.`, [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Edit",
-        onPress: () => {
-          console.log("Edit nutrition:", nutrition.id)
-        },
-      },
-    ])
-  }
-
-  const handleDelete = (nutrition: NutritionItem) => {
-    Alert.alert("Delete Nutrition", `Are you sure you want to delete "${nutrition.name}"?`, [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {
-          const updatedNutrition = nutritionItems.filter((item) => item.id !== nutrition.id)
-          setNutritionItems(updatedNutrition)
-          setFilteredNutrition(
-            updatedNutrition.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase())),
-          )
-          Alert.alert("Success", "Nutrition item deleted successfully!")
-        },
-      },
-    ])
-  }
-
+  const handleViewDetails = async (dietId: string) => {
+    try {
+      const response = await fetchNutritionDietById(dietId);
+      setDetailsVisible(true);
+      setDietDetails(response);
+    } catch (error) {
+      console.error(error);
+      setDetailsVisible(false);
+    }
+  };
   const getMacroColor = (macro: string) => {
     switch (macro) {
       case "protein":
-        return "#FF6B6B"
+        return "#FF6B6B";
       case "carbs":
-        return "#4ECDC4"
+        return "#4ECDC4";
       case "fats":
-        return "#45B7D1"
+        return "#45B7D1";
       default:
-        return "#95A5A6"
+        return "#95A5A6";
     }
+  };
+ const totalItems = diets.length;
+ const calTotalCalories = ()=> {
+  let totalCalories = 0;
+  diets.forEach((diet) => {
+    totalCalories += diet.totalCalories;
+  });
+  return totalCalories;
+ }
+ const avgProtein = () => {
+  let totalProtein = 0;
+  diets.forEach((diet) => {
+    totalProtein += diet.macronutrient.protein;
+  });
+  return totalProtein / totalItems;
+ }
+  const avgCarbs = () => {
+  let totalCarbs = 0;
+  diets.forEach((diet) => {
+    totalCarbs += diet.macronutrient.carbohydrates;
+  });
+  return totalCarbs / totalItems;
   }
-
-  const getTotalStats = () => {
-    return {
-      totalItems: nutritionItems.length,
-      totalCalories: Math.round(nutritionItems.reduce((sum, item) => sum + item.totalCalories, 0)),
-      avgProtein:
-        Math.round(
-          (nutritionItems.reduce((sum, item) => sum + item.proteinPercentage, 0) / nutritionItems.length) * 10,
-        ) / 10,
-      avgCarbs:
-        Math.round((nutritionItems.reduce((sum, item) => sum + item.carbsPercentage, 0) / nutritionItems.length) * 10) /
-        10,
-    }
-  }
-
-  const stats = getTotalStats()
-  const from = page * itemsPerPage
-  const to = Math.min((page + 1) * itemsPerPage, filteredNutrition.length)
 
   return (
     <View style={styles.container}>
@@ -242,8 +101,6 @@ export default function ViewNutrition({navigation}:any) {
             <Search size={20} color="#666" style={styles.searchIcon} />
             <TextInput
               placeholder="Search nutrition items..."
-              onChangeText={handleSearch}
-              value={searchQuery}
               style={styles.searchInput}
             />
           </View>
@@ -260,19 +117,27 @@ export default function ViewNutrition({navigation}:any) {
         {/* Quick Stats */}
         <View style={styles.statsCard}>
           <View style={styles.statsItem}>
-            <Text style={styles.statsValue}>{stats.totalItems}</Text>
+            <Text style={styles.statsValue}>{totalItems}</Text>
             <Text style={styles.statsLabel}>Items</Text>
           </View>
           <View style={styles.statsItem}>
-            <Text style={styles.statsValue}>{stats.totalCalories}</Text>
+            <Text style={styles.statsValue}>{calTotalCalories()}</Text>
             <Text style={styles.statsLabel}>Total Cal</Text>
           </View>
           <View style={styles.statsItem}>
-            <Text style={[styles.statsValue, { color: getMacroColor("protein") }]}>{stats.avgProtein}%</Text>
+            <Text
+              style={[styles.statsValue, { color: getMacroColor("protein") }]}
+            >
+              {avgProtein()}
+            </Text>
             <Text style={styles.statsLabel}>Avg Protein</Text>
           </View>
           <View style={styles.statsItem}>
-            <Text style={[styles.statsValue, { color: getMacroColor("carbs") }]}>{stats.avgCarbs}%</Text>
+            <Text
+              style={[styles.statsValue, { color: getMacroColor("carbs") }]}
+            >
+             { avgCarbs()}
+            </Text>
             <Text style={styles.statsLabel}>Avg Carbs</Text>
           </View>
         </View>
@@ -284,53 +149,77 @@ export default function ViewNutrition({navigation}:any) {
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text style={[styles.headerCell, { flex: 2 }]}>Name</Text>
-            <Text style={[styles.headerCell, { flex: 1, textAlign: "center" }]}>Calories</Text>
-            <Text style={[styles.headerCell, { flex: 1, textAlign: "center" }]}>Actions</Text>
+            <Text style={[styles.headerCell, { flex: 1, textAlign: "center" }]}>
+              Calories
+            </Text>
+            <Text style={[styles.headerCell, { flex: 1, textAlign: "center" }]}>
+              Actions
+            </Text>
           </View>
 
           {/* Table Rows */}
-          <ScrollView style={styles.tableBody}>
-            {filteredNutrition.map((nutrition) => (
-              <View key={nutrition.id} style={styles.tableRow}>
-                <View style={[styles.tableCell, { flex: 2 }]}>
-                  <Text style={styles.itemName}>{nutrition.name}</Text>
-                  <Text style={styles.itemIntake}>{nutrition.totalIntake}g</Text>
+          {diets.length > 0 ? (
+            <ScrollView style={styles.tableBody}>
+              {diets.map((item, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <View style={[styles.tableCell, { flex: 2 }]}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={styles.itemIntake}>{item.intake}g</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.tableCell,
+                      { flex: 1, alignItems: "center" },
+                    ]}
+                  >
+                    <Text style={styles.caloriesText}>
+                      {Math.round(item.totalCalories)}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.tableCell,
+                      {
+                        flex: 1,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                      },
+                    ]}
+                  >
+                    <IconButton
+                      icon={({ size, color }) => (
+                        <Eye size={18} color={theme.colors.primary} />
+                      )}
+                      size={20}
+                      onPress={() => handleViewDetails(item._id)}
+                      style={styles.actionButton}
+                    />
+                    <IconButton
+                      icon={({ size, color }) => (
+                        <Edit size={18} color={theme.colors.secondary} />
+                      )}
+                      size={20}
+                      style={styles.actionButton}
+                    />
+                    <IconButton
+                      icon={({ size, color }) => (
+                        <Trash2 size={18} color={theme.colors.error} />
+                      )}
+                      size={20}
+                      style={styles.actionButton}
+                    />
+                  </View>
                 </View>
-                <View style={[styles.tableCell, { flex: 1, alignItems: "center" }]}>
-                  <Text style={styles.caloriesText}>{Math.round(nutrition.totalCalories)}</Text>
-                </View>
-                <View style={[styles.tableCell, { flex: 1, flexDirection: "row", justifyContent: "center" }]}>
-                  <IconButton
-                    icon={({ size, color }) => <Eye size={18} color={theme.colors.primary} />}
-                    size={20}
-                    onPress={() => handleViewDetails(nutrition)}
-                    style={styles.actionButton}
-                  />
-                  <IconButton
-                    icon={({ size, color }) => <Edit size={18} color={theme.colors.secondary} />}
-                    size={20}
-                    onPress={() => handleEdit(nutrition)}
-                    style={styles.actionButton}
-                  />
-                  <IconButton
-                    icon={({ size, color }) => <Trash2 size={18} color={theme.colors.error} />}
-                    size={20}
-                    onPress={() => handleDelete(nutrition)}
-                    style={styles.actionButton}
-                  />
-                </View>
-              </View>
-            ))}
-
-            {filteredNutrition.length === 0 && (
-              <View style={styles.noDataContainer}>
-                <Text style={styles.noDataText}>No nutrition items found</Text>
-              </View>
-            )}
-          </ScrollView>
+              ))}
+            </ScrollView>
+          ) : (
+            <View style={styles.noDataContainer}>
+              <Text style={styles.noDataText}>No nutrition items found.</Text>
+            </View>
+          )}
 
           {/* Pagination */}
-          <View style={styles.pagination}>
+          {/* <View style={styles.pagination}>
             <Text style={styles.paginationText}>
               {from + 1}-{to} of {filteredNutrition.length}
             </Text>
@@ -364,7 +253,7 @@ export default function ViewNutrition({navigation}:any) {
                 style={styles.paginationButton}
               />
             </View>
-          </View>
+          </View> */}
         </View>
       </View>
 
@@ -375,123 +264,148 @@ export default function ViewNutrition({navigation}:any) {
           onDismiss={() => setDetailsVisible(false)}
           contentContainerStyle={styles.modalContainer}
         >
-          {selectedNutrition && (
+          {dietDetails && (
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Title style={styles.modalTitle}>{selectedNutrition.name}</Title>
+              <Text style={styles.modalTitle}>{dietDetails.name}</Text>
               <Divider style={styles.modalDivider} />
 
-              {/* Basic Info */}
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Basic Information</Text>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Total Intake:</Text>
-                  <Text style={styles.detailValue}>{selectedNutrition.totalIntake}g</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Created:</Text>
-                  <Text style={styles.detailValue}>{selectedNutrition.createdAt}</Text>
+                  <Text style={styles.detailValue}>{dietDetails.intake}g</Text>
                 </View>
               </View>
 
-              {/* Calories */}
               <View style={styles.caloriesDetailSection}>
                 <Zap size={24} color="#FF9800" />
                 <View style={styles.caloriesDetailContent}>
-                  <Text style={styles.caloriesDetailValue}>{Math.round(selectedNutrition.totalCalories)}</Text>
+                  <Text style={styles.caloriesDetailValue}>
+                    {Math.round(dietDetails.totalCalories)}
+                  </Text>
                   <Text style={styles.caloriesDetailLabel}>Total Calories</Text>
                 </View>
               </View>
 
-              {/* Macronutrients */}
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Macronutrient Breakdown</Text>
 
-                {/* Protein */}
                 <View style={styles.macroDetailRow}>
                   <View style={styles.macroDetailHeader}>
-                    <View style={[styles.macroDetailIcon, { backgroundColor: getMacroColor("protein") }]}>
+                    <View
+                      style={[
+                        styles.macroDetailIcon,
+                        { backgroundColor: getMacroColor("protein") },
+                      ]}
+                    >
                       <Text style={styles.macroDetailIconText}>P</Text>
                     </View>
                     <Text style={styles.macroDetailName}>Protein</Text>
                   </View>
                   <View style={styles.macroDetailValues}>
-                    <Text style={styles.macroDetailAmount}>{selectedNutrition.totalProtein}g</Text>
-                    <Text style={styles.macroDetailPercentage}>{selectedNutrition.proteinPercentage}%</Text>
+                    <Text style={styles.macroDetailAmount}>
+                      {dietDetails.macronutrient.protein}g
+                    </Text>
+                    <Text style={styles.macroDetailPercentage}>
+                      {dietDetails.macronutrientPercent.protein}%
+                    </Text>
                   </View>
                   <ProgressBar
-                    progress={selectedNutrition.proteinPercentage / 100}
+                    progress={dietDetails.macronutrientPercent.protein / 100}
                     color={getMacroColor("protein")}
                     style={styles.progressBar}
                   />
                 </View>
 
-                {/* Carbs */}
                 <View style={styles.macroDetailRow}>
                   <View style={styles.macroDetailHeader}>
-                    <View style={[styles.macroDetailIcon, { backgroundColor: getMacroColor("carbs") }]}>
+                    <View
+                      style={[
+                        styles.macroDetailIcon,
+                        { backgroundColor: getMacroColor("carbs") },
+                      ]}
+                    >
                       <Text style={styles.macroDetailIconText}>C</Text>
                     </View>
                     <Text style={styles.macroDetailName}>Carbohydrates</Text>
                   </View>
                   <View style={styles.macroDetailValues}>
-                    <Text style={styles.macroDetailAmount}>{selectedNutrition.totalCarbs}g</Text>
-                    <Text style={styles.macroDetailPercentage}>{selectedNutrition.carbsPercentage}%</Text>
+                    <Text style={styles.macroDetailAmount}>
+                      {dietDetails.macronutrient.carbohydrates}g
+                    </Text>
+                    <Text style={styles.macroDetailPercentage}>
+                      {dietDetails.macronutrientPercent.carbohydrates}%
+                    </Text>
                   </View>
                   <ProgressBar
-                    progress={selectedNutrition.carbsPercentage / 100}
+                    progress={
+                      dietDetails.macronutrientPercent.carbohydrates / 100
+                    }
                     color={getMacroColor("carbs")}
                     style={styles.progressBar}
                   />
                 </View>
 
-                {/* Fats */}
                 <View style={styles.macroDetailRow}>
                   <View style={styles.macroDetailHeader}>
-                    <View style={[styles.macroDetailIcon, { backgroundColor: getMacroColor("fats") }]}>
+                    <View
+                      style={[
+                        styles.macroDetailIcon,
+                        { backgroundColor: getMacroColor("fats") },
+                      ]}
+                    >
                       <Text style={styles.macroDetailIconText}>F</Text>
                     </View>
                     <Text style={styles.macroDetailName}>Fats</Text>
                   </View>
                   <View style={styles.macroDetailValues}>
-                    <Text style={styles.macroDetailAmount}>{selectedNutrition.totalFats}g</Text>
-                    <Text style={styles.macroDetailPercentage}>{selectedNutrition.fatsPercentage}%</Text>
+                    <Text style={styles.macroDetailAmount}>
+                      {dietDetails.macronutrient.fats}g
+                    </Text>
+                    <Text style={styles.macroDetailPercentage}>
+                      {dietDetails.macronutrientPercent.fats}%
+                    </Text>
                   </View>
                   <ProgressBar
-                    progress={selectedNutrition.fatsPercentage / 100}
+                    progress={dietDetails.macronutrientPercent.fats / 100}
                     color={getMacroColor("fats")}
                     style={styles.progressBar}
                   />
                 </View>
               </View>
 
-              {/* Features */}
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Features</Text>
                 <View style={styles.featuresContainer}>
-                  {selectedNutrition.features.map((feature, index) => (
-                    <Chip key={index} mode="outlined" style={styles.featureChip}>
+                  {dietDetails.features.map((feature, index) => (
+                    <Chip
+                      key={index}
+                      mode="outlined"
+                      style={styles.featureChip}
+                    >
                       {feature}
                     </Chip>
                   ))}
                 </View>
               </View>
 
-              {/* Benefits */}
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Key Benefits</Text>
-                <Text style={styles.benefitsText}>{selectedNutrition.keyBenefits}</Text>
+                <Text style={styles.benefitsText}>{dietDetails.benefits}</Text>
               </View>
 
-              {/* Action Buttons */}
               <View style={styles.modalButtons}>
-                <Button mode="outlined" onPress={() => setDetailsVisible(false)} style={styles.modalButton}>
+                <Button
+                  mode="outlined"
+                  onPress={() => setDetailsVisible(false)}
+                  style={styles.modalButton}
+                >
                   Close
                 </Button>
                 <Button
                   mode="contained"
                   onPress={() => {
-                    setDetailsVisible(false)
-                    handleEdit(selectedNutrition)
+                    setDetailsVisible(false);
                   }}
                   style={styles.modalButton}
                   icon={({ size, color }) => <Edit size={size} color={color} />}
@@ -504,17 +418,17 @@ export default function ViewNutrition({navigation}:any) {
         </Modal>
       </Portal>
     </View>
-  )
+  );
 }
 
 // Custom TextInput component to match the design in the image
-const TextInput = ({ placeholder, value, onChangeText, style }:any) => {
+const TextInput = ({ placeholder, value, onChangeText, style }: any) => {
   return (
     <View style={[styles.textInputContainer, style]}>
       <Text style={styles.textInput}>{value || placeholder}</Text>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -818,4 +732,4 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
   },
-})
+});

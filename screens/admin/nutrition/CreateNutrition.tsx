@@ -185,10 +185,18 @@ export default function CreateNutrition() {
         fats: dietFormData.fatsPer1g * dietFormData.totalIntake,
       })
     );
+    formData.append("macronutrientPercent",
+      JSON.stringify({
+        protein: calcProtein().proteinPercentage,
+        carbohydrates: calcCarbs().carbsPercentage,
+        fats: calcFats().fatsPercentage,
+      })
+    );
     formData.append(
       "features",
       JSON.stringify([dietFormData.feature1, dietFormData.feature2])
     );
+    formData.append("totalCalories",totalCalories().toString()); 
     formData.append("benefits", dietFormData.benefits);
     formData.append("subcategory", selectedSubcategory ?? "");
     if (dietFormData.image) {
