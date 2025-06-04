@@ -357,9 +357,9 @@ export default function CreateNutrition() {
         {/* Macronutrient Composition */}
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.title}>
+            <Text style={styles.title}>
               Macronutrient Composition (per 1g)
-            </Title>
+            </Text>
             <Text style={styles.subtitle}>
               Enter the amount of each macronutrient in 1 gram of this food
             </Text>
