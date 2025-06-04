@@ -37,7 +37,7 @@ import { Toast } from "toastify-react-native";
 
 export default function CreateNutrition() {
   const theme = useTheme();
-  const [image, setImage] = useState<string | null>(null);
+  // const [image, setImage] = useState<string | null>(null);
   const [openCategory, setOpenCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryItems, setCategoryItems] = useState<
@@ -85,7 +85,7 @@ export default function CreateNutrition() {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      setDietFormData({ ...dietFormData, image: result.assets[0].uri });
     }
   };
 
@@ -174,6 +174,7 @@ export default function CreateNutrition() {
 
   const handleSave = async () => {
     const formData = new FormData();
+
     formData.append("name", dietFormData.name);
     formData.append("intake", dietFormData.totalIntake.toString());
     formData.append(
@@ -184,14 +185,17 @@ export default function CreateNutrition() {
         fats: dietFormData.fatsPer1g * dietFormData.totalIntake,
       })
     );
-    formData.append("features", [dietFormData.feature1, dietFormData.feature2].join(", "));
+    formData.append(
+      "features",
+      JSON.stringify([dietFormData.feature1, dietFormData.feature2])
+    );
     formData.append("benefits", dietFormData.benefits);
-    formData.append("subcategory", selectedSubcategory!);
-    if (image) {
+    formData.append("subcategory", selectedSubcategory ?? "");
+    if (dietFormData.image) {
       formData.append("image", {
-        uri: image,
-        name: image.split("/").pop() || "image.jpg",
-        type: `image/${image.split(".").pop()}`,
+        uri: dietFormData.image,
+        name: dietFormData.image.split("/").pop() || "image.jpg",
+        type: `image/${dietFormData.image.split(".").pop()}`,
       } as any);
     }
     try {
@@ -210,7 +214,7 @@ export default function CreateNutrition() {
         subcategory: "",
         image: null,
       });
-      setImage(null);
+
       setSelectedCategory(null);
       setSelectedSubcategory(null);
       setCategoryItems([]);
@@ -304,9 +308,9 @@ export default function CreateNutrition() {
                   onPress={pickImage}
                   style={styles.imagePicker}
                 >
-                  {image ? (
+                  {dietFormData.image ? (
                     <Image
-                      source={{ uri: image }}
+                      source={{ uri: dietFormData.image }}
                       style={styles.previewImage}
                     />
                   ) : (
