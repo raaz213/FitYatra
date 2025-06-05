@@ -17,47 +17,74 @@ import {
 import { Eye, Edit, Trash2, Search, Plus } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
 import { Toast } from "toastify-react-native";
-import { getAllExercises, getExerciseById } from "../../../services/user/exercise/Exercise";
+import {
+  getAllExercises,
+  getExerciseById,
+  getSearchExercises,
+} from "../../../services/user/exercise/Exercise";
 import { Exercise } from "../../../types/user/exercise/Exercise";
-
-
 
 export default function ViewExercise({ navigation }: any) {
   const theme = useTheme();
 
-  // const [page, setPage] = useState<number>(0);
-  // const [itemsPerPage] = useState<number>(5);
-  
+  const numberOfItemsPerPageList = [5, 10, 15];
+  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState<number>(
+    numberOfItemsPerPageList[0]
+  );
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [detailsVisible, setDetailsVisible] = useState(false);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null
+  );
+  const [search, setSearch] = useState<string>("");
+  const [displayExerciseData, setDisplayExerciseData] = useState<Exercise[]>(
+    []
+  );
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  
   const handleAddExercise = () => {
     navigation.navigate("CreateExercise");
   };
 
-  const fetchAllExercises = async () => {
-    try{
-      const response = await getAllExercises();
-      setExercises(response);
-    }catch(error){
-      Toast.error('Error fetch in exercises');
+  const fetchAllExercises = async (page: number, limit: number) => {
+    try {
+      const response = await getAllExercises(page, limit);
+      setDisplayExerciseData(response.data);
+      setTotalPages(Number(response.totalPages));
+      setTotalCount(Number(response.totalCounts));
+      setPage(Number(response.currentPage));
+    } catch (error) {
+      console.error("Error fetch in exercises", error);
     }
-  }
-
+  };
+  const fetchSearchExercises = async (page: number, limit: number) => {
+    try {
+      const response = await getSearchExercises(search, page, limit);
+       setDisplayExerciseData(response.data);
+      setTotalPages(Number(response.totalPages));
+      setTotalCount(Number(response.totalCounts));
+      setPage(Number(response.currentPage));
+    } catch (error) {
+      console.error("Error fetching search exercises:", error);
+    }
+  };
   useEffect(() => {
-    fetchAllExercises();
-  }, [])
-
+    if (search.trim() === "") {
+      fetchAllExercises(page, numberOfItemsPerPage);
+    } else {
+      fetchSearchExercises(page, numberOfItemsPerPage);
+    }
+  }, [search, page, numberOfItemsPerPage]);
 
   const handleViewDetails = async (exerciseId: string) => {
     setDetailsVisible(true);
-   const response = await getExerciseById(exerciseId)
-   
-   setSelectedExercise(response);
-  }
-  // const from = page * itemsPerPage;
-  // const to = Math.min((page + 1) * itemsPerPage, exercises.length);
+    const response = await getExerciseById(exerciseId);
+
+    setSelectedExercise(response);
+  };
+  const from = page * numberOfItemsPerPage;
+  const to = Math.min((page + 1) * numberOfItemsPerPage, totalCount);
 
   return (
     <View style={styles.container}>
@@ -70,7 +97,8 @@ export default function ViewExercise({ navigation }: any) {
             <View style={styles.searchContainer}>
               <Searchbar
                 placeholder="Search exercises..."
-                value={""}
+                value={search}
+                onChangeText={(query) => setSearch(query)}
                 style={styles.searchbar}
                 icon={({ size, color }) => <Search size={size} color={color} />}
               />
@@ -83,15 +111,6 @@ export default function ViewExercise({ navigation }: any) {
                 Add
               </Button>
             </View>
-            {/* <View style={styles.statsContainer}>
-              <Text style={styles.statsText}>
-                Total Exercises: {exercises.length}
-              </Text>
-              <Text style={styles.statsText}>
-                Showing: {filteredExercises.length}{" "}
-                {filteredExercises.length === 1 ? "exercise" : "exercises"}
-              </Text>
-            </View> */}
           </Card.Content>
         </Card>
 
@@ -105,51 +124,61 @@ export default function ViewExercise({ navigation }: any) {
                 <DataTable.Title style={{ flex: 1 }}>Sets</DataTable.Title>
                 <DataTable.Title style={{ flex: 2 }}>Actions</DataTable.Title>
               </DataTable.Header>
-              {exercises.map((exercise, index) => (
-               <DataTable.Row key={index}>
-                <DataTable.Cell style={{ flex: 2 }}>
-                  <View>
-                    <Text style={styles.exerciseName}>{exercise.name}</Text>
-                  </View>
-                </DataTable.Cell>
-                <DataTable.Cell style={{ flex: 1 }}>
-                  <Text style={styles.setsText}>{exercise.sets} sets</Text>
-                </DataTable.Cell>
-                <DataTable.Cell style={{ flex: 2 }}>
-                  <View style={styles.actionButtons}>
-                    <IconButton
-                      icon={({ size, color }) => (
-                        <Eye size={16} color={theme.colors.primary} />
-                      )}
-                      size={20}
-                      onPress={() => handleViewDetails(exercise._id)}
-                      style={styles.actionButton}
-                    />
-                    <IconButton
-                      icon={({ size, color }) => (
-                        <Edit size={16} color={theme.colors.secondary} />
-                      )}
-                      size={20}
-                      style={styles.actionButton}
-                    />
-                    <IconButton
-                      icon={({ size, color }) => (
-                        <Trash2 size={16} color={theme.colors.error} />
-                      )}
-                      size={20}
-                      style={styles.actionButton}
-                    />
-                  </View>
-                </DataTable.Cell>
-              </DataTable.Row>
-
+              {displayExerciseData.map((exercise, index) => (
+                <DataTable.Row key={index}>
+                  <DataTable.Cell style={{ flex: 2 }}>
+                    <View>
+                      <Text style={styles.exerciseName}>{exercise.name}</Text>
+                    </View>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 1 }}>
+                    <Text style={styles.setsText}>{exercise.sets} sets</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 2 }}>
+                    <View style={styles.actionButtons}>
+                      <IconButton
+                        icon={({ size, color }) => (
+                          <Eye size={16} color={theme.colors.primary} />
+                        )}
+                        size={20}
+                        onPress={() => handleViewDetails(exercise._id)}
+                        style={styles.actionButton}
+                      />
+                      <IconButton
+                        icon={({ size, color }) => (
+                          <Edit size={16} color={theme.colors.secondary} />
+                        )}
+                        size={20}
+                        style={styles.actionButton}
+                      />
+                      <IconButton
+                        icon={({ size, color }) => (
+                          <Trash2 size={16} color={theme.colors.error} />
+                        )}
+                        size={20}
+                        style={styles.actionButton}
+                      />
+                    </View>
+                  </DataTable.Cell>
+                </DataTable.Row>
               ))}
-             
+
               <DataTable.Row>
                 <DataTable.Cell style={{ flex: 1, justifyContent: "center" }}>
                   <Text style={styles.noDataText}>No exercises found</Text>
                 </DataTable.Cell>
               </DataTable.Row>
+              <DataTable.Pagination
+                page={page}
+                numberOfPages={totalPages}
+                onPageChange={(page) => setPage(page)}
+                label={`${from + 1}-${to} of ${totalCount} exercises`}
+                showFastPaginationControls
+                numberOfItemsPerPageList={numberOfItemsPerPageList}
+                numberOfItemsPerPage={numberOfItemsPerPage}
+                onItemsPerPageChange={()=> {setNumberOfItemsPerPage(numberOfItemsPerPage);setPage(0)}}
+                selectPageDropdownLabel={"Rows per page"}
+              />
             </DataTable>
           </Card.Content>
         </Card>
