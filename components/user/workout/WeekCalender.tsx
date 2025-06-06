@@ -2,45 +2,34 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { window } from "../../../constants/sizes";
+import { Subcategory } from "../../../types/user/exercise/Subcategory";
 
-interface DaySchedule {
-  day: string;
-  date: number;
-  isActive?: boolean;
-}
 
-const weekDays: DaySchedule[] = [
-  { day: "Day 1", date: 1, isActive: true },
-  { day: "Day 2", date: 2, isActive: true },
-  { day: "Day 3", date: 3, isActive: true },
-  { day: "Day 4", date: 4, isActive: true },
-  { day: "Day 5", date: 5, isActive: true },
-  { day: "Day 6", date: 6, isActive: true },
-  { day: "Day 7", date: 7, isActive: true },
-];
 
 interface WeekCalenderProps {
-  setSelectedDay: (dayNumber: number) => void;
-  selectedDay: number;
+  setSelectedSubcategory: (id: string) => void;
+  selectedSubcategory: string;
+  subcategories: Subcategory[];
 }
 
 const WeekCalender: React.FC<WeekCalenderProps> = ({
-  setSelectedDay,
-  selectedDay,
+  setSelectedSubcategory,
+  selectedSubcategory,
+  subcategories
 }) => {
   const theme = useTheme();
 
-  const handleDayPress = (dayNumber: number) => {
-    setSelectedDay(dayNumber);
+  const handleSubcategoryPress = (subcategoryId: string) => {
+    setSelectedSubcategory(subcategoryId);
   };
 
   return (
     <View style={styles.weekContainer}>
-      {weekDays.map((day) => (
+      {subcategories.map((subcategory) => (
         <TouchableOpacity
-          key={day.day}
+          key={subcategory._id}
           style={styles.dayContainer}
-          onPress={() => handleDayPress(day.date)}
+          onPress={() => handleSubcategoryPress(subcategory._id)}
           activeOpacity={0.7}
         >
           <Text
@@ -48,21 +37,21 @@ const WeekCalender: React.FC<WeekCalenderProps> = ({
               styles.dayText,
               {
                 color:
-                  selectedDay === day.date ? "#06407a" : theme.colors.onSurface,
+                  selectedSubcategory === subcategory._id ? "#06407a" : theme.colors.onSurface,
               },
             ]}
           >
-            {day.day}
+            {subcategory.dayNumber}
           </Text>
           <View
             style={[
               styles.dateContainer,
               {
                 backgroundColor:
-                  selectedDay === day.date
+                  selectedSubcategory === subcategory._id
                     ? "#06407a"
                     : theme.colors.surfaceVariant,
-                borderWidth: selectedDay === day.date ? 0 : 1,
+                borderWidth: selectedSubcategory === subcategory._id ? 0 : 1,
                 borderColor: theme.colors.outline,
               },
             ]}
@@ -72,19 +61,19 @@ const WeekCalender: React.FC<WeekCalenderProps> = ({
                 styles.dateText,
                 {
                   color:
-                    selectedDay === day.date
+                         selectedSubcategory === subcategory._id
                       ? theme.colors.background
                       : theme.colors.onSurface,
-                  fontWeight: selectedDay === day.date ? "bold" : "600",
+                  fontWeight:      selectedSubcategory === subcategory._id ? "bold" : "600",
                 },
               ]}
             >
-              {day.date}
+              {subcategory.dayNumber}
             </Text>
           </View>
-          {day.isActive && (
+          {/* {day.isActive && (
             <View style={[styles.activeDot, { backgroundColor: "#06407a" }]} />
-          )}
+          )} */}
         </TouchableOpacity>
       ))}
     </View>

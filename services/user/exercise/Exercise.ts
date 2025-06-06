@@ -64,3 +64,13 @@ export const getSearchExercises = async (
     throw error;
   }
 };
+
+export const fetchExercisesBySubcategory = async (subcategoryId: string) => {
+  try{
+    const response = await axios.get(`${API_URL}/api/exercise/workout/subcategory/${subcategoryId}`);
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+
+}

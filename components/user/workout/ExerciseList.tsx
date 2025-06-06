@@ -1,29 +1,28 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-import { Exercise } from "../../../screens/user/exercise/WorkoutScreen";
+import { Exercise } from "../../../types/user/exercise/Exercise";
+import { API_URL } from "../../../constants/apiUrl";
 
-type currentWorkoutType = {
-    exercises: Exercise[];
-}
 
-const ExerciseList = ({ navigation, currentWorkout}: {navigation: any, currentWorkout: currentWorkoutType}) => {
+
+const ExerciseList = ({ navigation, exercises}: {navigation: any, exercises: Exercise[]}) => {
   const theme = useTheme();
-  const handleWorkoutDayPress = (dayId: number) => {
-    navigation.navigate("WorkoutDetails", { dayId });
+  const handleWorkoutPress = (exerciseId: string) => {
+    navigation.navigate("WorkoutDetails", { exerciseId });
   };
   return (
     <View style={styles.exerciseList}>
-      {currentWorkout.exercises.map((exercise, index) => (
+      {exercises.map((exercise, index) => (
         <Card
-          key={exercise.id}
+          key={exercise._id}
           style={[
             styles.exerciseCard,
             { backgroundColor: theme.colors.surface },
           ]}
         >
           <TouchableOpacity
-            onPress={() => handleWorkoutDayPress(1)}
+            onPress={() => handleWorkoutPress(exercise._id)}
             activeOpacity={0.7}
             style={{ flex: 1 }}
           >
@@ -61,7 +60,7 @@ const ExerciseList = ({ navigation, currentWorkout}: {navigation: any, currentWo
               </View>
 
               <Image
-                source={{ uri: exercise.image }}
+                source={{ uri: `${API_URL}/uploads/${exercise.image}` }}
                 style={[
                   styles.exerciseImage,
                   { borderColor: theme.colors.outline },

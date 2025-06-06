@@ -2,13 +2,12 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Image } from "react-native";
 import WebView from "react-native-webview";
+import { Exercise } from "../../../types/user/exercise/Exercise";
+import { API_URL } from "../../../constants/apiUrl";
 
 interface IllustrationProps {
     selectedTab: string;
-    exerciseData: {
-        gif: string;
-        youtubeUrl: string;
-    }
+    exerciseData: Exercise;
 }
 
 
@@ -17,14 +16,14 @@ const Illustration: React.FC<IllustrationProps>= ({selectedTab, exerciseData}) =
     <View style={styles.illustrationContainer}>
       {selectedTab === "Animation" ? (
         <Image
-          source={{ uri: exerciseData.gif }}
+          source={{ uri: `${API_URL}/uploads/${exerciseData.image}` }}
           style={styles.exerciseImage}
           resizeMode="contain"
         />
       ) : (
         <View style={styles.videoContainer}>
           <WebView
-            source={{ uri: exerciseData.youtubeUrl }}
+            source={{ uri: exerciseData.videoUrl }}
             style={styles.videoPlayer}
             javaScriptEnabled
             allowsFullscreenVideo

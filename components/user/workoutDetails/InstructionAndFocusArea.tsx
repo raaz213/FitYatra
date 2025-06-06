@@ -1,12 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
+import { Exercise } from "../../../types/user/exercise/Exercise";
 
 interface IllustrationAndFocusAreaProps {
-  exerciseData: {
-    instructions: string[];
-    focusArea: string[];
-  };
+  exerciseData: Exercise;
 }
 
 const InstructionAndFocusArea: React.FC<IllustrationAndFocusAreaProps> = ({
@@ -25,17 +23,12 @@ const InstructionAndFocusArea: React.FC<IllustrationAndFocusAreaProps> = ({
           <Text style={[styles.instructionsTitle, { color: "#06407a" }]}>
             INSTRUCTIONS
           </Text>
-          {exerciseData.instructions.map((instruction, index) => (
-            <Text
-              key={index}
-              style={[
-                styles.instructionText,
-                { color: theme.colors.onSurface },
-              ]}
-            >
-              {instruction}
-            </Text>
-          ))}
+
+          <Text
+            style={[styles.instructionText, { color: theme.colors.onSurface }]}
+          >
+            {exerciseData.instructions}
+          </Text>
         </Card.Content>
       </Card>
 
@@ -47,21 +40,16 @@ const InstructionAndFocusArea: React.FC<IllustrationAndFocusAreaProps> = ({
             FOCUS AREA
           </Text>
           <View style={styles.focusAreas}>
-            {exerciseData.focusArea.map((area, index) => (
-              <View
-                key={index}
-                style={[styles.focusTag, { backgroundColor: "#06407a" }]}
+            <View style={[styles.focusTag, { backgroundColor: "#06407a" }]}>
+              <Text
+                style={[
+                  styles.focusTagText,
+                  { color: theme.colors.background },
+                ]}
               >
-                <Text
-                  style={[
-                    styles.focusTagText,
-                    { color: theme.colors.background },
-                  ]}
-                >
-                  {area}
-                </Text>
-              </View>
-            ))}
+                {exerciseData.focusArea}
+              </Text>
+            </View>
           </View>
         </Card.Content>
       </Card>

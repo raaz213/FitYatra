@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -9,8 +9,23 @@ import TestimonialsList from "../../components/user/home/TestimonialList";
 import WaterIntake from "../../components/user/home/WaterIntake";
 import { StatusBar } from "expo-status-bar";
 import ExerciseCategory from "../../components/user/home/ExerciseCategory";
+import { Subcategory } from "../../types/user/exercise/Subcategory";
+import { getExerciseSubcategories } from "../../services/user/exercise/Subcategory";
 
 const HomeScreen = () => {
+  const [exerciseSubcategories, setExerciseSubcategories] = useState<
+    Subcategory[]
+  >([]);
+
+  const fetchSubcategories = async () => {
+    const response = await getExerciseSubcategories();
+    setExerciseSubcategories(response);
+  };
+
+  useEffect(() => {
+    fetchSubcategories();
+  }, []);
+
   return (
     <LinearGradient colors={["#d3e1ed", "#d3e1ed"]} style={styles.gradient}>
       <StatusBar style="light" />
@@ -31,7 +46,7 @@ const HomeScreen = () => {
 
         {/* Featured Content */}
         <View style={styles.featuredContentSection}>
-          <FeaturedContent />
+          <FeaturedContent exerciseSubcategories={exerciseSubcategories} />
         </View>
 
         {/* Step Tracker */}
@@ -47,7 +62,6 @@ const HomeScreen = () => {
         <View style={styles.testimonialSection}>
           <TestimonialsList />
         </View>
-        
       </ScrollView>
     </LinearGradient>
   );

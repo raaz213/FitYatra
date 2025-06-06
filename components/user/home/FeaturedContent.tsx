@@ -11,68 +11,48 @@ import {
   TextStyle,
 } from "react-native";
 import CustomCarousel from "../../custom/CustomCarousel";
+import { Subcategory } from "../../../types/user/exercise/Subcategory";
+import { API_URL } from "../../../constants/apiUrl";
 
-type ImageData = {
-  uri: string;
-  title: string;
-  subtitle: string;
-};
 
-type CarouselItem = {
-  item: ImageData;
+interface CarouselItem {
+  subcategory: Subcategory;
   index: number;
 };
 
-const images: ImageData[] = [
-  {
-    uri: "https://youfit.com/wp-content/uploads/2024/06/YouFit-06-20-22-2527-Edit.jpg",
-    title: "Lose Belly Fat",
-    subtitle: "Burn calories effectively",
-  },
-  {
-    uri: "https://as2.ftcdn.net/v2/jpg/00/99/82/15/1000_F_99821575_nVEHTBXzUnTcLIKN6yOymAWAnFwEybGb.jpg",
-    title: "Rock Hard Abs",
-    subtitle: "Core strengthening workouts",
-  },
-  {
-    uri: "https://www.fastandup.in/nutrition-world/wp-content/uploads/2023/05/Workouts-for-Men.jpg",
-    title: "Six Pack Abs",
-    subtitle: "Advanced ab sculpting",
-  },
-];
 
-const formattedImages = images.map((item, index) => ({
-  item,
-  index,
-}));
-
-function FeaturedContent() {
-  const handleChallengePress = (title: string) => {
-    console.log(`Challenge pressed for: ${title}`);
+function FeaturedContent({ exerciseSubcategories}: {exerciseSubcategories: Subcategory[]}) {
+  
+  const handleChallengePress = (subcategoryId: string) => {
+    console.log(`Challenge pressed for: ${subcategoryId}`);
   };
+
+  const formattedSubcategories = exerciseSubcategories.map((subcategory, index) => ({
+    subcategory,
+    index
+  }))
 
   return (
     <View>
       <CustomCarousel
-        data={formattedImages}
-        renderItem={({ item }: CarouselItem) => {
-          const imageData = item;
-
+        data={formattedSubcategories}
+        renderItem={({ subcategory }: CarouselItem) => {
+         
           return (
-            <View key={imageData.uri} style={styles.item}>
+            <View key={subcategory._id} style={styles.item}>
               <View style={styles.imageContainer}>
-                <Image source={{ uri: imageData.uri }} style={styles.image} />
+                <Image source={{ uri:  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREWR0nU22XW4OZUHtGcq5kx2hwTLg5pth8Nw&s" }} style={styles.image} />
                 <View style={styles.overlay} />
                 <View style={styles.contentOverlay}>
                   <View style={styles.titleContainer}>
                     <Text style={styles.starIcon}>⭐</Text>
-                    <Text style={styles.title}>{imageData.title}</Text>
+                    <Text style={styles.title}>{subcategory.name}</Text>
                   </View>
-                  <Text style={styles.subtitle}>{imageData.subtitle}</Text>
+                  <Text style={styles.subtitle}>{subcategory.description}</Text>
 
                   <TouchableOpacity
                     style={styles.challengeButton}
-                    onPress={() => handleChallengePress(imageData.title)}
+                    onPress={() => handleChallengePress(subcategory._id)}
                     activeOpacity={0.8}
                   >
                     <Text style={styles.challengeButtonText}>CHALLENGE</Text>

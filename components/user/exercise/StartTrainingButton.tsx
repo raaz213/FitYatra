@@ -10,7 +10,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
 interface StartTrainingButtonProps {
-  selectedCategory: number;
+  selectedCategory: string;
   animateValue: Animated.Value;
   navigation: any;
 }
@@ -20,11 +20,13 @@ const StartTrainingButton: React.FC<StartTrainingButtonProps> = ({
   animateValue,
   navigation,
 }) => {
-  const handleWorkoutPress = (categoryId: number) => {
+  
+  const handleWorkoutPress = (categoryId: string) => {
     navigation.navigate("Workout", {
-      categoryId: selectedCategory,
+      categoryId: categoryId,
     });
   };
+  
   return (
     <Animated.View
       style={[
@@ -47,7 +49,7 @@ const StartTrainingButton: React.FC<StartTrainingButtonProps> = ({
       >
         <TouchableOpacity
           style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => handleWorkoutPress(1)}
+          onPress={() => handleWorkoutPress(selectedCategory)}
         >
           <Text style={styles.continueText}>Start Training Now</Text>
           <Ionicons

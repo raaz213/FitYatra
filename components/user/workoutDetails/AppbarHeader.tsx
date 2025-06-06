@@ -1,11 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Appbar, useTheme } from "react-native-paper";
+import { Exercise } from "../../../types/user/exercise/Exercise";
 
-interface ExerciseData{
-    name: string
-}
-const AppbarHeader = ({ navigation, exerciseData }: {navigation: any, exerciseData: ExerciseData}) => {
+
+const AppbarHeader = ({ navigation, exerciseData }: {navigation: any, exerciseData: Exercise }) => {
   const theme = useTheme();
   return (
     <Appbar.Header style={{ backgroundColor: theme.colors.background }}>

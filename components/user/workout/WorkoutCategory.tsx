@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import React from "react";
 import { Card, useTheme, Button } from "react-native-paper";
+import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Subcategory } from "../../../types/user/exercise/Subcategory";
 
-type CurrentWorkoutType = {
-  currentWorkout: {
-    title: string;
-    category: string;
-  };
+interface CurrentSubcategoryType {
+  currentSubcategory: Subcategory | undefined;
 };
 
-const WorkoutCategory: React.FC<CurrentWorkoutType> = ({ currentWorkout }) => {
+const WorkoutCategory: React.FC<CurrentSubcategoryType> = ({ currentSubcategory }) => {
+
   const theme = useTheme();
 
   return (
@@ -29,7 +29,7 @@ const WorkoutCategory: React.FC<CurrentWorkoutType> = ({ currentWorkout }) => {
               numberOfLines={1}
               adjustsFontSizeToFit
             >
-              {currentWorkout.title}
+              {currentSubcategory?.name}
             </Text>
             <Text
               style={[
@@ -39,7 +39,7 @@ const WorkoutCategory: React.FC<CurrentWorkoutType> = ({ currentWorkout }) => {
               numberOfLines={1}
               adjustsFontSizeToFit
             >
-              {currentWorkout.category}
+              {currentSubcategory?.description}
             </Text>
           </View>
           <Button

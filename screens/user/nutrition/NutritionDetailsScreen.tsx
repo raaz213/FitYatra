@@ -1,298 +1,324 @@
-import React from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Image,
-  Dimensions,
-} from 'react-native';
-import {
-  Appbar,
-  Card,
-  Text,
-  Surface,
-  useTheme,
-  Chip,
-} from 'react-native-paper';
-import { ArrowLeft, Target, Clock, TrendingUp } from 'lucide-react-native';
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, StyleSheet, Image, Dimensions, SafeAreaView } from "react-native";
+import { Appbar, Card, Text, useTheme } from "react-native-paper";
+import { fetchNutritionDietById } from "../../../services/user/nutrition/Diet";
+import { Diet } from "../../../types/user/nutrition/diet";
+import { API_URL } from "../../../constants/apiUrl";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
-const NutritionDetailsScreen: React.FC = () => {
+const COLORS = {
+  background: '#FAFAFA',
+  white: '#FFFFFF',
+  text: '#1A1A1A',
+  textSecondary: '#6B7280',
+  textLight: '#9CA3AF',
+  primary: '#2563EB',
+  primaryLight: '#EFF6FF',
+  success: '#10B981',
+  successLight: '#ECFDF5',
+  warning: '#F59E0B',
+  warningLight: '#FFFBEB',
+  shadow: 'rgba(0, 0, 0, 0.08)',
+};
+
+const NutritionDetailsScreen: React.FC = ({ route, navigation }: any) => {
   const theme = useTheme();
+  const { dietId } = route.params;
+  const [diet, setDiet] = useState<Diet | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const macronutrients = [
-    { label: 'Protein', percentage: '25%', color: '#4CAF50' },
-    { label: 'Carbs', percentage: '45%', color: '#4CAF50' },
-    { label: 'Fats', percentage: '30%', color: '#4CAF50' },
-  ];
+  const fetchNutritionDetails = async () => {
+    try {
+      const response = await fetchNutritionDietById(dietId);
+      setDiet(response);
+    } catch (error) {
+      console.error('Error fetching nutrition details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const keyBenefits = [
-    {
-      id: '1',
-      icon: Target,
-      title: 'Balanced nutrition approach',
-      description: 'Scientific blend of all essential nutrients',
-    },
-    {
-      id: '2',
-      icon: TrendingUp,
-      title: 'Sustainable long-term',
-      description: 'Easy to maintain lifestyle changes',
-    },
-    {
-      id: '3',
-      icon: Clock,
-      title: 'Flexible meal timing',
-      description: 'Adaptable to your daily schedule',
-    },
-  ];
+  useEffect(() => {
+    fetchNutritionDetails();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!diet) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text>Diet not found</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header style={{ backgroundColor: '#FFF', elevation: 0 }}>
-        <Appbar.BackAction iconColor="black" onPress={() => {}} />
-        <Appbar.Content title="Balanced Diet" titleStyle={{ color: 'black', fontWeight: 'bold' }} />
+    <SafeAreaProvider>
+    <SafeAreaView style={styles.container}>
+      <Appbar.Header style={styles.header}>
+        <Appbar.BackAction 
+          iconColor={COLORS.text} 
+          onPress={() => navigation.goBack()} 
+        />
+        <Appbar.Content
+          title={diet.name}
+          titleStyle={styles.headerTitle}
+        />
       </Appbar.Header>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Hero Image Section */}
         <View style={styles.heroContainer}>
           <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=250&fit=crop'
-            }}
+            source={{ uri: `${API_URL}/uploads/${diet.image}` }}
             style={styles.heroImage}
           />
-          <View style={styles.badgeContainer}>
-            <Surface style={styles.badge} elevation={2}>
-              <Target size={16} color="#2196F3" />
-              <Text variant="bodySmall" style={styles.badgeText}>
-                Balanced Nutrition
+          <View style={styles.overlay}>
+            <View style={styles.calorieTag}>
+              <Text style={styles.calorieText}>
+                {diet.totalCalories} kcal
               </Text>
-            </Surface>
+            </View>
           </View>
         </View>
 
         {/* Description */}
-        <View style={styles.descriptionContainer}>
-          <Text variant="bodyLarge" style={styles.description}>
-            The scientific choice for nutrition
+        <View style={styles.section}>
+          <Text style={styles.description}>
+            {diet.benefits}
           </Text>
         </View>
 
-        {/* Stats Row */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text variant="headlineSmall" style={styles.statNumber}>
-              2000-22
-            </Text>
-            <Text variant="headlineSmall" style={styles.statNumber}>
-              00
-            </Text>
-            <Text variant="bodySmall" style={styles.statLabel}>
-              Daily Calories
-            </Text>
-          </View>
-          
-          <View style={styles.statItem}>
-            <Text variant="headlineSmall" style={styles.statNumber}>
-              4-6
-            </Text>
-            <Text variant="bodySmall" style={styles.statLabel}>
-              weeks
-            </Text>
-            <Text variant="bodySmall" style={styles.statSubLabel}>
-              Duration
-            </Text>
-          </View>
-          
-          <View style={styles.statItem}>
-            <Text variant="headlineSmall" style={[styles.statNumber, { color: '#4CAF50' }]}>
-              Easy
-            </Text>
-            <Text variant="bodySmall" style={styles.statLabel}>
-              Difficulty
-            </Text>
+        {/* Quick Stats */}
+        <View style={styles.section}>
+          <View style={styles.statsContainer}>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{diet.totalCalories}</Text>
+              <Text style={styles.statLabel}>Calories</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{diet.intake}</Text>
+              <Text style={styles.statLabel}>Intake (g)</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={[styles.statValue, { color: COLORS.success }]}>
+                {diet.macronutrient ? 
+                  Math.round((diet.macronutrient.protein + diet.macronutrient.carbohydrates + diet.macronutrient.fats)) 
+                  : 0
+                }
+              </Text>
+              <Text style={styles.statLabel}>Total Macros (g)</Text>
+            </View>
           </View>
         </View>
 
         {/* Macronutrient Breakdown */}
-        <View style={styles.sectionContainer}>
-          <Text variant="headlineSmall" style={styles.sectionTitle}>
-            Macronutrient Breakdown
-          </Text>
-          
-          <View style={styles.macroContainer}>
-            {macronutrients.map((macro, index) => (
-              <View key={index} style={styles.macroItem}>
-                <Text variant="headlineMedium" style={[styles.macroPercentage, { color: macro.color }]}>
-                  {macro.percentage}
+        {diet.macronutrient && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Macronutrient Breakdown</Text>
+            <View style={styles.macroGrid}>
+              <View style={[styles.macroCard, { backgroundColor: COLORS.primaryLight }]}>
+                <Text style={[styles.macroValue, { color: COLORS.primary }]}>
+                  {diet.macronutrient.protein}g
                 </Text>
-                <Text variant="bodyMedium" style={styles.macroLabel}>
-                  {macro.label}
-                </Text>
+                <Text style={styles.macroLabel}>Protein</Text>
               </View>
-            ))}
+              <View style={[styles.macroCard, { backgroundColor: COLORS.warningLight }]}>
+                <Text style={[styles.macroValue, { color: COLORS.warning }]}>
+                  {diet.macronutrient.carbohydrates}g
+                </Text>
+                <Text style={styles.macroLabel}>Carbs</Text>
+              </View>
+              <View style={[styles.macroCard, { backgroundColor: COLORS.successLight }]}>
+                <Text style={[styles.macroValue, { color: COLORS.success }]}>
+                  {diet.macronutrient.fats}g
+                </Text>
+                <Text style={styles.macroLabel}>Fats</Text>
+              </View>
+            </View>
           </View>
-        </View>
+        )}
 
-        {/* Key Benefits */}
-        <View style={styles.sectionContainer}>
-          <Text variant="headlineSmall" style={styles.sectionTitle}>
-            Key Benefits
-          </Text>
-          
-          <View style={styles.benefitsContainer}>
-            {keyBenefits.map((benefit) => (
-              <Surface key={benefit.id} style={styles.benefitCard} elevation={1}>
-                <View style={styles.benefitContent}>
-                  <View style={styles.benefitIconContainer}>
-                    <benefit.icon size={20} color="#2196F3" />
-                  </View>
-                  <View style={styles.benefitTextContainer}>
-                    <Text variant="bodyLarge" style={styles.benefitTitle}>
-                      {benefit.title}
-                    </Text>
-                    <Text variant="bodySmall" style={styles.benefitDescription}>
-                      {benefit.description}
-                    </Text>
-                  </View>
+        {/* Key Features */}
+        {diet.features && diet.features.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Key Features</Text>
+            <View style={styles.featuresContainer}>
+              {diet.features.map((feature, index) => (
+                <View key={index} style={styles.featureItem}>
+                  <View style={styles.featureBullet} />
+                  <Text style={styles.featureText}>{feature}</Text>
                 </View>
-              </Surface>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
-
-        {/* Bottom Spacing */}
-        <View style={{ height: 32 }} />
+        )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: COLORS.background,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    backgroundColor: COLORS.white,
+    elevation: 0,
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+  },
+  headerTitle: {
+    color: COLORS.text,
+    fontSize: 18,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: 32,
+  },
   heroContainer: {
     position: 'relative',
-    marginBottom: 16,
+    height: 240,
+    marginBottom: 24,
   },
   heroImage: {
     width: '100%',
-    height: 200,
-    resizeMode: 'cover',
+    height: '100%',
+    backgroundColor: '#F3F4F6',
   },
-  badgeContainer: {
+  overlay: {
     position: 'absolute',
-    bottom: 16,
-    left: 16,
+    bottom: 20,
+    right: 20,
   },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
+  calorieTag: {
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: 'white',
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  badgeText: {
-    marginLeft: 6,
-    color: '#2196F3',
-    fontWeight: '500',
+  calorieText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.primary,
   },
-  descriptionContainer: {
-    paddingHorizontal: 16,
+  section: {
+    paddingHorizontal: 20,
     marginBottom: 24,
   },
   description: {
-    color: '#666',
+    fontSize: 16,
     lineHeight: 24,
+    color: COLORS.textSecondary,
   },
   statsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 32,
-    justifyContent: 'space-between',
+    gap: 12,
   },
-  statItem: {
+  statCard: {
     flex: 1,
-    alignItems: 'flex-start',
+    backgroundColor: COLORS.white,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  statNumber: {
-    fontWeight: 'bold',
-    color: '#333',
-    lineHeight: 28,
+  statValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 4,
   },
   statLabel: {
-    color: '#666',
-    marginTop: 4,
-  },
-  statSubLabel: {
-    color: '#666',
     fontSize: 12,
-  },
-  sectionContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 32,
+    color: COLORS.textLight,
+    textAlign: 'center',
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 20,
+    fontWeight: '600',
+    color: COLORS.text,
     marginBottom: 16,
   },
-  macroContainer: {
+  macroGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 12,
   },
-  macroItem: {
-    alignItems: 'center',
+  macroCard: {
     flex: 1,
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
   },
-  macroPercentage: {
-    fontWeight: 'bold',
+  macroValue: {
+    fontSize: 20,
+    fontWeight: '700',
     marginBottom: 4,
   },
   macroLabel: {
-    color: '#666',
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
   },
-  benefitsContainer: {
-    gap: 12,
-  },
-  benefitCard: {
-    backgroundColor: 'white',
+  featuresContainer: {
+    backgroundColor: COLORS.white,
     borderRadius: 12,
-    padding: 16,
+    padding: 20,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  benefitContent: {
+  featureItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    marginBottom: 12,
   },
-  benefitIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E3F2FD',
-    alignItems: 'center',
-    justifyContent: 'center',
+  featureBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.primary,
+    marginTop: 7,
     marginRight: 12,
   },
-  benefitTextContainer: {
+  featureText: {
     flex: 1,
-  },
-  benefitTitle: {
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  benefitDescription: {
-    color: '#666',
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 20,
+    color: COLORS.textSecondary,
   },
 });
 

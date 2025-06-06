@@ -1,18 +1,16 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Button, useTheme } from "react-native-paper";
+import { Exercise } from "../../../types/user/exercise/Exercise";
 
-type ExerciseData = {
-  currentExercise: number;
-  totalExercises: number;
-};
+
 
 const BottomNavigation = ({
   navigation,
   exerciseData,
 }: {
   navigation: any;
-  exerciseData: ExerciseData;
+  exerciseData: Exercise;
 }) => {
   const theme = useTheme();
   const handleWorkoutStartPress = () => {

@@ -1,15 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-
-type CurrentWorkoutType = {
-    exercises: {
-        length: number;
-    }
-}
+import { Exercise } from "../../../types/user/exercise/Exercise";
 
 
-const WorkoutSummary = ({ currentWorkout, selectedDay}: { currentWorkout: CurrentWorkoutType, selectedDay: number}) => {
+
+
+const WorkoutSummary = ({ exercises, selectedSubcategory}: { exercises: Exercise[], selectedSubcategory: string}) => {
   const theme = useTheme();
   return (
     <Card
@@ -22,7 +19,7 @@ const WorkoutSummary = ({ currentWorkout, selectedDay}: { currentWorkout: Curren
         <View style={styles.summaryStats}>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: "#06407a" }]}>
-              {currentWorkout.exercises.length}
+              {exercises.length}
             </Text>
             <Text
               style={[
@@ -45,13 +42,13 @@ const WorkoutSummary = ({ currentWorkout, selectedDay}: { currentWorkout: Curren
             </Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statNumber, { color: "#06407a" }]}>
-              {selectedDay === 7
+            {/* <Text style={[styles.statNumber, { color: "#06407a" }]}>
+              {selectedSubcategory === 7
                 ? "Low"
                 : selectedDay === 6
                 ? "High"
                 : "Medium"}
-            </Text>
+            </Text> */}
             <Text
               style={[
                 styles.statLabel,
