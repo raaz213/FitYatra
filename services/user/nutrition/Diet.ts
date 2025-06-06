@@ -47,6 +47,17 @@ export const fetchNutritionDietById = async (dietId: string): Promise<Diet> => {
   }
 };
 
+export const getNutritionBySubcategory = async (subcategoryId: string): Promise<Diet[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/api/nutrition/diet/${subcategoryId}`
+    );
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
+}
+
+
 export const getSearchNutritions = async (
   searchQuery: string,
   page: number,

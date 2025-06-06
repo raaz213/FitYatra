@@ -3,23 +3,24 @@ import { StyleSheet } from "react-native";
 import { Image, Text } from "react-native";
 import { View } from "react-native";
 import { Button, Card } from "react-native-paper";
-import { DietOption } from "../../../screens/user/nutrition/NutritionCategoryScreen";
+import { Category } from "../../../types/user/nutrition/Category";
+import { API_URL } from "../../../constants/apiUrl";
 
 interface DietCardProps {
-  diet: DietOption;
-  viewDietPress: (id: number) => void;
+  category: Category;
+  viewDietPress: (id: string) => void;
 }
 
-const DietCard: React.FC<DietCardProps> = ({ diet, viewDietPress }) => {
+const DietCard: React.FC<DietCardProps> = ({ category, viewDietPress }) => {
   return (
-    <Card style={[styles.card, { backgroundColor: diet.color }]}>
+    <Card style={[styles.card, { backgroundColor: '#d0f5d6'}]}>
       <View style={styles.cardContent}>
         <View style={styles.cardText}>
-          <Text style={styles.cardTitle}>{diet.title}</Text>
-          <Text style={styles.cardDescription}>{diet.description}</Text>
+          <Text style={styles.cardTitle}>{category.name}</Text>
+          <Text style={styles.cardDescription}>{category.description}</Text>
           <Button
             mode="text"
-            onPress={() => viewDietPress(1)}
+            onPress={() => viewDietPress(category._id)}
             contentStyle={styles.buttonContent}
             labelStyle={styles.buttonLabel}
             icon={({ size, color }) => (
@@ -30,7 +31,7 @@ const DietCard: React.FC<DietCardProps> = ({ diet, viewDietPress }) => {
           </Button>
         </View>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: diet.image }} style={styles.cardImage} />
+          <Image source={{ uri:`${API_URL}/uploads/${category.image}`}} style={styles.cardImage} />
         </View>
       </View>
     </Card>
