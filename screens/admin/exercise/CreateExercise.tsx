@@ -5,7 +5,6 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import {
   TextInput,

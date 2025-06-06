@@ -13,39 +13,70 @@ import {
   Divider,
   Chip,
   ProgressBar,
+  DataTable,
+  Card,
+  Searchbar,
 } from "react-native-paper";
-import { Eye, Edit, Trash2, Search, Zap } from "lucide-react-native";
+import { Eye, Edit, Trash2, Search, Zap, Plus } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
 import {
   fetchNutritionDietById,
   fetchNutritionDiets,
+  getSearchNutritions,
 } from "../../../services/user/nutrition/Diet";
 import { Diet } from "../../../types/user/nutrition/diet";
 
 export default function ViewNutrition({ navigation }: any) {
   const theme = useTheme();
-  const [diets, setDiets] = useState<Diet[]>([]);
+  const numberOfItemsPerPageList = [5, 10, 15];
+  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState<number>(
+    numberOfItemsPerPageList[0]
+  );
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [detailsVisible, setDetailsVisible] = useState(false);
-  const [dietDetails, setDietDetails] = useState<Diet | null>(null);
 
-  const fetchDiets = async () => {
+  const [selectedDiet, setSelectedDiet] = useState<Diet | null>(null);
+  const [search, setSearch] = useState<string>("");
+  const [displayDietData, setDisplayDietData] = useState<Diet[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  const fetchDiets = async (page: number, limit: number) => {
     try {
-      const response = await fetchNutritionDiets();
-      setDiets(response);
+      const response = await fetchNutritionDiets(page, limit);
+      setDisplayDietData(response.data);
+      setTotalPages(Number(response.totalPages));
+      setTotalCount(Number(response.totalCounts));
+      setPage(Number(response.currentPage));
     } catch (error) {
       console.error(error);
     }
   };
 
+  const fetchSearchNutritions = async (page: number, limit: number) => {
+    try {
+      const response = await getSearchNutritions(search, page, limit);
+      setDisplayDietData(response.data);
+      setTotalPages(Number(response.totalPages));
+      setTotalCount(Number(response.totalCounts));
+      setPage(Number(response.currentPage));
+    } catch (error) {
+      console.error("Error fetching search exercises:", error);
+    }
+  };
   useEffect(() => {
-    fetchDiets();
-  }, []);
+    if (search.trim() === "") {
+      fetchDiets(page, numberOfItemsPerPage);
+    } else {
+      fetchSearchNutritions(page, numberOfItemsPerPage);
+    }
+  }, [search, page, numberOfItemsPerPage]);
 
   const handleViewDetails = async (dietId: string) => {
     try {
       const response = await fetchNutritionDietById(dietId);
       setDetailsVisible(true);
-      setDietDetails(response);
+      setSelectedDiet(response);
     } catch (error) {
       console.error(error);
       setDetailsVisible(false);
@@ -63,28 +94,31 @@ export default function ViewNutrition({ navigation }: any) {
         return "#95A5A6";
     }
   };
- const totalItems = diets.length;
- const calTotalCalories = ()=> {
-  let totalCalories = 0;
-  diets.forEach((diet) => {
-    totalCalories += diet.totalCalories;
-  });
-  return totalCalories;
- }
- const avgProtein = () => {
-  let totalProtein = 0;
-  diets.forEach((diet) => {
-    totalProtein += diet.macronutrient.protein;
-  });
-  return totalProtein / totalItems;
- }
+  const totalItems = displayDietData.length;
+  const calTotalCalories = () => {
+    let totalCalories = 0;
+    displayDietData.forEach((diet) => {
+      totalCalories += diet.totalCalories;
+    });
+    return totalCalories;
+  };
+  const avgProtein = () => {
+    let totalProtein = 0;
+    displayDietData.forEach((diet) => {
+      totalProtein += diet.macronutrient.protein;
+    });
+    return totalProtein / totalItems;
+  };
   const avgCarbs = () => {
-  let totalCarbs = 0;
-  diets.forEach((diet) => {
-    totalCarbs += diet.macronutrient.carbohydrates;
-  });
-  return totalCarbs / totalItems;
-  }
+    let totalCarbs = 0;
+    displayDietData.forEach((diet) => {
+      totalCarbs += diet.macronutrient.carbohydrates;
+    });
+    return totalCarbs / totalItems;
+  };
+
+  const from = page * numberOfItemsPerPage;
+  const to = Math.min((page + 1) * numberOfItemsPerPage, totalCount);
 
   return (
     <View style={styles.container}>
@@ -96,24 +130,27 @@ export default function ViewNutrition({ navigation }: any) {
 
       <View style={styles.content}>
         {/* Search and Stats Section */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInputContainer}>
-            <Search size={20} color="#666" style={styles.searchIcon} />
-            <TextInput
-              placeholder="Search nutrition items..."
-              style={styles.searchInput}
-            />
-          </View>
-          <Button
-            mode="contained"
-            onPress={() => navigation.navigate("CreateNutrition")}
-            style={styles.addButton}
-            labelStyle={styles.addButtonLabel}
-          >
-            Add
-          </Button>
-        </View>
-
+        <Card style={styles.searchCard}>
+          <Card.Content>
+            <View style={styles.searchContainer}>
+              <Searchbar
+                placeholder="Search exercises..."
+                value={search}
+                onChangeText={(query) => setSearch(query)}
+                style={styles.searchbar}
+                icon={({ size, color }) => <Search size={size} color={color} />}
+              />
+              <Button
+                mode="contained"
+                onPress={() => navigation.navigate("CreateNutrition")}
+                style={styles.addButton}
+                icon={({ size, color }) => <Plus size={size} color={color} />}
+              >
+                Add
+              </Button>
+            </View>
+          </Card.Content>
+        </Card>
         {/* Quick Stats */}
         <View style={styles.statsCard}>
           <View style={styles.statsItem}>
@@ -136,7 +173,7 @@ export default function ViewNutrition({ navigation }: any) {
             <Text
               style={[styles.statsValue, { color: getMacroColor("carbs") }]}
             >
-             { avgCarbs()}
+              {avgCarbs()}
             </Text>
             <Text style={styles.statsLabel}>Avg Carbs</Text>
           </View>
@@ -158,9 +195,9 @@ export default function ViewNutrition({ navigation }: any) {
           </View>
 
           {/* Table Rows */}
-          {diets.length > 0 ? (
+          {displayDietData.length > 0 ? (
             <ScrollView style={styles.tableBody}>
-              {diets.map((item, index) => (
+              {displayDietData.map((item, index) => (
                 <View key={index} style={styles.tableRow}>
                   <View style={[styles.tableCell, { flex: 2 }]}>
                     <Text style={styles.itemName}>{item.name}</Text>
@@ -219,41 +256,20 @@ export default function ViewNutrition({ navigation }: any) {
           )}
 
           {/* Pagination */}
-          {/* <View style={styles.pagination}>
-            <Text style={styles.paginationText}>
-              {from + 1}-{to} of {filteredNutrition.length}
-            </Text>
-            <View style={styles.paginationControls}>
-              <IconButton
-                icon="page-first"
-                size={20}
-                onPress={() => setPage(0)}
-                disabled={page === 0}
-                style={styles.paginationButton}
-              />
-              <IconButton
-                icon="chevron-left"
-                size={20}
-                onPress={() => setPage(Math.max(0, page - 1))}
-                disabled={page === 0}
-                style={styles.paginationButton}
-              />
-              <IconButton
-                icon="chevron-right"
-                size={20}
-                onPress={() => setPage(Math.min(Math.ceil(filteredNutrition.length / itemsPerPage) - 1, page + 1))}
-                disabled={page >= Math.ceil(filteredNutrition.length / itemsPerPage) - 1}
-                style={styles.paginationButton}
-              />
-              <IconButton
-                icon="page-last"
-                size={20}
-                onPress={() => setPage(Math.ceil(filteredNutrition.length / itemsPerPage) - 1)}
-                disabled={page >= Math.ceil(filteredNutrition.length / itemsPerPage) - 1}
-                style={styles.paginationButton}
-              />
-            </View>
-          </View> */}
+          <DataTable.Pagination
+            page={page}
+            numberOfPages={totalPages}
+            onPageChange={(page) => setPage(page)}
+            label={`${from + 1}-${to} of ${totalCount} `}
+            showFastPaginationControls
+            numberOfItemsPerPageList={numberOfItemsPerPageList}
+            numberOfItemsPerPage={numberOfItemsPerPage}
+            onItemsPerPageChange={() => {
+              setNumberOfItemsPerPage(numberOfItemsPerPage);
+              setPage(0);
+            }}
+            selectPageDropdownLabel={"Rows per page"}
+          />
         </View>
       </View>
 
@@ -264,16 +280,16 @@ export default function ViewNutrition({ navigation }: any) {
           onDismiss={() => setDetailsVisible(false)}
           contentContainerStyle={styles.modalContainer}
         >
-          {dietDetails && (
+          {selectedDiet && (
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalTitle}>{dietDetails.name}</Text>
+              <Text style={styles.modalTitle}>{selectedDiet.name}</Text>
               <Divider style={styles.modalDivider} />
 
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Basic Information</Text>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Total Intake:</Text>
-                  <Text style={styles.detailValue}>{dietDetails.intake}g</Text>
+                  <Text style={styles.detailValue}>{selectedDiet.intake}g</Text>
                 </View>
               </View>
 
@@ -281,7 +297,7 @@ export default function ViewNutrition({ navigation }: any) {
                 <Zap size={24} color="#FF9800" />
                 <View style={styles.caloriesDetailContent}>
                   <Text style={styles.caloriesDetailValue}>
-                    {Math.round(dietDetails.totalCalories)}
+                    {Math.round(selectedDiet.totalCalories)}
                   </Text>
                   <Text style={styles.caloriesDetailLabel}>Total Calories</Text>
                 </View>
@@ -304,14 +320,14 @@ export default function ViewNutrition({ navigation }: any) {
                   </View>
                   <View style={styles.macroDetailValues}>
                     <Text style={styles.macroDetailAmount}>
-                      {dietDetails.macronutrient.protein}g
+                      {selectedDiet.macronutrient.protein}g
                     </Text>
                     <Text style={styles.macroDetailPercentage}>
-                      {dietDetails.macronutrientPercent.protein}%
+                      {selectedDiet.macronutrientPercent.protein}%
                     </Text>
                   </View>
                   <ProgressBar
-                    progress={dietDetails.macronutrientPercent.protein / 100}
+                    progress={selectedDiet.macronutrientPercent.protein / 100}
                     color={getMacroColor("protein")}
                     style={styles.progressBar}
                   />
@@ -331,15 +347,15 @@ export default function ViewNutrition({ navigation }: any) {
                   </View>
                   <View style={styles.macroDetailValues}>
                     <Text style={styles.macroDetailAmount}>
-                      {dietDetails.macronutrient.carbohydrates}g
+                      {selectedDiet.macronutrient.carbohydrates}g
                     </Text>
                     <Text style={styles.macroDetailPercentage}>
-                      {dietDetails.macronutrientPercent.carbohydrates}%
+                      {selectedDiet.macronutrientPercent.carbohydrates}%
                     </Text>
                   </View>
                   <ProgressBar
                     progress={
-                      dietDetails.macronutrientPercent.carbohydrates / 100
+                      selectedDiet.macronutrientPercent.carbohydrates / 100
                     }
                     color={getMacroColor("carbs")}
                     style={styles.progressBar}
@@ -360,14 +376,14 @@ export default function ViewNutrition({ navigation }: any) {
                   </View>
                   <View style={styles.macroDetailValues}>
                     <Text style={styles.macroDetailAmount}>
-                      {dietDetails.macronutrient.fats}g
+                      {selectedDiet.macronutrient.fats}g
                     </Text>
                     <Text style={styles.macroDetailPercentage}>
-                      {dietDetails.macronutrientPercent.fats}%
+                      {selectedDiet.macronutrientPercent.fats}%
                     </Text>
                   </View>
                   <ProgressBar
-                    progress={dietDetails.macronutrientPercent.fats / 100}
+                    progress={selectedDiet.macronutrientPercent.fats / 100}
                     color={getMacroColor("fats")}
                     style={styles.progressBar}
                   />
@@ -377,7 +393,7 @@ export default function ViewNutrition({ navigation }: any) {
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Features</Text>
                 <View style={styles.featuresContainer}>
-                  {dietDetails.features.map((feature, index) => (
+                  {selectedDiet.features.map((feature, index) => (
                     <Chip
                       key={index}
                       mode="outlined"
@@ -391,7 +407,7 @@ export default function ViewNutrition({ navigation }: any) {
 
               <View style={styles.detailSection}>
                 <Text style={styles.sectionTitle}>Key Benefits</Text>
-                <Text style={styles.benefitsText}>{dietDetails.benefits}</Text>
+                <Text style={styles.benefitsText}>{selectedDiet.benefits}</Text>
               </View>
 
               <View style={styles.modalButtons}>
@@ -455,11 +471,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+   searchCard: {
+    marginBottom: 16,
+    elevation: 2,
+  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
     gap: 12,
+    marginBottom: 12,
+  },
+  searchbar: {
+    flex: 1,
   },
   searchInputContainer: {
     flex: 1,

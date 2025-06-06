@@ -19,19 +19,14 @@ export const addExercise = async (formData: FormData): Promise<Exercise> => {
   }
 };
 
-export const getAllExercises = async (
-  page: number,
-  limit: number
-): Promise<{
+export const getAllExercises = async ( page: number,limit: number): Promise<{
   data: Exercise[];
   totalCounts: number;
   totalPages: number;
   currentPage: number;
 }> => {
   try {
-    const response = await axios.get(`${API_URL}/api/exercise/workout/list`, {
-      params: { page, limit },
-    });
+    const response = await axios.get(`${API_URL}/api/exercise/workout/list`, { params: { page, limit } });
     return response.data;
   } catch (error: any) {
     console.error(
@@ -42,9 +37,7 @@ export const getAllExercises = async (
   }
 };
 
-export const getExerciseById = async (
-  exerciseId: string
-): Promise<Exercise> => {
+export const getExerciseById = async (exerciseId: string): Promise<Exercise> => {
   try {
     const response = await axios.get(
       `${API_URL}/api/exercise/workout/${exerciseId}`
