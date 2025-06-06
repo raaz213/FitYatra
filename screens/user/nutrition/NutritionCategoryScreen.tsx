@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } fr
 import { Provider as PaperProvider, DefaultTheme, FAB } from "react-native-paper"
 import { Ionicons } from "@expo/vector-icons"
 import DietCard from "../../../components/user/nutritionCategory/DietCard"
+import { fetchNutritionCategories } from "../../../services/user/nutrition/Category"
+import { useEffect, useState } from "react"
+import { Category } from "../../../types/user/nutrition/Category"
 
 // Custom theme
 const theme = {
@@ -17,43 +20,30 @@ const theme = {
   },
 }
 
-export interface DietOption {
-  id: number
-  title: string
-  description: string
-  image: string
-  color: string
-}
-
-const dietOptions: DietOption[] = [
-  {
-    id: 1,
-    title: "Vegetarian",
-    description: "Plant-based choices",
-    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&h=200&fit=crop",
-    color: "#F3E5F5",
-  },
-  {
-    id: 2,
-    title: "Non-Vegetarian",
-    description: "Meat and protein-rich meals",
-    image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=300&h=200&fit=crop",
-    color: "#FFE5E5",
-  },
-]
-
 interface NutritionCategoryScreenProps {
   navigation: any
 }
 
 const NutritionCategoryScreen: React.FC<NutritionCategoryScreenProps> = ({ navigation }) => {
-  const viewDietPress = (id: number) => {
-    navigation.navigate("NutritionFoods", { dietId: id })
+
+  const [categories, setCategories]= useState<Category[]>([]);
+
+  const viewDietPress = (id: string) => {
+    navigation.navigate("NutritionFoods", { categoryId: id })
   }
 
   const openCamera = () => {
     navigation.navigate("Camera")
   }
+
+const getNutritionCategories = async() => {
+   const response = await fetchNutritionCategories();
+   setCategories(response);
+}
+
+useEffect(() => {
+  getNutritionCategories();
+}, []);
 
   return (
     <PaperProvider theme={theme}>
@@ -79,8 +69,8 @@ const NutritionCategoryScreen: React.FC<NutritionCategoryScreenProps> = ({ navig
           </View>
 
           <View style={styles.cardsContainer}>
-            {dietOptions.map((diet) => (
-              <DietCard key={diet.id} diet={diet} viewDietPress={viewDietPress} />
+            {categories.map((category) => (
+              <DietCard key={category._id} category={category} viewDietPress={viewDietPress} />
             ))}
           </View>
         </ScrollView>
