@@ -165,14 +165,10 @@ export default function ExerciseSubcategoryScreen() {
                 </View>
                 <TextInput
                   value={dayNumber.toString()}
-                  onChangeText={(text) => {
-                    const num = parseInt(text) || 0;
-                    setDayNumber(Math.max(1, num));
-                  }}
+                  onChangeText={text => setDayNumber(Number(text))}
                   keyboardType="numeric"
                   style={styles.input}
                   mode="outlined"
-                  placeholder="1"
                 />
               </View>
 

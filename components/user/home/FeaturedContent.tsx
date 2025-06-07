@@ -11,48 +11,47 @@ import {
   TextStyle,
 } from "react-native";
 import CustomCarousel from "../../custom/CustomCarousel";
-import { Subcategory } from "../../../types/user/exercise/Subcategory";
 import { API_URL } from "../../../constants/apiUrl";
+import { Category } from "../../../types/user/exercise/Category";
 
 
 interface CarouselItem {
-  subcategory: Subcategory;
+  category: Category;
   index: number;
 };
 
 
-function FeaturedContent({ exerciseSubcategories}: {exerciseSubcategories: Subcategory[]}) {
+function FeaturedContent({ exerciseCategories}: {exerciseCategories: Category[]}) {
   
-  const handleChallengePress = (subcategoryId: string) => {
-    console.log(`Challenge pressed for: ${subcategoryId}`);
+  const handleChallengePress = (categoryId: string) => {
+    console.log(`Challenge pressed for: ${categoryId}`);
   };
 
-  const formattedSubcategories = exerciseSubcategories.map((subcategory, index) => ({
-    subcategory,
+  const formattedcategories = exerciseCategories.map((category, index) => ({
+    category,
     index
   }))
 
   return (
     <View>
       <CustomCarousel
-        data={formattedSubcategories}
-        renderItem={({ subcategory }: CarouselItem) => {
+        data={formattedcategories}
+        renderItem={({ category }: CarouselItem) => {
          
           return (
-            <View key={subcategory._id} style={styles.item}>
+            <View key={category._id} style={styles.item}>
               <View style={styles.imageContainer}>
-                <Image source={{ uri:  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREWR0nU22XW4OZUHtGcq5kx2hwTLg5pth8Nw&s" }} style={styles.image} />
+                <Image source={{ uri: `${API_URL}/uploads/${category.image}` }} style={styles.image} />
                 <View style={styles.overlay} />
                 <View style={styles.contentOverlay}>
                   <View style={styles.titleContainer}>
                     <Text style={styles.starIcon}>⭐</Text>
-                    <Text style={styles.title}>{subcategory.name}</Text>
+                    <Text style={styles.title}>{category.name}</Text>
                   </View>
-                  <Text style={styles.subtitle}>{subcategory.description}</Text>
 
                   <TouchableOpacity
                     style={styles.challengeButton}
-                    onPress={() => handleChallengePress(subcategory._id)}
+                    onPress={() => handleChallengePress(category._id)}
                     activeOpacity={0.8}
                   >
                     <Text style={styles.challengeButtonText}>CHALLENGE</Text>

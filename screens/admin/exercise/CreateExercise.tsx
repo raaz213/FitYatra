@@ -38,6 +38,31 @@ import { Subcategory } from "../../../types/user/exercise/Subcategory";
 import { addExercise } from "../../../services/user/exercise/Exercise";
 import { Toast } from "toastify-react-native";
 
+const focusAreas = [
+  { label: "Legs", value: "legs" },
+  { label: "Arms", value: "arms" },
+  { label: "Core", value: "core" },
+  { label: "Back", value: "back" },
+  { label: "Chest", value: "chest" },
+  { label: "Shoulders", value: "shoulders" },
+  { label: "Glutes", value: "glutes" },
+  { label: "Full Body", value: "full_body" },
+  { label: "Cardio", value: "cardio" },
+  { label: "Upper Body", value: "upper_body" },
+  { label: "Lower Body", value: "lower_body" },
+  { label: "Abs", value: "abs" },
+  { label: "Biceps", value: "biceps" },
+  { label: "Triceps", value: "triceps" },
+  { label: "Quads", value: "quads" },
+  { label: "Hamstrings", value: "hamstrings" },
+  { label: "Calves", value: "calves" },
+  { label: "Mobility", value: "mobility" },
+  { label: "Balance", value: "balance" },
+  { label: "Flexibility", value: "flexibility" },
+  { label: "Endurance", value: "endurance" },
+  { label: "Strength", value: "strength" },
+];
+
 export default function CreateExercise() {
   const theme = useTheme();
   const [data, setData] = useState<{
@@ -47,6 +72,7 @@ export default function CreateExercise() {
     videoUrl: string;
     sets: number;
     duration: number;
+    metValue: number;
     image: string;
   }>({
     name: "",
@@ -55,11 +81,16 @@ export default function CreateExercise() {
     videoUrl: "",
     sets: 0,
     duration: 0,
+    metValue: 0,
     image: "",
   });
 
   const [openCategories, setOpenCategories] = useState(false);
   const [openSubCategories, setOpenSubCategories] = useState(false);
+  const [openFocusArea, setOpenFocusArea] = useState(false);
+  const [selectedFocusArea, setSelectedFocusArea] = useState<string[]>([]);
+  const [focusArea, setFocusArea] =
+    useState<{ label: string; value: string }[]>(focusAreas);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [categories, setCategories] = useState<
@@ -69,6 +100,7 @@ export default function CreateExercise() {
     { label: string; value: string }[]
   >([]);
 
+  
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -123,10 +155,11 @@ export default function CreateExercise() {
     formData.append("name", data.name);
     formData.append("sets", data.sets.toString());
     formData.append("duration", data.duration.toString());
+    formData.append("metValue", data.metValue.toString());
     formData.append("subcategory", selectedSubCategory);
     formData.append("videoUrl", data.videoUrl);
     formData.append("instructions", data.instructions);
-    formData.append("focusArea", data.focusArea);
+    formData.append("focusArea", JSON.stringify(selectedFocusArea));
 
     if (data.image) {
       const fileName = data.image.split("/").pop() || "photo.jpg";
@@ -305,22 +338,51 @@ export default function CreateExercise() {
               />
             </View>
 
-            {/* Focus Area */}
+            {/* MET value */}
             <View style={styles.inputContainer}>
-              <FileText
+              <Clock
                 size={20}
                 color={theme.colors.primary}
                 style={styles.inputIcon}
               />
               <TextInput
-                label="Focus Area"
-                value={data.focusArea}
-                onChangeText={(text) => handleChange("focusArea", text)}
-                multiline
-                numberOfLines={4}
-                style={styles.textArea}
+                label="MET Value"
+                value={data.metValue.toString()}
+                onChangeText={(text) => handleChange("metValue", text)}
+                style={styles.input}
                 mode="outlined"
-                placeholder="Detailed step-by-step instructions for performing the exercise..."
+              />
+            </View>
+
+            {/* Focus Area */}
+            <View style={{ zIndex: 1000 }}>
+              {" "}
+              {/* Use View instead of ScrollView for zIndex container */}
+              <DropDownPicker
+                dropDownContainerStyle={{
+                  alignItems: "flex-start",
+                  zIndex: 3000, // Higher than parent for visibility
+                  elevation: 3000, // For Android
+                }}
+                listMode="MODAL" // Use modal for better visibility
+                open={openFocusArea}
+                value={selectedFocusArea}
+                items={focusArea}
+                setOpen={setOpenFocusArea}
+                setValue={setSelectedFocusArea}
+                setItems={setFocusArea}
+                placeholder="Focus Area"
+                multiple={true}
+                mode="BADGE"
+                style={styles.dropdown}
+                dropDownDirection="BOTTOM"
+                textStyle={styles.dropdownText}
+                ArrowDownIconComponent={() => (
+                  <ChevronDown size={20} color={theme.colors.onSurface} />
+                )}
+                ArrowUpIconComponent={() => (
+                  <ChevronDown size={20} color={theme.colors.onSurface} />
+                )}
               />
             </View>
 

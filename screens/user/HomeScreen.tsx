@@ -9,21 +9,21 @@ import TestimonialsList from "../../components/user/home/TestimonialList";
 import WaterIntake from "../../components/user/home/WaterIntake";
 import { StatusBar } from "expo-status-bar";
 import ExerciseCategory from "../../components/user/home/ExerciseCategory";
-import { Subcategory } from "../../types/user/exercise/Subcategory";
-import { getExerciseSubcategories } from "../../services/user/exercise/Subcategory";
+import { fetchAllCategories } from "../../services/user/exercise/Category";
+import { Category } from "../../types/user/exercise/Category";
 
 const HomeScreen = () => {
-  const [exerciseSubcategories, setExerciseSubcategories] = useState<
-    Subcategory[]
+  const [exerciseCategories, setExerciseCategories] = useState<
+    Category[]
   >([]);
 
-  const fetchSubcategories = async () => {
-    const response = await getExerciseSubcategories();
-    setExerciseSubcategories(response);
+  const fetchCategories = async () => {
+    const response = await fetchAllCategories();
+    setExerciseCategories(response);
   };
 
   useEffect(() => {
-    fetchSubcategories();
+    fetchCategories();
   }, []);
 
   return (
@@ -46,7 +46,7 @@ const HomeScreen = () => {
 
         {/* Featured Content */}
         <View style={styles.featuredContentSection}>
-          <FeaturedContent exerciseSubcategories={exerciseSubcategories} />
+          <FeaturedContent exerciseCategories={exerciseCategories} />
         </View>
 
         {/* Step Tracker */}

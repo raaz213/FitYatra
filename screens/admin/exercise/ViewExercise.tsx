@@ -27,9 +27,9 @@ import { Exercise } from "../../../types/user/exercise/Exercise";
 export default function ViewExercise({ navigation }: any) {
   const theme = useTheme();
 
-  const numberOfItemsPerPageList = [5, 10, 15];
+  const numberOfItemsPerPageList = [5, 10, 15, 20];
   const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState<number>(
-    numberOfItemsPerPageList[0]
+    numberOfItemsPerPageList[3]
   );
   const [totalCount, setTotalCount] = useState<number>(0);
   const [detailsVisible, setDetailsVisible] = useState(false);
@@ -87,7 +87,7 @@ export default function ViewExercise({ navigation }: any) {
   const to = Math.min((page + 1) * numberOfItemsPerPage, totalCount);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <StatusBar style="light" />
 
       <View style={styles.content}>
@@ -209,10 +209,17 @@ export default function ViewExercise({ navigation }: any) {
               </View>
 
               <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>MET Value:</Text>
+                <Text style={styles.detailValue}>{selectedExercise.metValue}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Focus Area:</Text>
-                <Chip mode="outlined" style={styles.detailChip}>
-                  {selectedExercise.focusArea}
+                {selectedExercise.focusArea.map((fa,index)=>(
+                  <Chip key={index} mode="outlined" style={styles.detailChip}>
+                  {fa}
                 </Chip>
+                ))}
               </View>
 
               <View style={styles.detailSection}>
@@ -254,7 +261,7 @@ export default function ViewExercise({ navigation }: any) {
           )}
         </Modal>
       </Portal>
-    </View>
+    </ScrollView>
   );
 }
 
