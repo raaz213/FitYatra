@@ -6,22 +6,27 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ImageBackground,
-  ScrollView,
   Alert,
-  Dimensions
 } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { LoginReq, User } from '../types/auth/auth';
+import { Toast } from 'toastify-react-native';
+import { login } from '../services/auth/auth';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
 
 interface LoginScreenProps {
   onSwitchToSignUp: () => void;
+  userData : User;
 }
+export type RootStackParamList = {
+  Admin: undefined;
+  User: undefined;
+  // add other screens if needed
+};
 
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
 
 const LoginValidationSchema = Yup.object().shape({
   email: Yup.string()
@@ -32,10 +37,33 @@ const LoginValidationSchema = Yup.object().shape({
     .required('Password is required'),
 });
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToSignUp }) => {
-  const handleLogin = (values: LoginFormValues) => {
-    console.log('Login:', values);
-    Alert.alert('Success', 'Login successful!');
+
+const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToSignUp, userData }) => {
+
+const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+
+  const handleLogin = async(values: LoginReq) => {
+       try {
+          await login(values);
+          Toast.success("Login successfully");
+          // navigate to dashboard
+          if(userData.role == 'admin'){
+            // navigate to admin dashboard
+            navigation.navigate('Admin')
+            }
+          else{
+            // navigate to user dashboard
+            navigation.navigate('User')
+
+          }
+
+        } catch (e: any) {
+          console.error(e);
+          Toast.error(
+            e?.response?.data?.message || "Login failed. Please try again."
+          );
+        }
   };
 
   const handleForgotPassword = () => {

@@ -8,9 +8,7 @@ const AdminLayoutScreen = () => {
     return (
         <>
         <ToastManager />
-        <NavigationContainer>
             <DrawerNavigator /> 
-        </NavigationContainer>
 
         </>
     );

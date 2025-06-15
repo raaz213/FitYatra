@@ -1,5 +1,5 @@
 // components/SignUpScreen.tsx
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -7,70 +7,58 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
-} from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+} from "react-native";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { User } from "../types/auth/auth";
+import { Picker } from "@react-native-picker/picker";
+import { register } from "../services/auth/auth";
+import { Toast } from "toastify-react-native";
 
 interface SignUpScreenProps {
   onSwitchToLogin: () => void;
-}
-
-interface SignUpFormValues {
-  firstName: string;
-  lastName: string;
-  dob: string;
-  weight: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
+  setUserData:(data:User) => void;
 }
 
 const SignUpValidationSchema = Yup.object().shape({
-  firstName: Yup.string()
-    .min(2, 'First name must be at least 2 characters')
-    .required('First name is required'),
-  lastName: Yup.string()
-    .min(2, 'Last name must be at least 2 characters')
-    .required('Last name is required'),
-  dob: Yup.string()
-    .matches(/^\d{2}\/\d{2}\/\d{4}$/, 'Date must be in DD/MM/YYYY format')
-    .required('Date of birth is required'),
+  name: Yup.string()
+    .min(3, "Name must be at least 3 characters")
+    .required("Name is required"),
+  age: Yup.number()
+    .positive("Age must be a positive number")
+    .required("Age is required"),
   weight: Yup.number()
-    .positive('Weight must be a positive number')
-    .required('Weight is required'),
+    .positive("Weight must be a positive number")
+    .required("Weight is required"),
+  height: Yup.number()
+    .positive("Height must be a positive number")
+    .required("Height is required"),
+  gender: Yup.string()
+    .oneOf(["male", "female", "other"], "Invalid gender")
+    .required("Gender is required"),
   email: Yup.string()
-    .email('Invalid email format')
-    .required('Email is required'),
+    .email("Invalid email format")
+    .required("Email is required"),
   password: Yup.string()
-    .min(8, 'Password must be at least 8 characters')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    )
-    .required('Password is required'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Confirm password is required'),
+    .min(5, "Password must be at least 5 characters")
+    .required("Password is required"),
 });
 
-const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
-  const handleSignUp = (values: SignUpFormValues) => {
-    console.log('Sign up:', values);
-    Alert.alert('Success', 'Account created successfully!');
-  };
+const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin, setUserData }) => {
 
-  const formatDate = (text: string) => {
-    // Remove all non-numeric characters
-    const cleaned = text.replace(/\D/g, '');
-    
-    // Add slashes after day and month
-    if (cleaned.length >= 3 && cleaned.length <= 4) {
-      return cleaned.slice(0, 2) + '/' + cleaned.slice(2);
-    } else if (cleaned.length >= 5) {
-      return cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4) + '/' + cleaned.slice(4, 8);
+  const handleSignUp = async (values: User) => {
+
+    try {
+     const response = await register(values);
+     setUserData(response);
+      Toast.success("Registered successfully");
+      onSwitchToLogin();
+    } catch (e: any) {
+      console.error(e);
+      Toast.error(
+        e?.response?.data?.message || "Registration failed. Please try again."
+      );
     }
-    return cleaned;
   };
 
   return (
@@ -78,18 +66,20 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
       <View style={styles.card}>
         <Text style={styles.title}>Sign Up</Text>
         <Text style={styles.subtitle}>
-          The lower abdomen and hips are the most difficult areas of the body to reduce when...
+          The lower abdomen and hips are the most difficult areas of the body to
+          reduce when...
         </Text>
 
         <Formik
           initialValues={{
-            firstName: '',
-            lastName: '',
-            dob: '',
-            weight: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
+            name: "",
+            age: 0,
+            weight: 0,
+            height: 0,
+            gender: "male",
+            email: "",
+            password: "",
+            role:'user'
           }}
           validationSchema={SignUpValidationSchema}
           onSubmit={handleSignUp}
@@ -107,51 +97,35 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
               <TextInput
                 style={[
                   styles.input,
-                  touched.firstName && errors.firstName && styles.inputError,
+                  touched.name && errors.name && styles.inputError,
                 ]}
-                placeholder="First name"
+                placeholder="Name"
                 placeholderTextColor="#999"
-                value={values.firstName}
-                onChangeText={handleChange('firstName')}
-                onBlur={handleBlur('firstName')}
+                value={values.name}
+                onChangeText={handleChange("name")}
+                onBlur={handleBlur("name")}
               />
-              {touched.firstName && errors.firstName && (
-                <Text style={styles.errorText}>{errors.firstName}</Text>
+              {touched.name && errors.name && (
+                <Text style={styles.errorText}>{errors.name}</Text>
               )}
 
               <TextInput
                 style={[
                   styles.input,
-                  touched.lastName && errors.lastName && styles.inputError,
+                  touched.age && errors.age && styles.inputError,
                 ]}
-                placeholder="Last name"
+                placeholder="Age"
                 placeholderTextColor="#999"
-                value={values.lastName}
-                onChangeText={handleChange('lastName')}
-                onBlur={handleBlur('lastName')}
-              />
-              {touched.lastName && errors.lastName && (
-                <Text style={styles.errorText}>{errors.lastName}</Text>
-              )}
-
-              <TextInput
-                style={[
-                  styles.input,
-                  touched.dob && errors.dob && styles.inputError,
-                ]}
-                placeholder="DOB (DD/MM/YYYY)"
-                placeholderTextColor="#999"
-                value={values.dob}
-                onChangeText={(text) => {
-                  const formatted = formatDate(text);
-                  setFieldValue('dob', formatted);
-                }}
-                onBlur={handleBlur('dob')}
+                value={values.age === 0 ? "" : values.age.toString()}
+                onChangeText={(text) =>
+                  setFieldValue("age", text === "" ? 0 : parseInt(text) || 0)
+                }
+                onBlur={handleBlur("age")}
                 keyboardType="numeric"
-                maxLength={10}
+                maxLength={2}
               />
-              {touched.dob && errors.dob && (
-                <Text style={styles.errorText}>{errors.dob}</Text>
+              {touched.age && errors.age && (
+                <Text style={styles.errorText}>{errors.age}</Text>
               )}
 
               <TextInput
@@ -161,13 +135,33 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
                 ]}
                 placeholder="Weight (kg)"
                 placeholderTextColor="#999"
-                value={values.weight}
-                onChangeText={handleChange('weight')}
-                onBlur={handleBlur('weight')}
+                value={values.weight === 0 ? "" : values.weight.toString()}
+                onChangeText={(text) =>
+                  setFieldValue("weight", text === "" ? 0 : parseFloat(text) || 0)
+                }
+                onBlur={handleBlur("weight")}
                 keyboardType="numeric"
               />
               {touched.weight && errors.weight && (
                 <Text style={styles.errorText}>{errors.weight}</Text>
+              )}
+
+              <TextInput
+                style={[
+                  styles.input,
+                  touched.height && errors.height && styles.inputError,
+                ]}
+                placeholder="Height (cm)"
+                placeholderTextColor="#999"
+                value={values.height === 0 ? "" : values.height.toString()}
+                onChangeText={(text) =>
+                  setFieldValue("height", text === "" ? 0 : parseFloat(text) || 0)
+                }
+                onBlur={handleBlur("height")}
+                keyboardType="numeric"
+              />
+              {touched.height && errors.height && (
+                <Text style={styles.errorText}>{errors.height}</Text>
               )}
 
               <TextInput
@@ -178,8 +172,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
                 placeholder="E-mail"
                 placeholderTextColor="#999"
                 value={values.email}
-                onChangeText={handleChange('email')}
-                onBlur={handleBlur('email')}
+                onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -195,40 +189,41 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
                 placeholder="Password"
                 placeholderTextColor="#999"
                 value={values.password}
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
+                onChangeText={handleChange("password")}
+                onBlur={handleBlur("password")}
                 secureTextEntry
               />
               {touched.password && errors.password && (
                 <Text style={styles.errorText}>{errors.password}</Text>
               )}
 
-              <TextInput
+              <Picker
+                selectedValue={values.gender}
+                onValueChange={(itemValue) => setFieldValue("gender", itemValue)}
                 style={[
                   styles.input,
-                  touched.confirmPassword && errors.confirmPassword && styles.inputError,
+                  touched.gender && errors.gender && styles.inputError,
                 ]}
-                placeholder="Confirm Password"
-                placeholderTextColor="#999"
-                value={values.confirmPassword}
-                onChangeText={handleChange('confirmPassword')}
-                onBlur={handleBlur('confirmPassword')}
-                secureTextEntry
-              />
-              {touched.confirmPassword && errors.confirmPassword && (
-                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+              >
+                <Picker.Item label="Select Gender" value="" />
+                <Picker.Item label="Male" value="male" />
+                <Picker.Item label="Female" value="female" />
+                <Picker.Item label="Other" value="other" />
+              </Picker>
+              {touched.gender && errors.gender && (
+                <Text style={styles.errorText}>{errors.gender}</Text>
               )}
 
               <TouchableOpacity
                 style={styles.signUpButton}
-                onPress={()=>handleSubmit()}
+                onPress={() => handleSubmit()}
               >
                 <Text style={styles.signUpButtonText}>Sign Up</Text>
               </TouchableOpacity>
 
               <View style={styles.loginPrompt}>
                 <Text style={styles.loginPromptText}>
-                  If you have already an account{' '}
+                  Already have an account?{" "}
                   <Text style={styles.loginLink} onPress={onSwitchToLogin}>
                     Log in
                   </Text>
@@ -245,19 +240,19 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 20,
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 30,
     borderRadius: 10,
     marginVertical: 20,
-    opacity: 0.8,
+    opacity: 0.9,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   subtitle: {
@@ -266,46 +261,47 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   input: {
-    borderWidth: 1,    borderColor: '#e0e0e0',
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 5,
     fontSize: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
   },
   inputError: {
-    borderColor: '#ff6b6b',
+    borderColor: "#ff6b6b",
   },
   errorText: {
-    color: '#ff6b6b',
+    color: "#ff6b6b",
     fontSize: 12,
     marginBottom: 10,
     paddingLeft: 5,
   },
   signUpButton: {
-    backgroundColor: '#333',
+    backgroundColor: "#333",
     paddingVertical: 15,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
     marginBottom: 20,
   },
   signUpButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   loginPrompt: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   loginPromptText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   loginLink: {
-    color: '#4CAF50',
-    fontWeight: 'bold',
+    color: "#4CAF50",
+    fontWeight: "bold",
   },
 });
 

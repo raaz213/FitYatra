@@ -4,7 +4,6 @@ import { Button, useTheme } from "react-native-paper";
 import { Exercise } from "../../../types/user/exercise/Exercise";
 
 
-
 const BottomNavigation = ({
   navigation,
   exerciseData,
@@ -31,7 +30,7 @@ const BottomNavigation = ({
           </Text>
         </TouchableOpacity>
         <Text style={[styles.progressText, { color: theme.colors.onSurface }]}>
-          {exerciseData.currentExercise}/{exerciseData.totalExercises}
+          {/* {exerciseData.currentExercise}/{exerciseData.totalExercises} */}
         </Text>
         <TouchableOpacity style={styles.navButton}>
           <Text

@@ -61,7 +61,9 @@ export default function WorkoutDetailsScreen({ navigation, route }: any) {
           {/* Bottom Navigation */}
         </SafeAreaView>
       </SafeAreaProvider>
-      {/* <BottomNavigation navigation={navigation} exerciseData={exercise} /> */}
+      {exercise && (
+        <BottomNavigation navigation={navigation} exerciseData={exercise} />
+      )}
     </LinearGradient>
   );
 }

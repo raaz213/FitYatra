@@ -6,9 +6,7 @@ import DrawerNavigator from "../../navigation/user/DrawerNavigator";
 const UserLayoutScreen = () => {
   return (
     <>
-      <NavigationContainer>
         <DrawerNavigator />
-      </NavigationContainer>
     </>
   );
 };
