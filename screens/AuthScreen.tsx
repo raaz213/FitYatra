@@ -11,24 +11,13 @@ import {
 
 import LoginScreen from "./LoginScreen";
 import SignUpScreen from "./SignUpScreen";
-import { User } from "../types/auth/auth";
 
 const { height: screenHeight } = Dimensions.get("screen");
 
-const AuthScreen = () => {
+const AuthScreen = ({navigation}:any) => {
 
-  const[userData, setUserData]= useState<User>({
-    name : '',
-    email : '',
-    password : '',
-    height: 0,
-    weight: 0,
-    age:0,
-    gender:'male',
-    role:'user'
-  });
   const [currentScreen, setCurrentScreen] = useState<"login" | "signup">(
-    "signup"
+    "login"
   );
 
   return (
@@ -86,9 +75,9 @@ const AuthScreen = () => {
 
         {/* Render Current Screen */}
         {currentScreen === "login" ? (
-          <LoginScreen userData={userData} onSwitchToSignUp={() => setCurrentScreen("signup")} />
+          <LoginScreen navigation={navigation}  onSwitchToSignUp={() => setCurrentScreen("signup")} />
         ) : (
-          <SignUpScreen setUserData={setUserData} onSwitchToLogin={() => setCurrentScreen("login")} />
+          <SignUpScreen  onSwitchToLogin={() => setCurrentScreen("login")} />
         )}
 
         {/* Footer */}

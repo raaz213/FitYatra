@@ -13,6 +13,7 @@ import NutritionCategoryScreen from "../../screens/user/nutrition/NutritionCateg
 import NutritionFoodsScreen from "../../screens/user/nutrition/NutritionFoodsScreen";
 import NutritionDetailsScreen from "../../screens/user/nutrition/NutritionDetailsScreen";
 import CameraScreen from "../../screens/user/nutrition/CameraScreen";
+import { Button } from "react-native-paper";
 
 const Drawer = createDrawerNavigator();
 
@@ -40,7 +41,7 @@ const NutritionStack = () => {
   );
 }
 
-const DrawerNavigator = () => {
+const UserDrawerNavigator = () => {
 
   return (
     <Drawer.Navigator
@@ -80,7 +81,8 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="Exercise" component={ExerciseStack} />
       <Drawer.Screen name="Nutrition" component={NutritionStack} />
     </Drawer.Navigator>
+    
   );
 };
 
-export default DrawerNavigator;
+export default UserDrawerNavigator;

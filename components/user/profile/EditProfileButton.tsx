@@ -1,20 +1,32 @@
+// components/user/profile/EditProfileButton.tsx
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Button } from "react-native-paper";
+import { logoutUser } from "../../../services/auth/auth";
 
-const EditProfileButton = () => {
+const EditProfileButton = ({ navigation }: any) => {
+  const handleEditPress = () => {
+    navigation.navigate("EditProfile");
+  };
+
   return (
     <View style={styles.buttonContainer}>
       <Button
         mode="contained"
-        onPress={() => {}}
+        onPress={handleEditPress}
         style={styles.editButton}
         contentStyle={styles.editButtonContent}
         labelStyle={styles.editButtonLabel}
       >
         Edit Profile
       </Button>
+      <View style={{marginTop:15}}>
+         <Button onPress={() => logoutUser(navigation)} mode="outlined">
+        Logout
+      </Button>
+      </View>
     </View>
+    
   );
 };
 

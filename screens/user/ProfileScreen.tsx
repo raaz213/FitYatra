@@ -7,17 +7,20 @@ import MenuItem from "../../components/user/profile/MenuItem";
 import UserStats from "../../components/user/profile/UserStats";
 import CaloriesBurnChart from "../../components/user/profile/CaloriesBurnChart";
 import EditProfileButton from "../../components/user/profile/EditProfileButton";
+import ToastManager from "toastify-react-native/components/ToastManager";
 
-const ProfileScreen: React.FC = () => {
+const ProfileScreen: React.FC = ({ navigation }: any) => {
   return (
     <LinearGradient colors={["#d3e1ed", "#d3e1ed"]} style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
+        <ToastManager />
+
         <Header />
         <CaloriesBurnChart />
         <GoalCard />
         <UserStats />
         <MenuItem />
-        <EditProfileButton />
+        <EditProfileButton navigation={navigation} />
         <View style={styles.bottomSpacing} />
       </ScrollView>
     </LinearGradient>

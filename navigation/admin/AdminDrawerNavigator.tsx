@@ -1,9 +1,28 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { createDrawerNavigator, DrawerContentScrollView, DrawerContentComponentProps } from "@react-navigation/drawer";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerContentComponentProps,
+} from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-import { ChevronDown, ChevronRight, Home, Dumbbell, Apple, Plus, Eye, Grid } from "lucide-react-native";
+import {
+  ChevronDown,
+  ChevronRight,
+  Home,
+  Dumbbell,
+  Apple,
+  Plus,
+  Eye,
+  Grid,
+} from "lucide-react-native";
 import CreateExercise from "../../screens/admin/exercise/CreateExercise";
 import ViewExercise from "../../screens/admin/exercise/ViewExercise";
 import ViewNutrition from "../../screens/admin/nutrition/ViewNutrition";
@@ -14,6 +33,8 @@ import ExerciseSubcategoryScreen from "../../screens/admin/exercise/ExerciseSubc
 import NutritionCategoryScreen from "../../screens/admin/nutrition/NutritionCategoryScreen";
 import NutritionSubcategoryScreen from "../../screens/admin/nutrition/NutritionSubcategoryScreen";
 import { window } from "../../constants/sizes";
+import { Button } from "react-native-paper";
+import { logoutUser } from "../../services/auth/auth";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -25,8 +46,14 @@ const ExerciseStack = () => {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="ExerciseCategory" component={ExerciseCategoryScreen} />
-      <Stack.Screen name="ExerciseSubcategory" component={ExerciseSubcategoryScreen} />
+      <Stack.Screen
+        name="ExerciseCategory"
+        component={ExerciseCategoryScreen}
+      />
+      <Stack.Screen
+        name="ExerciseSubcategory"
+        component={ExerciseSubcategoryScreen}
+      />
       <Stack.Screen name="CreateExercise" component={CreateExercise} />
       <Stack.Screen name="ViewExercise" component={ViewExercise} />
     </Stack.Navigator>
@@ -40,8 +67,14 @@ const NutritionStack = () => {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="NutritionCategory" component={NutritionCategoryScreen} />
-      <Stack.Screen name="NutritionSubcategory" component={NutritionSubcategoryScreen} />
+      <Stack.Screen
+        name="NutritionCategory"
+        component={NutritionCategoryScreen}
+      />
+      <Stack.Screen
+        name="NutritionSubcategory"
+        component={NutritionSubcategoryScreen}
+      />
       <Stack.Screen name="CreateNutrition" component={CreateNutrition} />
       <Stack.Screen name="ViewNutrition" component={ViewNutrition} />
     </Stack.Navigator>
@@ -51,7 +84,7 @@ const NutritionStack = () => {
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const [exerciseExpanded, setExerciseExpanded] = useState(false);
   const [nutritionExpanded, setNutritionExpanded] = useState(false);
-  const navigation = useNavigation<any>();
+  const navigation = props.navigation;
 
   const navigateToScreen = (screenName: string, params?: any) => {
     navigation.navigate(screenName, params);
@@ -62,12 +95,12 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
       <View style={styles.drawerHeader}>
         <Text style={styles.appTitle}>FitYatra</Text>
       </View>
-      
+
       <ScrollView style={styles.menuContainer}>
         {/* Home */}
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigateToScreen('Home')}
+          onPress={() => navigateToScreen("Home")}
         >
           <Home size={20} color="#333" style={styles.menuIcon} />
           <Text style={styles.menuText}>Home</Text>
@@ -87,28 +120,36 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
               <ChevronRight size={16} color="#666" />
             )}
           </TouchableOpacity>
-          
+
           {exerciseExpanded && (
             <View style={styles.submenuContainer}>
               <TouchableOpacity
                 style={styles.submenuItem}
-                onPress={() => navigateToScreen('Exercise', { screen: 'ExerciseCategory' })}
+                onPress={() =>
+                  navigateToScreen("Exercise", { screen: "ExerciseCategory" })
+                }
               >
                 <Grid size={16} color="#666" style={styles.submenuIcon} />
                 <Text style={styles.submenuText}>Category</Text>
               </TouchableOpacity>
 
-               <TouchableOpacity
+              <TouchableOpacity
                 style={styles.submenuItem}
-                onPress={() => navigateToScreen('Exercise', { screen: 'ExerciseSubcategory' })}
+                onPress={() =>
+                  navigateToScreen("Exercise", {
+                    screen: "ExerciseSubcategory",
+                  })
+                }
               >
                 <Grid size={16} color="#666" style={styles.submenuIcon} />
                 <Text style={styles.submenuText}>Subcategory</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.submenuItem}
-                onPress={() => navigateToScreen('Exercise', { screen: 'ViewExercise' })}
+                onPress={() =>
+                  navigateToScreen("Exercise", { screen: "ViewExercise" })
+                }
               >
                 <Eye size={16} color="#666" style={styles.submenuIcon} />
                 <Text style={styles.submenuText}>Workout</Text>
@@ -131,12 +172,14 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
               <ChevronRight size={16} color="#666" />
             )}
           </TouchableOpacity>
-          
+
           {nutritionExpanded && (
             <View style={styles.submenuContainer}>
-               <TouchableOpacity
+              <TouchableOpacity
                 style={styles.submenuItem}
-                onPress={() => navigateToScreen('Nutrition', { screen: 'NutritionCategory' })}
+                onPress={() =>
+                  navigateToScreen("Nutrition", { screen: "NutritionCategory" })
+                }
               >
                 <Plus size={16} color="#666" style={styles.submenuIcon} />
                 <Text style={styles.submenuText}>Category</Text>
@@ -144,15 +187,21 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
               <TouchableOpacity
                 style={styles.submenuItem}
-                onPress={() => navigateToScreen('Nutrition', { screen: 'NutritionSubcategory' })}
+                onPress={() =>
+                  navigateToScreen("Nutrition", {
+                    screen: "NutritionSubcategory",
+                  })
+                }
               >
                 <Plus size={16} color="#666" style={styles.submenuIcon} />
                 <Text style={styles.submenuText}>Subcategory</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.submenuItem}
-                onPress={() => navigateToScreen('Nutrition', { screen: 'ViewNutrition' })}
+                onPress={() =>
+                  navigateToScreen("Nutrition", { screen: "ViewNutrition" })
+                }
               >
                 <Eye size={16} color="#666" style={styles.submenuIcon} />
                 <Text style={styles.submenuText}>Diet</Text>
@@ -160,12 +209,15 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
             </View>
           )}
         </View>
+        <Button onPress={() => logoutUser(navigation)} mode="outlined">
+          Logout
+        </Button>
       </ScrollView>
     </DrawerContentScrollView>
   );
 };
 
-const DrawerNavigator = () => {
+const AdminDrawerNavigator = () => {
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -191,36 +243,35 @@ const DrawerNavigator = () => {
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
   drawerHeader: {
     padding: 20,
-    backgroundColor: '#06407a',
+    backgroundColor: "#06407a",
     borderRadius: 10,
- 
+
     marginBottom: 10,
   },
   appTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white",
     letterSpacing: 2,
-    textAlign: 'center'
+    textAlign: "center",
   },
   menuContainer: {
     flex: 1,
-  
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 15,
     marginVertical: 2,
     borderRadius: 8,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -230,32 +281,31 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
+    fontWeight: "500",
+    color: "#333",
     flex: 1,
   },
   submenuContainer: {
-   
     marginTop: 5,
     marginBottom: 10,
   },
   submenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 15,
     marginVertical: 1,
     borderRadius: 6,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
   },
   submenuIcon: {
     marginRight: 12,
   },
   submenuText: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '400',
+    color: "#666",
+    fontWeight: "400",
   },
 });
 
-export default DrawerNavigator;
+export default AdminDrawerNavigator;

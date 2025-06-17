@@ -15,17 +15,13 @@ import { Toast } from 'toastify-react-native';
 import { login } from '../services/auth/auth';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 interface LoginScreenProps {
   onSwitchToSignUp: () => void;
-  userData : User;
+  navigation:any;
 }
-export type RootStackParamList = {
-  Admin: undefined;
-  User: undefined;
-  // add other screens if needed
-};
 
 
 const LoginValidationSchema = Yup.object().shape({
@@ -38,17 +34,17 @@ const LoginValidationSchema = Yup.object().shape({
 });
 
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToSignUp, userData }) => {
-
-const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToSignUp, navigation }) => {
 
 
   const handleLogin = async(values: LoginReq) => {
        try {
-          await login(values);
-          Toast.success("Login successfully");
+          const response = await login(values);
+
+          await AsyncStorage.setItem('token', response.token);
+
           // navigate to dashboard
-          if(userData.role == 'admin'){
+          if(response.user.role == 'admin'){
             // navigate to admin dashboard
             navigation.navigate('Admin')
             }

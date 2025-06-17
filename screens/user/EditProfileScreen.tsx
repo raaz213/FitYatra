@@ -1,5 +1,4 @@
-// components/SignUpScreen.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,77 +9,77 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { User } from "../types/auth/auth";
 import { Picker } from "@react-native-picker/picker";
-import { register } from "../services/auth/auth";
 import { Toast } from "toastify-react-native";
+import { UpdateUserReq, User } from "../../types/auth/auth";
+import { getUser, updateUser } from "../../services/auth/auth";
+import { useNavigation } from "expo-router";
 
-interface SignUpScreenProps {
-  onSwitchToLogin: () => void;
-}
-
+// Validation schema with optional fields
 const SignUpValidationSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
-    .required("Name is required"),
-  age: Yup.number()
-    .positive("Age must be a positive number")
-    .required("Age is required"),
-  weight: Yup.number()
-    .positive("Weight must be a positive number")
-    .required("Weight is required"),
-  height: Yup.number()
-    .positive("Height must be a positive number")
-    .required("Height is required"),
-  gender: Yup.string()
-    .oneOf(["male", "female", "other"], "Invalid gender")
-    .required("Gender is required"),
-  email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
+  name: Yup.string().min(3, "Name must be at least 3 characters").optional(),
+  age: Yup.number().positive("Age must be a positive number").optional(),
+  weight: Yup.number().positive("Weight must be a positive number").optional(),
+  height: Yup.number().positive("Height must be a positive number").optional(),
+  email: Yup.string().email("Invalid email format").optional(),
   password: Yup.string()
     .min(5, "Password must be at least 5 characters")
-    .required("Password is required"),
+    .optional(),
 });
 
-const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
+const EditProfileScreen: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
 
-  const handleSignUp = async (values: User) => {
+  const getUserData = async () => {
+    const response = await getUser();
+    setUser(response);
+  };
 
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+const navigation = useNavigation();
+
+
+  const handleEdit = async (values: UpdateUserReq) => {
     try {
-     const response = await register(values);
-      Toast.success("Registered successfully");
-      onSwitchToLogin();
+      await updateUser(values);
+      Toast.success("Edited successfully");
+      navigation.goBack();
     } catch (e: any) {
       console.error(e);
-      Toast.error(
-        e?.response?.data?.message || "Registration failed. Please try again."
-      );
+      Toast.error(e?.response?.data?.message || "Error updating profile");
     }
   };
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading user data...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Sign Up</Text>
-        <Text style={styles.subtitle}>
-          The lower abdomen and hips are the most difficult areas of the body to
-          reduce when...
-        </Text>
+        <Text style={styles.title}>Edit Profile</Text>
 
         <Formik
+          enableReinitialize
+          key={user.email}
           initialValues={{
-            name: "",
-            age: 0,
-            weight: 0,
-            height: 0,
-            gender: "male",
-            email: "",
-            password: "",
-            role:'user'
+            name: user.name,
+            age: user.age,
+            weight: user.weight,
+            height: user.height,
+            gender: user.gender,
+            email: user.email,
+            password: user.password,
           }}
           validationSchema={SignUpValidationSchema}
-          onSubmit={handleSignUp}
+          onSubmit={handleEdit}
         >
           {({
             handleChange,
@@ -92,6 +91,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
             setFieldValue,
           }) => (
             <View>
+              {/* Name */}
               <TextInput
                 style={[
                   styles.input,
@@ -107,6 +107,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 <Text style={styles.errorText}>{errors.name}</Text>
               )}
 
+              {/* Age */}
               <TextInput
                 style={[
                   styles.input,
@@ -114,7 +115,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 ]}
                 placeholder="Age"
                 placeholderTextColor="#999"
-                value={values.age === 0 ? "" : values.age.toString()}
+                value={values.age ? values.age.toString() : ""}
                 onChangeText={(text) =>
                   setFieldValue("age", text === "" ? 0 : parseInt(text) || 0)
                 }
@@ -126,6 +127,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 <Text style={styles.errorText}>{errors.age}</Text>
               )}
 
+              {/* Weight */}
               <TextInput
                 style={[
                   styles.input,
@@ -133,9 +135,12 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 ]}
                 placeholder="Weight (kg)"
                 placeholderTextColor="#999"
-                value={values.weight === 0 ? "" : values.weight.toString()}
+                value={values.weight ? values.weight.toString() : ""}
                 onChangeText={(text) =>
-                  setFieldValue("weight", text === "" ? 0 : parseFloat(text) || 0)
+                  setFieldValue(
+                    "weight",
+                    text === "" ? 0 : parseFloat(text) || 0
+                  )
                 }
                 onBlur={handleBlur("weight")}
                 keyboardType="numeric"
@@ -144,6 +149,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 <Text style={styles.errorText}>{errors.weight}</Text>
               )}
 
+              {/* Height */}
               <TextInput
                 style={[
                   styles.input,
@@ -151,9 +157,12 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 ]}
                 placeholder="Height (cm)"
                 placeholderTextColor="#999"
-                value={values.height === 0 ? "" : values.height.toString()}
+                value={values.height ? values.height.toString() : ""}
                 onChangeText={(text) =>
-                  setFieldValue("height", text === "" ? 0 : parseFloat(text) || 0)
+                  setFieldValue(
+                    "height",
+                    text === "" ? 0 : parseFloat(text) || 0
+                  )
                 }
                 onBlur={handleBlur("height")}
                 keyboardType="numeric"
@@ -162,6 +171,18 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 <Text style={styles.errorText}>{errors.height}</Text>
               )}
 
+              {/* Gender Picker */}
+              <Picker
+                selectedValue={values.gender}
+                onValueChange={(itemValue) => setFieldValue("gender", itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Male" value="male" />
+                <Picker.Item label="Female" value="female" />
+                <Picker.Item label="Other" value="other" />
+              </Picker>
+
+              {/* Email */}
               <TextInput
                 style={[
                   styles.input,
@@ -179,6 +200,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 <Text style={styles.errorText}>{errors.email}</Text>
               )}
 
+              {/* Password */}
               <TextInput
                 style={[
                   styles.input,
@@ -195,38 +217,13 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                 <Text style={styles.errorText}>{errors.password}</Text>
               )}
 
-              <Picker
-                selectedValue={values.gender}
-                onValueChange={(itemValue) => setFieldValue("gender", itemValue)}
-                style={[
-                  styles.input,
-                  touched.gender && errors.gender && styles.inputError,
-                ]}
-              >
-                <Picker.Item label="Select Gender" value="" />
-                <Picker.Item label="Male" value="male" />
-                <Picker.Item label="Female" value="female" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
-              {touched.gender && errors.gender && (
-                <Text style={styles.errorText}>{errors.gender}</Text>
-              )}
-
+              {/* Submit Button */}
               <TouchableOpacity
                 style={styles.signUpButton}
                 onPress={() => handleSubmit()}
               >
-                <Text style={styles.signUpButtonText}>Sign Up</Text>
+                <Text style={styles.signUpButtonText}>Save Changes</Text>
               </TouchableOpacity>
-
-              <View style={styles.loginPrompt}>
-                <Text style={styles.loginPromptText}>
-                  Already have an account?{" "}
-                  <Text style={styles.loginLink} onPress={onSwitchToLogin}>
-                    Log in
-                  </Text>
-                </Text>
-              </View>
             </View>
           )}
         </Formik>
@@ -235,72 +232,60 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
   );
 };
 
+export default EditProfileScreen;
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
+    paddingVertical: 24,
+    backgroundColor: "#f2f2f2",
   },
   card: {
     backgroundColor: "white",
-    padding: 30,
-    borderRadius: 10,
-    marginVertical: 20,
-    opacity: 0.9,
+    padding: 20,
+    borderRadius: 12,
+    elevation: 4,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 14,
-    marginBottom: 25,
-    lineHeight: 20,
+    marginBottom: 20,
+    textAlign: "center",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#ccc",
+    padding: 12,
     borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    marginBottom: 5,
+    marginBottom: 12,
     fontSize: 16,
-    backgroundColor: "#f8f8f8",
   },
   inputError: {
-    borderColor: "#ff6b6b",
+    borderColor: "red",
   },
   errorText: {
-    color: "#ff6b6b",
-    fontSize: 12,
+    color: "red",
     marginBottom: 10,
-    paddingLeft: 5,
+    marginLeft: 5,
+    fontSize: 12,
   },
   signUpButton: {
-    backgroundColor: "#333",
-    paddingVertical: 15,
+    backgroundColor: "#06407a",
+    paddingVertical: 12,
     borderRadius: 25,
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: 20,
   },
   signUpButtonText: {
-    color: "white",
+    textAlign: "center",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
-  loginPrompt: {
-    alignItems: "center",
-  },
-  loginPromptText: {
-    color: "#666",
-    fontSize: 14,
-  },
-  loginLink: {
-    color: "#4CAF50",
-    fontWeight: "bold",
+  picker: {
+    backgroundColor: "#eee",
+    marginBottom: 12,
+    borderRadius: 8,
   },
 });
-
-export default SignUpScreen;

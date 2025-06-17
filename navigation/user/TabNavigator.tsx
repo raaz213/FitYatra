@@ -6,12 +6,25 @@ import ProfileScreen from "../../screens/user/ProfileScreen";
 import AboutScreen from "../../screens/user/AboutScreen";
 import ChatScreen from "../../screens/user/ChatScreen";
 import TabBar from "./TabBar";
-import { useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import EditProfileScreen from "../../screens/user/EditProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
+const Stack = createStackNavigator();
+
+
 export default function TabNavigator() {
-  const navigation = useNavigation<any>();
+
+const ProfileStack = () => {
+  return (
+    <Stack.Navigator >
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    </Stack.Navigator>
+  );
+}
+
   return (
     <Tab.Navigator
       tabBar={(props) => <TabBar {...props} />}
@@ -31,8 +44,8 @@ export default function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="ProfileScreen"
+        component={ProfileStack}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="account" color={color} size={24} />
