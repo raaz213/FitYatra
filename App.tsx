@@ -1,21 +1,24 @@
-import {  StyleSheet} from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
-import { Provider as PaperProvider} from "react-native-paper";
+import { Provider as PaperProvider } from "react-native-paper";
 import ToastManager from "toastify-react-native/components/ToastManager";
 import { NavigationContainer } from "@react-navigation/native";
 import MainNavigation from "./navigation/MainNavigation";
-
-
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { WorkoutContextProvider } from "./context/WorkoutContext";
 
 const App = () => {
   return (
-
-    <PaperProvider>
-     <NavigationContainer>
-        <MainNavigation />
-     </NavigationContainer>
-    </PaperProvider>
-
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <WorkoutContextProvider>
+        <PaperProvider>
+          <ToastManager />
+          <NavigationContainer>
+            <MainNavigation />
+          </NavigationContainer>
+        </PaperProvider>
+      </WorkoutContextProvider>
+    </GestureHandlerRootView>
   );
 };
 

@@ -1,20 +1,20 @@
 import { Text, TouchableOpacity } from "react-native";
 import { Animated, Image, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { API_URL } from "../../../constants/apiUrl";
 
-interface RenderReadyStateProps {
+interface RenderExerciseProps {
   exerciseData: {
     name: string;
     image: string;
   };
   scaleAnim: any,
   progressAnim: any,
-  handleNext: () => void,
-  readyTimer: number,
+  timer: number,
 }
 
-const RenderReadyState: React.FC<RenderReadyStateProps> = ({
-  exerciseData, scaleAnim, progressAnim, handleNext, readyTimer
+const RenderExercise: React.FC<RenderExerciseProps> = ({
+  exerciseData, scaleAnim, progressAnim, timer
 }) => {
   const theme = useTheme();
 
@@ -24,7 +24,7 @@ const RenderReadyState: React.FC<RenderReadyStateProps> = ({
         style={[styles.imageContainer, { transform: [{ scale: scaleAnim }] }]}
       >
         <Image
-          source={{ uri: exerciseData.image }}
+          source={{ uri: `${API_URL}/uploads/${exerciseData.image }`}}
           style={styles.exerciseImage}
           resizeMode="contain"
         />
@@ -63,22 +63,15 @@ const RenderReadyState: React.FC<RenderReadyStateProps> = ({
             ]}
           />
           <Text style={[styles.timerText, { color: theme.colors.onSurface }]}>
-            {readyTimer}
+            {timer}
           </Text>
         </View>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text
-            style={[styles.nextIcon, { color: theme.colors.onSurfaceVariant }]}
-          >
-            ▶
-          </Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default RenderReadyState;
+export default RenderExercise;
 
 const styles = StyleSheet.create({
   contentContainer: {

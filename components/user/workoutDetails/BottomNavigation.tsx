@@ -4,16 +4,19 @@ import { Button, useTheme } from "react-native-paper";
 import { Exercise } from "../../../types/user/exercise/Exercise";
 
 
-const BottomNavigation = ({
+const BottomNavigation  = React.memo( ({
   navigation,
   exerciseData,
+  onWorkoutStart,
 }: {
   navigation: any;
   exerciseData: Exercise;
+  onWorkoutStart: () => void;
 }) => {
   const theme = useTheme();
   const handleWorkoutStartPress = () => {
-    navigation.navigate("WorkoutStart");
+    onWorkoutStart();
+    navigation.navigate("WorkoutStart",{exerciseData:exerciseData});
   };
 
   return (
@@ -53,7 +56,7 @@ const BottomNavigation = ({
       </Button>
     </View>
   );
-};
+})
 
 export default BottomNavigation;
 

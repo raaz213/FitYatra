@@ -1,11 +1,13 @@
 import axios from "axios";
 import { Exercise } from "../../../types/user/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Workout } from "../../../types/user/exercise/Workout";
 
 export const addExercise = async (formData: FormData): Promise<Exercise> => {
   try {
     const response = await axios.post(
-      `${API_URL}/api/exercise/workout/add`,
+      `${API_URL}/api/exercise/exercises/add`,
       formData,
       {
         headers: {
@@ -19,14 +21,19 @@ export const addExercise = async (formData: FormData): Promise<Exercise> => {
   }
 };
 
-export const getAllExercises = async ( page: number,limit: number): Promise<{
+export const getAllExercises = async (
+  page: number,
+  limit: number
+): Promise<{
   data: Exercise[];
   totalCounts: number;
   totalPages: number;
   currentPage: number;
 }> => {
   try {
-    const response = await axios.get(`${API_URL}/api/exercise/workout/list`, { params: { page, limit } });
+    const response = await axios.get(`${API_URL}/api/exercise/exercises/list`, {
+      params: { page, limit },
+    });
     return response.data;
   } catch (error: any) {
     console.error(
@@ -37,10 +44,12 @@ export const getAllExercises = async ( page: number,limit: number): Promise<{
   }
 };
 
-export const getExerciseById = async (exerciseId: string): Promise<Exercise> => {
+export const getExerciseById = async (
+  exerciseId: string
+): Promise<Exercise> => {
   try {
     const response = await axios.get(
-      `${API_URL}/api/exercise/workout/${exerciseId}`
+      `${API_URL}/api/exercise/exercises/${exerciseId}`
     );
     return response.data;
   } catch (error) {
@@ -48,16 +57,18 @@ export const getExerciseById = async (exerciseId: string): Promise<Exercise> => 
   }
 };
 export const getSearchExercises = async (
-  searchQuery: string, page: number, limit: number
+  searchQuery: string,
+  page: number,
+  limit: number
 ): Promise<{
-   data: Exercise[];
+  data: Exercise[];
   totalCounts: number;
   totalPages: number;
   currentPage: number;
 }> => {
   try {
     const response = await axios.get(
-      `${API_URL}/api/exercise/workout/list?searchTerm=${searchQuery}&page=${page}&limit=${limit}`
+      `${API_URL}/api/exercise/exercises/list?searchTerm=${searchQuery}&page=${page}&limit=${limit}`
     );
     return response.data;
   } catch (error) {
@@ -66,11 +77,44 @@ export const getSearchExercises = async (
 };
 
 export const fetchExercisesBySubcategory = async (subcategoryId: string) => {
-  try{
-    const response = await axios.get(`${API_URL}/api/exercise/workout/subcategory/${subcategoryId}`);
+  try {
+    const response = await axios.get(
+      `${API_URL}/api/exercise/exercises/subcategory/${subcategoryId}`
+    );
     return response.data;
-  }catch(error){
+  } catch (error) {
     throw error;
   }
+};
 
-}
+export const startWorkout = async (exerciseId: string): Promise<Workout> => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.post(
+      `${API_URL}/api/exercise/workout/start`,
+      { exerciseId: exerciseId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const stopWorkout = async (workoutId:string): Promise<Workout> => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.post(`${API_URL}/api/exercise/workout/stop/${workoutId}`,{} ,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

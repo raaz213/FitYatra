@@ -1,163 +1,86 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
   StyleSheet,
   Image,
   TouchableOpacity,
   Animated,
+  AppState,
+  AppStateStatus,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import RenderReadyState from "../../../components/user/workoutStart/RenderReadyState";
-import RenderExerciseState from "../../../components/user/workoutStart/RenderExerciseState";
-import TopControls from "../../../components/user/workoutStart/TopControls";
-import LeftControls from "../../../components/user/workoutStart/LeftControls";
-import RightControls from "../../../components/user/workoutStart/RightControls";
-import ProgressBar from "../../../components/user/workoutStart/ProgressBar";
+import RenderExercise from "../../../components/user/workoutStart/RenderExercise";
+import { WorkoutContext } from "../../../context/WorkoutContext";
+import { stopWorkout } from "../../../services/user/exercise/Exercise";
 
-interface Exercise {
-  id: string;
-  name: string;
-  image: string;
-  reps: number;
-  sets: number;
-  instruction: string;
-  totalExercises: number;
-  currentExercise: number;
-}
-
-const exerciseData: Exercise = {
-  id: "1",
-  name: "MOUNTAIN CLIMBER",
-  image:
-    "https://cdnb.artstation.com/p/assets/images/images/037/461/437/original/digital-artist-leg-pull-in.gif?1620422767",
-  reps: 12,
-  sets: 3,
-  instruction: "Each Side x 6",
-  totalExercises: 15,
-  currentExercise: 1,
-};
-
-type WorkoutState = "ready" | "countdown" | "exercise" | "rest";
-
-export default function WorkoutSScreen({ navigation }: any) {
+export default function WorkoutStartScreen({ navigation, route }: any) {
   const theme = useTheme();
-  const [workoutState, setWorkoutState] = useState<WorkoutState>("ready");
-  const [readyTimer, setReadyTimer] = useState(15);
-  const [exerciseTimer, setExerciseTimer] = useState(30);
-  const [currentRep, setCurrentRep] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isSoundOn, setIsSoundOn] = useState(true);
+  const { exerciseData } = route.params;
+  const [timer, setTimer] = useState(exerciseData.duration);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  // Ready timer countdown
+  const { workoutId }: any = useContext(WorkoutContext);
+
+  const appState = useRef(AppState.currentState);
+  const hasStopped = useRef(false); // 🔒 Prevents multiple API calls
+
+  // 🕒 Countdown and stop when timer reaches 0
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (workoutState === "ready" && readyTimer > 0 && !isPaused) {
-      interval = setInterval(() => {
-        setReadyTimer((prev) => {
-          if (prev <= 1) {
-            setWorkoutState("exercise");
-            return 0;
-          }
-          return prev - 1;
-        });
+    if (timer === 0 && !hasStopped.current) {
+      hasStopped.current = true;
+      stopWorkout(workoutId).then((res) => {
+        console.log("Workout auto-stopped at 0:", res);
+      });
+    }
+
+    if (timer > 0) {
+      const handler = setInterval(() => {
+        setTimer((prev: number) => prev - 1);
       }, 1000);
+      return () => clearInterval(handler);
     }
-    return () => clearInterval(interval);
-  }, [workoutState, readyTimer, isPaused]);
+  }, [timer]);
 
-  // Exercise timer countdown
+  // 🧠 Detect app state changes (background/exit)
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (workoutState === "exercise" && exerciseTimer > 0 && !isPaused) {
-      interval = setInterval(() => {
-        setExerciseTimer((prev) => {
-          if (prev <= 1) {
-            handleExerciseComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [workoutState, exerciseTimer, isPaused]);
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/active/) &&
+        (nextAppState === "inactive" || nextAppState === "background")
+      ) {
+        if (!hasStopped.current) {
+          hasStopped.current = true;
+          stopWorkout(workoutId).then((res) => {
+            console.log("Workout stopped on app exit:", res);
+          });
+        }
+      }
+      appState.current = nextAppState;
+    };
 
-  // Pulse animation for ready state
-  useEffect(() => {
-    if (workoutState === "ready") {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(scaleAnim, {
-            toValue: 1.05,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    } else {
-      scaleAnim.setValue(1);
-    }
-  }, [workoutState]);
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+    return () => subscription.remove();
+  }, []);
 
-  // Progress animation
-  useEffect(() => {
-    const progress =
-      workoutState === "ready"
-        ? (15 - readyTimer) / 15
-        : (30 - exerciseTimer) / 30;
-
-    Animated.timing(progressAnim, {
-      toValue: progress,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [readyTimer, exerciseTimer, workoutState]);
-
-  const handleExerciseComplete = () => {
-    setCurrentRep(currentRep + 1);
-    if (currentRep + 1 >= exerciseData.reps) {
-      // Exercise completed
-      console.log("Exercise completed!");
-    } else {
-      // Reset for next rep
-      setExerciseTimer(30);
-    }
+  const handleClose = () => {
+    navigation.goBack();
   };
 
-  const handlePause = () => {
-    setIsPaused(!isPaused);
-  };
-
-  const handleNext = () => {
-    if (workoutState === "ready") {
-      setWorkoutState("exercise");
-      setReadyTimer(0);
-    } else {
-      handleExerciseComplete();
+  const handleStop = async () => {
+    if (!hasStopped.current) {
+      hasStopped.current = true;
+      try {
+        await stopWorkout(workoutId);
+        console.log("Workout manually stopped.");
+      } catch (error) {
+        console.log(error);
+      }
     }
-  };
-
-  const handleRestart = () => {
-    setWorkoutState("ready");
-    setReadyTimer(15);
-    setExerciseTimer(30);
-    setCurrentRep(0);
-    setIsPaused(false);
-  };
-
-  const toggleSound = () => {
-    setIsSoundOn(!isSoundOn);
   };
 
   return (
@@ -165,32 +88,53 @@ export default function WorkoutSScreen({ navigation }: any) {
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        {/* Top Controls */}
-        <TopControls navigation={navigation} handleRestart={handleRestart} />
-
-        {/* Side Controls */}
-        <LeftControls isSoundOn={isSoundOn} toggleSound={toggleSound} />
-
-        <RightControls isPaused={isPaused} handlePause={handlePause} />
+        <View style={styles.topControls}>
+          <TouchableOpacity style={styles.controlButton} onPress={handleClose}>
+            <Text
+              style={[styles.controlIcon, { color: theme.colors.onSurfaceVariant }]}
+            >
+              ✕
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Progress Bar */}
-        <ProgressBar progressAnim={progressAnim} />
+        <View
+          style={[
+            styles.progressBar,
+            { backgroundColor: theme.colors.surfaceVariant },
+          ]}
+        >
+          <Animated.View
+            style={[
+              styles.progressFill,
+              {
+                backgroundColor: "#06407a",
+                width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0%", "100%"],
+                }),
+              },
+            ]}
+          />
+        </View>
 
         {/* Main Content */}
-        {workoutState === "ready" ? (
-          <RenderReadyState
-            exerciseData={exerciseData}
-            scaleAnim={scaleAnim}
-            progressAnim={progressAnim}
-            handleNext={handleNext}
-            readyTimer={readyTimer}
-          />
-        ) : (
-          <RenderExerciseState
-            exerciseData={exerciseData}
-            handleExerciseComplete={handleExerciseComplete}
-          />
-        )}
+        <RenderExercise
+          exerciseData={exerciseData}
+          scaleAnim={scaleAnim}
+          progressAnim={progressAnim}
+          timer={timer}
+        />
+        <View style={styles.rightControls}>
+          <TouchableOpacity style={styles.controlButton} onPress={handleStop}>
+            <Text
+              style={[styles.controlIcon, { color: theme.colors.onSurfaceVariant }]}
+            >
+              ⏸
+            </Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -199,5 +143,40 @@ export default function WorkoutSScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  topControls: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  controlButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  controlIcon: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  rightControls: {
+    position: "absolute",
+    right: 20,
+    top: "50%",
+    zIndex: 10,
+  },
+  progressBar: {
+    height: 4,
+    marginHorizontal: 20,
+    borderRadius: 2,
+    marginTop: 20,
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 2,
   },
 });
