@@ -7,15 +7,12 @@ import { Exercise } from "../../../types/user/exercise/Exercise";
 const BottomNavigation  = React.memo( ({
   navigation,
   exerciseData,
-  onWorkoutStart,
 }: {
   navigation: any;
   exerciseData: Exercise;
-  onWorkoutStart: () => void;
 }) => {
   const theme = useTheme();
   const handleWorkoutStartPress = () => {
-    onWorkoutStart();
     navigation.navigate("WorkoutStart",{exerciseData:exerciseData});
   };
 
