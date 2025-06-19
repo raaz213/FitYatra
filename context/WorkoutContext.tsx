@@ -2,7 +2,7 @@ import { createContext, ReactNode, useState, Dispatch, SetStateAction } from "re
 
 type WorkoutContextType = {
     workoutId: string;
-    setWorkoutId: Dispatch<SetStateAction<string>>;
+    setWorkoutId: (id: string) => void;
 };
 
 export const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);

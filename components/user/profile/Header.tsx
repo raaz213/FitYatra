@@ -9,14 +9,13 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback,  useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Avatar } from "react-native-paper";
 import { getUser, updateUserImage } from "../../../services/auth/auth";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Toast } from "toastify-react-native";
-import { black } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import { CLOUD_NAME, UPLOAD_PRESET } from "../../../constants/cloudinary";
 import axios from "axios";
 
