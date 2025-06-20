@@ -1,27 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { window } from "../../../constants/sizes";
+import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Exercise";
 
 const CaloriesBurnChart = () => {
-  const screenWidth = Dimensions.get("window").width;
+  const [caloriesData, setCaloriesData] = useState<{ labels: string[]; datasets: { data: number[] }[] }>({
+    labels: [],
+    datasets: [{ data: [] }],
+  });
+  const [weeklyData, setWeeklyData] = useState<number|null>(null)
   
-  // Sample data
-  const caloriesData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        data: [320, 450, 280, 580, 390, 620, 480],
-        color: (opacity = 1) => `rgba(56, 189, 248, ${opacity})`, // More professional blue
-        strokeWidth: 2.5,
-      },
-    ],
+  const caloriesStats = async () => {
+    try {
+      const response = await userCaloriesStatsAnalytics();
+      setWeeklyData(response.averageWeekCalories.averageWeekCalories);
+      // ✅ Sanitize the values
+      const labels = response.dailyCalories.map((item) => item.date.slice(6));
+      const data = response.dailyCalories.map((item) => {
+        const value = Number(item.totalDailyCalories);
+        return !isNaN(value) && isFinite(value) ? value : 0;
+      });
+
+      setCaloriesData({
+        labels,
+        datasets: [{ data }],
+      });
+    } catch (error) {
+      console.error("Error fetching calorie data:", error);
+    }
   };
-  
-  // Calculate weekly average
-  const weeklyAverage = Math.round(
-    caloriesData.datasets[0].data.reduce((sum, val) => sum + val, 0) / 
-    caloriesData.datasets[0].data.length
-  );
+
+  useEffect(() => {
+    caloriesStats();
+  }, []);
 
   const chartConfig = {
     backgroundGradientFrom: "#ffffff",
@@ -39,7 +51,7 @@ const CaloriesBurnChart = () => {
       fill: "#ffffff",
     },
     propsForBackgroundLines: {
-      strokeDasharray: "", // Solid lines
+      strokeDasharray: "",
       stroke: "rgba(226, 232, 240, 0.6)",
       strokeWidth: 1,
     },
@@ -49,31 +61,39 @@ const CaloriesBurnChart = () => {
     },
   };
 
+  // ✅ Safe Y-label formatter
+  const safeFormatYLabel = (value: string) => {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) || !isFinite(parsed) ? "0" : `${Math.round(parsed)}`;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Weekly Calories Burned</Text>
+        <Text style={styles.title}>Daily Calories Burned</Text>
         <View style={styles.averageContainer}>
           <Text style={styles.averageLabel}>Weekly Average</Text>
-          <Text style={styles.averageValue}>{weeklyAverage} cal</Text>
+          <Text style={styles.averageValue}>{weeklyData?.toFixed(2)} cal</Text>
         </View>
       </View>
-      
+
       <View style={styles.chartContainer}>
-        <LineChart
-          data={caloriesData}
-          width={screenWidth - 40}
-          height={220}
-          yAxisSuffix=" cal"
-          chartConfig={chartConfig}
-          bezier
-          style={styles.chart}
-          fromZero
-          segments={5}
-          formatYLabel={(value) => parseInt(value).toLocaleString()}
-        />
+        {caloriesData.datasets[0].data.length > 0 && (
+          <LineChart
+            data={caloriesData}
+            width={window.width - 40}
+            height={220}
+            yAxisSuffix=" cal"
+            chartConfig={chartConfig}
+            bezier
+            style={styles.chart}
+            fromZero
+            segments={5}
+            formatYLabel={safeFormatYLabel}
+          />
+        )}
       </View>
-      
+
       <View style={styles.legend}>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: "#38bdf8" }]} />
@@ -83,7 +103,6 @@ const CaloriesBurnChart = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#ffffff",
@@ -108,8 +127,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#06407a",
     flexShrink: 1,
-    flexWrap: "wrap"
-    
+    flexWrap: "wrap",
   },
   averageContainer: {
     alignItems: "flex-end",

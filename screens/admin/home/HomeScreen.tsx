@@ -219,41 +219,7 @@ export default function HomeScreen() {
             />
           </Card.Content>
         </Card>
-
-        {/* Exercise Categories Chart */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <Title style={styles.chartTitle}>Exercises by Category</Title>
-            <BarChart
-              data={barData}
-              width={screenWidth - 64}
-              height={220}
-              chartConfig={chartConfig}
-              style={styles.chart}
-              showValuesOnTopOfBars
-              yAxisLabel=""
-              yAxisSuffix=""
-            />
-          </Card.Content>
-        </Card>
-
-        {/* Popular Categories Pie Chart */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <Title style={styles.chartTitle}>Popular Exercise Categories</Title>
-            <PieChart
-              data={pieData}
-              width={screenWidth - 64}
-              height={220}
-              chartConfig={chartConfig}
-              accessor="population"
-              backgroundColor="transparent"
-              paddingLeft="15"
-              style={styles.chart}
-            />
-          </Card.Content>
-        </Card>
-
+        
         {/* Progress Overview */}
         <Card style={styles.chartCard}>
           <Card.Content>

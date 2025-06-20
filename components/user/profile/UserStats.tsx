@@ -1,23 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { IconButton, Surface } from "react-native-paper";
 import { window } from "../../../constants/sizes"; // make sure this imports your screen width
-
-// User stats data
-const userStats = [
-  { label: "Workouts", value: "142", icon: "dumbbell" },
-  { label: "Calories Burned", value: "12.5k", icon: "fire" },
-  { label: "Hours Trained", value: "87", icon: "clock-outline" },
-  { label: "Streak Days", value: "21", icon: "calendar-check" },
-];
+import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Exercise";
+import { CardWorkoutStats } from "../../../types/user/exercise/Workout";
 
 // Distinct colors for each card
 const cardColors = ["#3b82f6", "#f97316", "#22c55e", "#8b5cf6"];
 
 const UserStats = () => {
+  const [stats, setStats] = useState<CardWorkoutStats>({
+    totalCalories: 0,
+    totalWorkouts: 0,
+    totalHoursTrained: 0,
+    streakDays: 0,
+  });
+  const trainedMin = stats.totalHoursTrained/60;
+  const trainedHr = Math.floor(trainedMin/60);
+  const formatedTrained = `${trainedHr} Hr ${Math.floor(trainedMin%60)} Min`;
+
+  const caloriesData = [
+    { label: "Workouts", value: stats.totalWorkouts, icon: "dumbbell" },
+    { label: "Calories Burned", value:stats.totalCalories, icon: "fire" },
+    { label: "Hours Trained", value: formatedTrained, icon: "clock-outline" },
+    { label: "Streak Days", value: stats.streakDays, icon: "calendar-check" },
+  ];
+
+  const caloriesStats = async () => {
+    try {
+      const response = await userCaloriesStatsAnalytics();
+      setStats(response.cardWorkoutStats);
+    } catch (error) {
+      console.error("Error fetching calorie data:", error);
+    }
+  };
+
+  useEffect(() => {
+    caloriesStats();
+  }, []);
+
   return (
     <View style={styles.statsContainer}>
-      {userStats.map((stat, index) => (
+      {caloriesData.map((stat, index) => (
         <Surface
           key={index}
           style={[styles.statCard, { backgroundColor: cardColors[index] }]}
