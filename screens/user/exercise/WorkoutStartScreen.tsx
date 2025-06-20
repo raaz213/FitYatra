@@ -195,7 +195,7 @@ export default function WorkoutStartScreen({ navigation, route }: any) {
 
       return;
     }
-
+    
     // Start or resume the prep interval
     prepIntervalRef.current = setInterval(() => {
       setPreparationTimer((t) => t - 1);
@@ -293,6 +293,8 @@ export default function WorkoutStartScreen({ navigation, route }: any) {
     };
   }, [isWorkoutRunning]);
 
+
+  //when screen lose focus
   useEffect(() => {
     isWorkoutRunningRef.current = isWorkoutRunning;
   }, [isWorkoutRunning]);
