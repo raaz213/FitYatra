@@ -26,14 +26,6 @@ export default function WorkoutDetailsScreen({ navigation, route }: any) {
     const response = await getExerciseById(exerciseId);
     setExercise(response);
   };
-  const handleWorkoutStart = useCallback( async () => {
-    try {
-     const response =  await startWorkout(exerciseId);
-     setWorkoutId(response._id);
-    } catch (error) {
-      console.log(error);
-    }
-  },[startWorkout]);
   
   useEffect(() => {
     getExerciseDetails();
@@ -69,7 +61,7 @@ export default function WorkoutDetailsScreen({ navigation, route }: any) {
       </SafeAreaProvider>
       {exercise && (
         <BottomNavigation
-          onWorkoutStart={handleWorkoutStart}
+         
           navigation={navigation}
           exerciseData={exercise}
         />

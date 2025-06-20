@@ -4,6 +4,7 @@ import { API_URL } from "../../../constants/apiUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Workout } from "../../../types/user/exercise/Workout";
 
+
 export const addExercise = async (formData: FormData): Promise<Exercise> => {
   try {
     const response = await axios.post(
@@ -89,6 +90,7 @@ export const fetchExercisesBySubcategory = async (subcategoryId: string) => {
 
 export const startWorkout = async (exerciseId: string): Promise<Workout> => {
   try {
+    console.log('start workout');
     const token = await AsyncStorage.getItem("token");
     const response = await axios.post(
       `${API_URL}/api/exercise/workout/start`,
@@ -105,14 +107,22 @@ export const startWorkout = async (exerciseId: string): Promise<Workout> => {
   }
 };
 
-export const stopWorkout = async (workoutId:string): Promise<Workout> => {
+export const stopWorkout = async (
+  workoutId: string,
+  activeSeconds: number
+): Promise<Workout> => {
   try {
+    console.log('workout stop');
     const token = await AsyncStorage.getItem("token");
-    const response = await axios.post(`${API_URL}/api/exercise/workout/stop/${workoutId}`,{} ,{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${API_URL}/api/exercise/workout/stop/${workoutId}`,
+      { durationSeconds: activeSeconds },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;
