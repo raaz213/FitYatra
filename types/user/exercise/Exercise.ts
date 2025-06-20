@@ -10,3 +10,4 @@ export interface Exercise {
   focusArea: [string];
   videoUrl: string;
 }
+

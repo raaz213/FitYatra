@@ -2,7 +2,7 @@ import axios from "axios";
 import { Exercise } from "../../../types/user/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Workout } from "../../../types/user/exercise/Workout";
+import { CalorieData, Workout } from "../../../types/user/exercise/Workout";
 
 
 export const addExercise = async (formData: FormData): Promise<Exercise> => {
@@ -90,7 +90,6 @@ export const fetchExercisesBySubcategory = async (subcategoryId: string) => {
 
 export const startWorkout = async (exerciseId: string): Promise<Workout> => {
   try {
-    console.log('start workout');
     const token = await AsyncStorage.getItem("token");
     const response = await axios.post(
       `${API_URL}/api/exercise/workout/start`,
@@ -112,7 +111,6 @@ export const stopWorkout = async (
   activeSeconds: number
 ): Promise<Workout> => {
   try {
-    console.log('workout stop');
     const token = await AsyncStorage.getItem("token");
     const response = await axios.post(
       `${API_URL}/api/exercise/workout/stop/${workoutId}`,
@@ -128,3 +126,20 @@ export const stopWorkout = async (
     throw error;
   }
 };
+
+export const userCaloriesStatsAnalytics = async() : Promise<CalorieData> =>{
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/exercise/workout/get-total-user-calories`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+    
+  } catch (error) {
+    throw error;
+  }
+}
