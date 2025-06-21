@@ -19,7 +19,7 @@ export default function TabNavigator() {
 const ProfileStack = () => {
   return (
     <Stack.Navigator >
-      <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="ProfileView" component={ProfileScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
@@ -44,7 +44,7 @@ const ProfileStack = () => {
         }}
       />
       <Tab.Screen
-        name="ProfileScreen"
+        name="Profile"
         component={ProfileStack}
         options={{
           tabBarIcon: ({ color }) => (

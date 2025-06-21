@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { Portal, Card } from "react-native-paper";
 
 const weeklyData = [
   { day: "SUN", steps: 3200, active: false },
@@ -10,48 +12,67 @@ const weeklyData = [
   { day: "SAT", steps: 0, active: false },
 ];
 
+const calculateCalories = (steps: number) => {
+  return (steps * 0.04).toFixed(2); // Basic estimation
+};
+
 const WeeklyChart: React.FC = () => {
   const maxSteps = Math.max(...weeklyData.map((d) => d.steps));
+
+  const handleBarPress = (index: number, event: any) => {
+    console.log(" Pressed", index);
+  };
+
   return (
-    <View style={styles.weeklyContainer}>
-      {weeklyData.map((day, index) => {
-        const height = maxSteps > 0 ? (day.steps / maxSteps) * 40 : 0;
-        return (
-          <View key={index} style={styles.dayContainer}>
-            <View style={styles.barContainer}>
-              <View
-                style={[
-                  styles.bar,
-                  {
-                    height: height,
-                    backgroundColor: day.active
-                      ? "#FF3B30"
-                      : day.steps > 0
-                      ? "#FF3B30"
-                      : "#2a2a2a",
-                  },
-                ]}
-              />
-            </View>
-            <Text
-              style={[styles.dayLabel, day.active && styles.activeDayLabel]}
+    <View style={styles.container}>
+      <View style={styles.weeklyContainer}>
+        {weeklyData.map((day, index) => {
+          const height = maxSteps > 0 ? (day.steps / maxSteps) * 40 : 0;
+          return (
+            <TouchableWithoutFeedback
+              key={index}
+              onPress={(e) => handleBarPress(index, e)}
             >
-              {day.day}
-            </Text>
-          </View>
-        );
-      })}
+              <View style={styles.dayContainer}>
+                <View style={styles.barContainer}>
+                  <View
+                    style={[
+                      styles.bar,
+                      {
+                        height,
+                        backgroundColor: day.active
+                          ? "#FF3B30"
+                          : day.steps > 0
+                          ? "#FF3B30"
+                          : "#2a2a2a",
+                      },
+                    ]}
+                  />
+                </View>
+                <Text
+                  style={[styles.dayLabel, day.active && styles.activeDayLabel]}
+                >
+                  {day.day}
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    position: "relative",
+  },
   weeklyContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
     paddingHorizontal: 10,
-    height: 80,
+    zIndex: 1,
   },
   dayContainer: {
     alignItems: "center",

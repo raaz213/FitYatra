@@ -21,7 +21,7 @@ const UserStats = () => {
 
   const caloriesData = [
     { label: "Workouts", value: stats.totalWorkouts, icon: "dumbbell" },
-    { label: "Calories Burned", value:stats.totalCalories, icon: "fire" },
+    { label: "Calories Burned", value:stats.totalCalories.toFixed(2), icon: "fire" },
     { label: "Hours Trained", value: formatedTrained, icon: "clock-outline" },
     { label: "Streak Days", value: stats.streakDays, icon: "calendar-check" },
   ];

@@ -1,32 +1,65 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Pedometer } from "expo-sensors";
 import WeeklyChart from "./WeeklyChart";
 import CircularProgress from "./CircularProgress";
+import { Toast } from "toastify-react-native";
 
 const StepTracker: React.FC = () => {
-  const steps = 2126;
+  const isPedometerAvailableRef = useRef<boolean | null>(null);
+  const [steps, setSteps] = useState(0);
+  const [distance, setDistance] = useState<number | string>(0);
+  const [distanceUnit, setDistanceUnit] = useState("Meter");
   const goal = 10000;
-  const progress = (steps / goal) * 100;
-  const miles = 0.99;
-  const calories = 27;
-  const floors = 2;
+
+  useEffect(() => {
+    const fetchSteps = async () => {
+      const available = await Pedometer.isAvailableAsync();
+      isPedometerAvailableRef.current = available;
+
+      if (!isPedometerAvailableRef.current) {
+        Toast.error("Pedometer not available on this device");
+        return;
+      }
+
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date();
+
+      const result = await Pedometer.getStepCountAsync(start, end);
+      setSteps(result.steps);
+    };
+    fetchSteps();
+    const interval = setInterval(fetchSteps, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update distance and distanceUnit whenever steps changes
+  useEffect(() => {
+    const distanceInMeters = steps * 0.762;
+    if (distanceInMeters >= 1000) {
+      setDistance((distanceInMeters / 1000).toFixed(2));
+      setDistanceUnit("KM");
+    } else {
+      setDistance(Math.round(distanceInMeters));
+      setDistanceUnit("Meter");
+    }
+  }, [steps]);
+
+  // Pure function, no state updates here
+  const calculateStats = () => {
+    const progress = Math.min((steps / goal) * 100, 100);
+    const calories = Math.round(steps * 0.04);
+    return { progress, calories };
+  };
+
+  const { progress, calories } = calculateStats();
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>Today</Text>
-      </View> */}
-
-      {/* Main Content */}
       <View style={styles.content}>
         <View style={styles.progressSection}>
           <CircularProgress progress={progress} steps={steps} />
@@ -35,20 +68,15 @@ const StepTracker: React.FC = () => {
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Ionicons name="walk" size={20} color="#FF3B30" />
-            <Text style={styles.statValue}>{miles}</Text>
-            <Text style={styles.statLabel}>MILES</Text>
+
+            <Text style={styles.statValue}>{distance}</Text>
+            <Text style={styles.statLabel}>{distanceUnit}</Text>
           </View>
 
           <View style={styles.statItem}>
             <Ionicons name="flame" size={20} color="#FF3B30" />
             <Text style={styles.statValue}>{calories}</Text>
             <Text style={styles.statLabel}>KCAL</Text>
-          </View>
-
-          <View style={styles.statItem}>
-            <Ionicons name="trending-up" size={20} color="#FF3B30" />
-            <Text style={styles.statValue}>{floors}</Text>
-            <Text style={styles.statLabel}>FLOORS</Text>
           </View>
         </View>
 
@@ -67,7 +95,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 10,
   },
-  
   content: {
     flex: 1,
     paddingHorizontal: 20,
@@ -77,7 +104,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-
   statsRow: {
     flexDirection: "row",
     justifyContent: "space-around",
