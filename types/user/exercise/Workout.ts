@@ -33,3 +33,13 @@ export interface CalorieData {
   averageWeekCalories : AverageWeekCalories;
   cardWorkoutStats : CardWorkoutStats;
 };
+
+export interface SetGoalResponse {
+  goal: number;
+}
+
+export interface StepCounterStats {
+  steps: number;
+  distance : number;
+  calories : number;
+}

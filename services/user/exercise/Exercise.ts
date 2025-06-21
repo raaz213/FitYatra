@@ -2,8 +2,7 @@ import axios from "axios";
 import { Exercise } from "../../../types/user/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CalorieData, Workout } from "../../../types/user/exercise/Workout";
-
+import { CalorieData, SetGoalResponse, StepCounterStats, Workout } from "../../../types/user/exercise/Workout";
 
 export const addExercise = async (formData: FormData): Promise<Exercise> => {
   try {
@@ -127,10 +126,11 @@ export const stopWorkout = async (
   }
 };
 
-export const userCaloriesStatsAnalytics = async() : Promise<CalorieData> =>{
+export const userCaloriesStatsAnalytics = async (): Promise<CalorieData> => {
   try {
     const token = await AsyncStorage.getItem("token");
-    const response = await axios.get(`${API_URL}/api/exercise/workout/get-total-user-calories`,
+    const response = await axios.get(
+      `${API_URL}/api/exercise/workout/get-total-user-calories`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -138,8 +138,46 @@ export const userCaloriesStatsAnalytics = async() : Promise<CalorieData> =>{
       }
     );
     return response.data;
-    
   } catch (error) {
     throw error;
   }
-}
+};
+
+export const setGoal = async (goal:number): Promise<SetGoalResponse> => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.post(
+      `${API_URL}/api/step-counter/add-goal`,
+      {goal:goal},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const stepCounterStats = async(steps:number,distance:number,calories:number) : Promise<StepCounterStats> =>{
+  try {
+    const token = await AsyncStorage.getItem("token");
+        const response = await axios.post(`${API_URL}/api/step-counter/add-counter-stats`,{
+          steps:steps,
+          distance:distance,
+          calories:calories,
+        },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data.data;
+      } catch (error) {
+        throw error;
+      }
+    };
+            
