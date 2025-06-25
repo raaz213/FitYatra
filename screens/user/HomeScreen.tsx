@@ -4,9 +4,9 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import MySearchBar from "../../components/user/home/MySearchBar";
 import FeaturedContent from "../../components/user/home/FeaturedContent";
-import StepTracker from "../../components/user/home/StepTracker";
-import TestimonialsList from "../../components/user/home/TestimonialList";
-import WaterIntake from "../../components/user/home/WaterIntake";
+import StepTracker from "../../components/user/home/StepTracker/StepTracker";
+import TestimonialsList from "../../components/user/home/Testimonials/TestimonialList";
+import WaterIntake from "../../components/user/home/WaterIntake/WaterIntake";
 import { StatusBar } from "expo-status-bar";
 import ExerciseCategory from "../../components/user/home/ExerciseCategory";
 import { fetchAllCategories } from "../../services/user/exercise/Category";

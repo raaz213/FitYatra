@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { window } from "../../../constants/sizes";
-import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Exercise";
+import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Workout";
+
 
 const CaloriesBurnChart = () => {
   const [caloriesData, setCaloriesData] = useState<{ labels: string[]; datasets: { data: number[] }[] }>({

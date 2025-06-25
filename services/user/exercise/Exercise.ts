@@ -1,8 +1,6 @@
 import axios from "axios";
 import { Exercise } from "../../../types/user/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CalorieData, SetGoalResponse, StepCounterStats, Workout } from "../../../types/user/exercise/Workout";
 
 export const addExercise = async (formData: FormData): Promise<Exercise> => {
   try {
@@ -87,97 +85,3 @@ export const fetchExercisesBySubcategory = async (subcategoryId: string) => {
   }
 };
 
-export const startWorkout = async (exerciseId: string): Promise<Workout> => {
-  try {
-    const token = await AsyncStorage.getItem("token");
-    const response = await axios.post(
-      `${API_URL}/api/exercise/workout/start`,
-      { exerciseId: exerciseId },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const stopWorkout = async (
-  workoutId: string,
-  activeSeconds: number
-): Promise<Workout> => {
-  try {
-    const token = await AsyncStorage.getItem("token");
-    const response = await axios.post(
-      `${API_URL}/api/exercise/workout/stop/${workoutId}`,
-      { durationSeconds: activeSeconds },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const userCaloriesStatsAnalytics = async (): Promise<CalorieData> => {
-  try {
-    const token = await AsyncStorage.getItem("token");
-    const response = await axios.get(
-      `${API_URL}/api/exercise/workout/get-total-user-calories`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const setGoal = async (goal:number): Promise<SetGoalResponse> => {
-  try {
-    const token = await AsyncStorage.getItem("token");
-    const response = await axios.post(
-      `${API_URL}/api/step-counter/add-goal`,
-      {goal:goal},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const stepCounterStats = async(steps:number,distance:number,calories:number) : Promise<StepCounterStats> =>{
-  try {
-    const token = await AsyncStorage.getItem("token");
-        const response = await axios.post(`${API_URL}/api/step-counter/add-counter-stats`,{
-          steps:steps,
-          distance:distance,
-          calories:calories,
-        },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        return response.data.data;
-      } catch (error) {
-        throw error;
-      }
-    };
-            

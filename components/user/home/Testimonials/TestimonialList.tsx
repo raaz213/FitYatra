@@ -1,7 +1,8 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import Testimonial from './Testimonial'; 
-import CustomCarousel from '../../custom/CustomCarousel';
+import Testimonial from './Testimonial';
+import CustomCarousel from '../../../custom/CustomCarousel';
+
 
 const testimonialsData = [
   {

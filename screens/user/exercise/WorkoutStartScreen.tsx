@@ -17,12 +17,9 @@ import {
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import {
-  startWorkout,
-  stopWorkout,
-} from "../../../services/user/exercise/Exercise";
 import { useFocusEffect } from "@react-navigation/native";
 import { API_URL } from "../../../constants/apiUrl";
+import { startWorkout, stopWorkout } from "../../../services/user/exercise/Workout";
 
 interface RenderExerciseProps {
   exerciseData: {

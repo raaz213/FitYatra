@@ -10,16 +10,14 @@ import BottomNavigation from "../../../components/user/workoutDetails/BottomNavi
 import { LinearGradient } from "expo-linear-gradient";
 import {
   getExerciseById,
-  startWorkout,
 } from "../../../services/user/exercise/Exercise";
 import { Exercise } from "../../../types/user/exercise/Exercise";
-import { WorkoutContext } from "../../../context/WorkoutContext";
+
 
 export default function WorkoutDetailsScreen({ navigation, route }: any) {
   const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState("Animation");
   const [exercise, setExercise] = useState<Exercise | null>(null);
-  const { setWorkoutId }:any = useContext(WorkoutContext);
   const { exerciseId } = route.params;
 
   const getExerciseDetails = async () => {
