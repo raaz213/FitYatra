@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -9,19 +9,18 @@ import {
   Modal,
   TouchableWithoutFeedback,
   TextInput,
-  StatusBar,
-  Dimensions,
-  SafeAreaView,
 } from "react-native";
 import { Text, Button, Surface, IconButton } from "react-native-paper";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { window } from "../../../../constants/sizes";
+import { addWaterIntake, getWaterIntake } from "../../../../services/user/exercise/WaterInake";
+import { GetWaterIntake } from "../../../../types/user/exercise/WaterIntake";
 
-const { width } = Dimensions.get("window");
 
 const WaterIntake = () => {
-  const [intake, setIntake] = useState(1000); // ml
+  const [intake, setIntake] = useState(0); // ml
   const [goal, setGoal] = useState(3000); // ml
   const [intakeLog, setIntakeLog] = useState([
     { time: "08:30 AM", amount: 250 },
@@ -33,16 +32,42 @@ const WaterIntake = () => {
   const [logModalVisible, setLogModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
+  const [waterIntakeLog, setWaterIntakeLog] = useState<GetWaterIntake[]>([])
 
-  const addWater = (amount: number) => {
-    const newIntake = Math.min(intake + amount, goal);
-    setIntake(newIntake);
-    setIntakeLog([...intakeLog, { time: moment().format("hh:mm A"), amount }]);
+ useEffect(() => {
+  const getWaterLog = async () => {
+    try {
+      const response = await getWaterIntake();
+
+      const now = moment();
+      const tenMinutesAgo = moment().subtract(2, "minutes");
+
+      const recentLogs = response.filter((entry: GetWaterIntake) =>
+        moment(entry.createdAt).isBetween(tenMinutesAgo, now)
+      );
+
+      setWaterIntakeLog(recentLogs);
+    } catch (error) {
+      console.log("Error fetching water intake:", error);
+    }
   };
 
-  const resetIntake = () => {
-    setIntake(0);
-    setIntakeLog([]);
+  getWaterLog();
+}, []);
+
+
+  const calcTotalWaterIntake = waterIntakeLog.reduce((acc,item)=>(acc + item.water),0);
+
+  // const now = new Date();
+  // now.setHours(0,0,0,0);
+
+  const addWater = async(amount: number) => {
+    try {
+      await addWaterIntake(amount);
+      
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   const handleCustomAdd = () => {
@@ -54,7 +79,8 @@ const WaterIntake = () => {
     }
   };
 
-  const progress = (intake / goal) * 100;
+  const progress = (calcTotalWaterIntake / goal) * 100;
+
 
   const getHydrationStatus = () => {
     if (progress < 30) return { text: "Need More Water", color: "#FF5252" };
@@ -92,8 +118,8 @@ const WaterIntake = () => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.logScrollContent}
               >
-                {intakeLog.length > 0 ? (
-                  intakeLog.map((entry, index) => (
+                {waterIntakeLog.length > 0 ? (
+                  waterIntakeLog.map((entry, index) => (
                     <Surface key={index} style={styles.logEntry} elevation={1}>
                       <View style={styles.logTime}>
                         <MaterialCommunityIcons
@@ -101,12 +127,17 @@ const WaterIntake = () => {
                           size={20}
                           color="#2196F3"
                         />
-                        <Text variant="bodyMedium" style={styles.timeText}>
-                          {entry.time}
+                       <View>
+                         <Text variant="bodyMedium" style={styles.timeText}>
+                          {entry.createdAt.toString().slice(0,10)}
                         </Text>
+                        <Text variant="bodyMedium" style={styles.timeText}>
+                          {entry.createdAt.toString().slice(12,19)}
+                        </Text>
+                       </View>
                       </View>
                       <Text variant="bodyLarge" style={styles.amountText}>
-                        +{entry.amount} ml
+                        +{entry.water} ml
                       </Text>
                     </Surface>
                   ))
@@ -118,13 +149,13 @@ const WaterIntake = () => {
 
                 <Surface style={styles.logSummary} elevation={1}>
                   <Text variant="bodyLarge" style={styles.summaryText}>
-                    Total: {intake} ml
+                    Total: {calcTotalWaterIntake} ml
                   </Text>
                   <Text variant="bodyMedium" style={styles.summaryText}>
                     Goal: {goal} ml
                   </Text>
                   <Text variant="bodyMedium" style={styles.summaryText}>
-                    Remaining: {Math.max(goal - intake, 0)} ml
+                    Remaining: {Math.max(goal - calcTotalWaterIntake, 0)} ml
                   </Text>
                 </Surface>
               </ScrollView>
@@ -230,7 +261,7 @@ const WaterIntake = () => {
                   {Math.round(progress)}%
                 </Text>
                 <Text variant="bodyMedium" style={styles.progressLabel}>
-                  {intake} / {goal} ml
+                  {calcTotalWaterIntake} / {goal} ml
                 </Text>
               </View>
             )}
@@ -244,7 +275,7 @@ const WaterIntake = () => {
               {hydrationStatus.text}
             </Text>
             <Text variant="bodyMedium" style={styles.remainingText}>
-              {Math.max(goal - intake, 0)} ml remaining
+              {Math.max(goal - calcTotalWaterIntake, 0)} ml remaining
             </Text>
           </View>
         </View>
@@ -274,16 +305,7 @@ const WaterIntake = () => {
       </View>
 
       <View style={styles.actionsContainer}>
-        <Button
-          mode="outlined"
-          onPress={resetIntake}
-          icon="refresh"
-          labelStyle={{ color: "#06407a" }}
-          style={styles.resetButton}
-          contentStyle={styles.buttonContent}
-        >
-          Reset
-        </Button>
+
         <Button
           mode="contained"
           onPress={() => setCustomModalVisible(true)}
@@ -388,7 +410,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   quickAddButton: {
-    width: (width - 64) / 3.3,
+    width: (window.width - 64) / 3.3,
     height: 90,
     borderRadius: 16,
     justifyContent: "center",
