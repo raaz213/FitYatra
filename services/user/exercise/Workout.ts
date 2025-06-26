@@ -2,7 +2,9 @@ import axios from "axios";
 import { API_URL } from "../../../constants/apiUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
+  AdminCardStats,
   CalorieData,
+  TotalUserCalories,
   Workout,
 } from "../../../types/user/exercise/Workout";
 
@@ -62,3 +64,20 @@ export const userCaloriesStatsAnalytics = async (): Promise<CalorieData> => {
   }
 };
 
+export const totalAllUserCalories = async (): Promise<TotalUserCalories[]> => {
+  try {
+    const response = await axios.get( `${API_URL}/api/exercise/workout/get-total-all-user-calories` );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getAdminCardStats = async (): Promise<AdminCardStats> => {
+  try {
+    const response = await axios.get( `${API_URL}/api/stats/get-admin-card-stats` );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

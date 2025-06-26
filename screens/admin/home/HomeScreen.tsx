@@ -1,21 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
-import {
-  Card,
-  Title,
-  Text,
-  useTheme,
-  Chip,
-  IconButton,
-} from "react-native-paper";
-import {
-  BarChart,
-  LineChart,
-  PieChart,
-  ProgressChart,
-} from "react-native-chart-kit";
+import { Card, Title, Text, useTheme, Chip } from "react-native-paper";
+import { LineChart, ProgressChart } from "react-native-chart-kit";
 import {
   TrendingUp,
   Users,
@@ -25,6 +13,8 @@ import {
   RefreshCw,
 } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
+import { getAdminCardStats, totalAllUserCalories } from "../../../services/user/exercise/Workout";
+import { AdminCardStats } from "../../../types/user/exercise/Workout";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -43,6 +33,17 @@ interface DashboardStats {
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const [allUserCalories, setAllUserCalories] = useState<{
+    labels: string[];
+    datasets: { data: number[] }[];
+  }>({ labels: [], datasets: [{ data: [] }] });
+  const [adminCardStats , setAdminCardStats] = useState<AdminCardStats>({
+    totalExercise: 0,
+    totalUser: 0,
+    totalNutrition: 0,
+    engagementRate: "0%",
+  })
+
   const [stats, setStats] = useState<DashboardStats>({
     totalExercises: 156,
     totalNutrition: 89,
@@ -73,16 +74,48 @@ export default function HomeScreen() {
     weeklyActivity: [65, 78, 82, 95, 88, 92, 105],
     userEngagement: 0.78,
   });
+useEffect(() => {
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await getAdminCardStats();
+      setAdminCardStats(response);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    }
+  }
+  fetchDashboardStats();
+}, []);
+  useEffect(() => {
+    const fetchTotalUserCalories = async () => {
+      try {
+        const response = await totalAllUserCalories();
 
-  const [refreshing, setRefreshing] = useState(false);
+        const labels = response.map((item) => item.date);
+        const data = response.map((item) =>
+          isNaN(item.totalDailyCalories)
+            ? 0
+            : parseFloat(item.totalDailyCalories.toString())
+        );
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
-  };
+        const filterCaloriesData = {
+          labels: labels,
+          datasets: [
+            {
+              data: data,
+              color: (opacity = 1) => `rgba(0, 71, 171, ${opacity})`,
+              strokeWidth: 2,
+            },
+          ],
+        };
+
+        setAllUserCalories(filterCaloriesData);
+      } catch (error) {
+        console.error("Error fetching total user calories:", error);
+      }
+    };
+
+    fetchTotalUserCalories();
+  }, []);
 
   const chartConfig = {
     backgroundColor: "#ffffff",
@@ -109,26 +142,6 @@ export default function HomeScreen() {
     legendFontSize: 12,
   }));
 
-  const barData = {
-    labels: stats.exercisesByCategory.map((item) => item.name),
-    datasets: [
-      {
-        data: stats.exercisesByCategory.map((item) => item.count),
-      },
-    ],
-  };
-
-  const lineData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        data: stats.weeklyActivity,
-        color: (opacity = 1) => `rgba(0, 71, 171, ${opacity})`,
-        strokeWidth: 2,
-      },
-    ],
-  };
-
   const progressData = {
     labels: ["Exercises", "Nutrition", "Users", "Engagement"],
     data: [0.8, 0.6, 0.9, stats.userEngagement],
@@ -148,12 +161,8 @@ export default function HomeScreen() {
             <Card.Content style={styles.metricContent}>
               <View style={styles.metricHeader}>
                 <Dumbbell size={24} color="#0047AB" />
-                <View style={styles.trendContainer}>
-                  <TrendingUp size={16} color="#4CAF50" />
-                  <Text style={styles.trendText}>+{stats.weeklyGrowth}%</Text>
-                </View>
               </View>
-              <Text style={styles.metricValue}>{stats.totalExercises}</Text>
+              <Text style={styles.metricValue}>{adminCardStats.totalExercise}</Text>
               <Text style={styles.metricLabel}>Total Exercises</Text>
             </Card.Content>
           </Card>
@@ -162,12 +171,8 @@ export default function HomeScreen() {
             <Card.Content style={styles.metricContent}>
               <View style={styles.metricHeader}>
                 <Apple size={24} color="#4CAF50" />
-                <View style={styles.trendContainer}>
-                  <TrendingUp size={16} color="#4CAF50" />
-                  <Text style={styles.trendText}>+{stats.monthlyGrowth}%</Text>
-                </View>
               </View>
-              <Text style={styles.metricValue}>{stats.totalNutrition}</Text>
+              <Text style={styles.metricValue}>{adminCardStats.totalNutrition}</Text>
               <Text style={styles.metricLabel}>Nutrition Items</Text>
             </Card.Content>
           </Card>
@@ -176,13 +181,9 @@ export default function HomeScreen() {
             <Card.Content style={styles.metricContent}>
               <View style={styles.metricHeader}>
                 <Users size={24} color="#FF9800" />
-                <View style={styles.trendContainer}>
-                  <TrendingUp size={16} color="#4CAF50" />
-                  <Text style={styles.trendText}>+15.2%</Text>
-                </View>
               </View>
               <Text style={styles.metricValue}>
-                {stats.activeUsers.toLocaleString()}
+                {adminCardStats.totalUser.toLocaleString()}
               </Text>
               <Text style={styles.metricLabel}>Active Users</Text>
             </Card.Content>
@@ -192,41 +193,39 @@ export default function HomeScreen() {
             <Card.Content style={styles.metricContent}>
               <View style={styles.metricHeader}>
                 <Activity size={24} color="#9C27B0" />
-                <View style={styles.trendContainer}>
-                  <TrendingUp size={16} color="#4CAF50" />
-                  <Text style={styles.trendText}>+5.8%</Text>
-                </View>
               </View>
               <Text style={styles.metricValue}>
-                {Math.round(stats.userEngagement * 100)}%
+                {adminCardStats.engagementRate}
               </Text>
               <Text style={styles.metricLabel}>Engagement Rate</Text>
             </Card.Content>
           </Card>
         </View>
 
-        {/* Weekly Activity Chart */}
+        {/* Daily Activity Chart */}
         <Card style={styles.chartCard}>
           <Card.Content>
-            <Title style={styles.chartTitle}>Weekly Activity</Title>
-            <LineChart
-              data={lineData}
-              width={screenWidth - 64}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              style={styles.chart}
-            />
+            <Title style={styles.chartTitle}>Daily Activity</Title>
+            {allUserCalories.labels.length > 0 && (
+              <LineChart
+                data={allUserCalories}
+                width={screenWidth - 64}
+                height={220}
+                chartConfig={chartConfig}
+                bezier
+                style={styles.chart}
+              />
+            )}
           </Card.Content>
         </Card>
-        
+
         {/* Progress Overview */}
         <Card style={styles.chartCard}>
           <Card.Content>
             <Title style={styles.chartTitle}>Progress Overview</Title>
             <ProgressChart
               data={progressData}
-              width={screenWidth - 64}
+              width={screenWidth - 60}
               height={220}
               strokeWidth={16}
               radius={32}

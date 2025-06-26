@@ -33,3 +33,14 @@ export interface CalorieData {
   cardWorkoutStats: CardWorkoutStats;
 }
 
+export interface TotalUserCalories {
+  totalDailyCalories: number;
+  date : string;
+}
+AdminCardStats
+export interface  {
+  totalExercise: number;
+  totalUser: number;
+  totalNutrition: number;
+  engagementRate: string;
+}
