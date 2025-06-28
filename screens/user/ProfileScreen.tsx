@@ -18,7 +18,7 @@ const ProfileScreen: React.FC = ({ navigation }: any) => {
         <CaloriesBurnChart />
  
         <UserStats />
-        <MenuItem />
+        <MenuItem navigation={navigation}/>
         <EditProfileButton navigation={navigation} />
         <View style={styles.bottomSpacing} />
       </ScrollView>

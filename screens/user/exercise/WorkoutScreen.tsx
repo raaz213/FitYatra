@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import WeekCalender from "../../../components/user/workout/WeekCalender";
-import AppbarHeader from "../../../components/user/workout/AppbarHeader";
 import WorkoutCategory from "../../../components/user/workout/WorkoutCategory";
 import ExerciseList from "../../../components/user/workout/ExerciseList";
 import WorkoutSummary from "../../../components/user/workout/WorkoutSummary";
@@ -20,7 +18,6 @@ export default function WorkoutScreen({
   navigation: any
   route: any;
 }) {
-  const theme = useTheme();
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);

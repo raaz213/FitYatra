@@ -13,6 +13,7 @@ import {
 import CustomCarousel from "../../custom/CustomCarousel";
 import { API_URL } from "../../../constants/apiUrl";
 import { Category } from "../../../types/user/exercise/Category";
+import { WorkoutContext } from "../../../context/WorkoutContext";
 
 
 interface CarouselItem {
@@ -22,12 +23,13 @@ interface CarouselItem {
 
 
 function FeaturedContent({ exerciseCategories}: {exerciseCategories: Category[]}) {
-  
+  const {setCategoryId} = React.useContext<any>(WorkoutContext);
   const handleChallengePress = (categoryId: string) => {
     console.log(`Challenge pressed for: ${categoryId}`);
   };
 
   const formattedcategories = exerciseCategories.map((category, index) => ({
+    
     category,
     index
   }))
@@ -37,6 +39,7 @@ function FeaturedContent({ exerciseCategories}: {exerciseCategories: Category[]}
       <CustomCarousel
         data={formattedcategories}
         renderItem={({ category }: CarouselItem) => {
+          setCategoryId(category._id);
          
           return (
             <View key={category._id} style={styles.item}>

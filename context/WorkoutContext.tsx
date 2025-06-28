@@ -2,13 +2,13 @@ import {
   createContext,
   ReactNode,
   useState,
-  Dispatch,
-  SetStateAction,
 } from "react";
 
 type WorkoutContextType = {
   workoutId: string;
+  categoryId: string;
   setWorkoutId: (id: string) => void;
+  setCategoryId: (id: string) => void;
 };
 
 export const WorkoutContext = createContext<WorkoutContextType | undefined>(
@@ -21,9 +21,10 @@ export const WorkoutContextProvider = ({
   children: ReactNode;
 }) => {
   const [workoutId, setWorkoutId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>("");
 
   return (
-    <WorkoutContext.Provider value={{ workoutId, setWorkoutId }}>
+    <WorkoutContext.Provider value={{ workoutId, setWorkoutId, categoryId, setCategoryId }}>
       {children}
     </WorkoutContext.Provider>
   );

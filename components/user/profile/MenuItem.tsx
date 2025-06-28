@@ -1,8 +1,17 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Card, Divider, List } from "react-native-paper";
+import WorkoutHistoryModel from "./WorkoutHistoryModel";
+import BodyMeasurementModal from "./BodyMeasurementModal";
 
-const MenuItem = () => {
+const MenuItem = ({navigation}:any) => {
+    const [logModalVisible, setLogModelVisible] = useState(false);
+  const [bodyMeasurementModalVisible, setBodyMeasurementModalVisible] = useState(false);
+
+  const handlePress = () => {
+    navigation.navigate("PersonalRecord");
+  }
+  
   return (
     <Card style={styles.card}>
       <Card.Content style={styles.menuContent}>
@@ -15,8 +24,9 @@ const MenuItem = () => {
             <List.Icon {...props} icon="history" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => {}}
+          onPress={() => setLogModelVisible(true)}
           style={styles.menuItem}
+          
         />
         <Divider />
         <List.Item
@@ -28,7 +38,7 @@ const MenuItem = () => {
             <List.Icon {...props} icon="chart-line" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => {}}
+          onPress={handlePress}
           style={styles.menuItem}
         />
         <Divider />
@@ -41,7 +51,7 @@ const MenuItem = () => {
             <List.Icon {...props} icon="human" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => {}}
+          onPress={() => setBodyMeasurementModalVisible(true)}
           style={styles.menuItem}
         />
         <Divider />
@@ -56,6 +66,14 @@ const MenuItem = () => {
           right={(props) => <List.Icon {...props} icon="chevron-right" color="#f0f0f0" />}
           onPress={() => {}}
           style={styles.menuItem}
+        />
+        <WorkoutHistoryModel
+        visible={logModalVisible}
+        onClose={() => setLogModelVisible(false)}
+      />
+        <BodyMeasurementModal
+          visible={bodyMeasurementModalVisible}
+          onClose={() => setBodyMeasurementModalVisible(false)}
         />
       </Card.Content>
     </Card>

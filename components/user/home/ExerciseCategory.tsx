@@ -9,33 +9,11 @@ import {
 } from "react-native";
 import { Text } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
+import { Subcategory } from "../../../types/user/exercise/Subcategory";
 
 const { width } = Dimensions.get("window");
 
-const TodaysWorkout = () => {
-  const workoutSessions = [
-    {
-      id: 1,
-      title: "Day 1",
-      duration: "45min session",
-      image:
-        "https://images.pexels.com/photos/414029/pexels-photo-414029.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=300",
-    },
-    {
-      id: 2,
-      title: "Day 2",
-      duration: "45min session",
-      image:
-        "https://images.pexels.com/photos/3822864/pexels-photo-3822864.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=300",
-    },
-    {
-      id: 3,
-      title: "Day 3",
-      duration: "30min session",
-      image:
-        "https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=300",
-    },
-  ];
+const TodaysWorkout = ({exerciseSubcategories}:{exerciseSubcategories:Subcategory[]}) => {
 
   return (
     <View style={styles.container}>
@@ -53,11 +31,11 @@ const TodaysWorkout = () => {
         showsHorizontalScrollIndicator={false}
         
       >
-        {workoutSessions.map((session) => (
-          <TouchableOpacity key={session.id} style={styles.sessionCard}>
+        {exerciseSubcategories.map((session) => (
+          <TouchableOpacity key={session._id} style={styles.sessionCard}>
             <View style={styles.imageContainer}>
               <Image
-                source={{ uri: session.image }}
+                source={{ uri: 'https://media.istockphoto.com/id/843435340/photo/body-building-workout.jpg?s=1024x1024&w=is&k=20&c=fBf3rO7V4UDhMXZyqL9ZPZzxTxwR8aYCrRPcZ0zDPZA=' }}
                 style={styles.sessionImage}
               />
               <LinearGradient
@@ -74,8 +52,8 @@ const TodaysWorkout = () => {
             </View>
 
             <View style={styles.sessionInfo}>
-              <Text style={styles.sessionTitle}>{session.title}</Text>
-              <Text style={styles.sessionDuration}>{session.duration}</Text>
+              <Text style={styles.sessionTitle}>{session.name}</Text>
+              <Text style={styles.sessionDuration}>{session.dayNumber}</Text>
             </View>
           </TouchableOpacity>
         ))}

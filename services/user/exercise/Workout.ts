@@ -3,9 +3,11 @@ import { API_URL } from "../../../constants/apiUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   AdminCardStats,
+  BodyMeasurement,
   CalorieData,
   TotalUserCalories,
   Workout,
+  WorkoutHistory,
 } from "../../../types/user/exercise/Workout";
 
 export const startWorkout = async (exerciseId: string): Promise<Workout> => {
@@ -81,3 +83,31 @@ export const getAdminCardStats = async (): Promise<AdminCardStats> => {
     throw error;
   }
 }
+
+export const getWorkoutHistory = async (): Promise<WorkoutHistory[]> => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/exercise/workout/user-workout-history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserMeasurements = async () : Promise<BodyMeasurement> => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/auth/get-user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

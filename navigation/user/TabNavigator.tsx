@@ -8,6 +8,7 @@ import ChatScreen from "../../screens/user/ChatScreen";
 import TabBar from "./TabBar";
 import { createStackNavigator } from "@react-navigation/stack";
 import EditProfileScreen from "../../screens/user/EditProfileScreen";
+import CaloriesBurnChart from "../../components/user/profile/CaloriesBurnChart";
 
 const Tab = createBottomTabNavigator();
 
@@ -21,6 +22,7 @@ const ProfileStack = () => {
     <Stack.Navigator >
       <Stack.Screen name="ProfileView" component={ProfileScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="PersonalRecord" component={CaloriesBurnChart} />
     </Stack.Navigator>
   );
 }

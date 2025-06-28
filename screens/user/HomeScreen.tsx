@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -11,11 +11,16 @@ import { StatusBar } from "expo-status-bar";
 import ExerciseCategory from "../../components/user/home/ExerciseCategory";
 import { fetchAllCategories } from "../../services/user/exercise/Category";
 import { Category } from "../../types/user/exercise/Category";
+import { getUserExerciseSubcategories } from "../../services/user/exercise/Subcategory";
+import { WorkoutContext } from "../../context/WorkoutContext";
+import { Subcategory } from "../../types/user/exercise/Subcategory";
 
 const HomeScreen = () => {
   const [exerciseCategories, setExerciseCategories] = useState<
     Category[]
   >([]);
+  const {categoryId}:any = useContext(WorkoutContext);
+  const [exerciseSubcategories, setExerciseSubcategories] = useState<Subcategory[]>([]);
 
   const fetchCategories = async () => {
     const response = await fetchAllCategories();
@@ -24,6 +29,18 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+  const fetchExerciseSubcategories = async () => {
+    try {
+      const response = await getUserExerciseSubcategories(categoryId)
+      setExerciseSubcategories(response);
+    } catch (error) {
+      console.error("Error fetching exercise subcategories:", error);
+    }
+  }
+  fetchExerciseSubcategories();
   }, []);
 
   return (
@@ -41,7 +58,7 @@ const HomeScreen = () => {
 
         {/* Today's Workout Section */}
         <View style={{ marginVertical: 20 }}>
-          <ExerciseCategory />
+          <ExerciseCategory exerciseSubcategories={exerciseSubcategories}/>
         </View>
 
         {/* Featured Content */}

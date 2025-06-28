@@ -15,9 +15,78 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { window } from "../../../../constants/sizes";
-import { addWaterIntake, getWaterIntake } from "../../../../services/user/exercise/WaterInake";
+import {
+  addWaterIntake,
+  getWaterIntake,
+} from "../../../../services/user/exercise/WaterInake";
 import { GetWaterIntake } from "../../../../types/user/exercise/WaterIntake";
 
+const CustomModal = ({
+  visible,
+  onClose,
+  value,
+  onChange,
+  onSubmit,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  value: string;
+  onChange: (text: string) => void;
+  onSubmit: () => void;
+}) => (
+  <Modal
+    animationType="fade"
+    transparent={true}
+    visible={visible}
+    onRequestClose={onClose}
+  >
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.modalOverlay}>
+        <TouchableWithoutFeedback>
+          <Surface style={styles.customModal} elevation={5}>
+            <Text variant="titleLarge" style={styles.modalTitle}>
+              Add Custom Amount
+            </Text>
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter amount"
+                keyboardType="number-pad"
+                value={value}
+                onChangeText={onChange}
+                placeholderTextColor="#94A3B8"
+              />
+              <Text variant="bodyLarge" style={styles.unitText}>
+                ml
+              </Text>
+            </View>
+
+            <View style={styles.buttonRow}>
+              <Button
+                mode="outlined"
+                onPress={onClose}
+                labelStyle={{ color: "#06407a" }}
+                style={styles.cancelButton}
+              >
+                Cancel
+              </Button>
+              <Button
+                mode="contained"
+                onPress={onSubmit}
+                labelStyle={{ color: "#FFFFFF" }}
+                style={styles.addButton}
+                disabled={!value || isNaN(Number.parseInt(value))}
+              >
+                Add
+              </Button>
+            </View>
+          </Surface>
+        </TouchableWithoutFeedback>
+      </View>
+    </TouchableWithoutFeedback>
+  </Modal>
+);
 
 const WaterIntake = () => {
   const [intake, setIntake] = useState(0); // ml
@@ -32,41 +101,42 @@ const WaterIntake = () => {
   const [logModalVisible, setLogModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
-  const [waterIntakeLog, setWaterIntakeLog] = useState<GetWaterIntake[]>([])
+  const [waterIntakeLog, setWaterIntakeLog] = useState<GetWaterIntake[]>([]);
 
- useEffect(() => {
-  const getWaterLog = async () => {
-    try {
-      const response = await getWaterIntake();
+  useEffect(() => {
+    const getWaterLog = async () => {
+      try {
+        const response = await getWaterIntake();
 
-      const now = moment();
-      const tenMinutesAgo = moment().subtract(2, "minutes");
+        const now = moment();
+        const tenMinutesAgo = moment().subtract(2, "minutes");
 
-      const recentLogs = response.filter((entry: GetWaterIntake) =>
-        moment(entry.createdAt).isBetween(tenMinutesAgo, now)
-      );
+        const recentLogs = response.filter((entry: GetWaterIntake) =>
+          moment(entry.createdAt).isBetween(tenMinutesAgo, now)
+        );
 
-      setWaterIntakeLog(recentLogs);
-    } catch (error) {
-      console.log("Error fetching water intake:", error);
-    }
-  };
+        setWaterIntakeLog(recentLogs);
+      } catch (error) {
+        console.log("Error fetching water intake:", error);
+      }
+    };
 
-  getWaterLog();
-}, []);
+    getWaterLog();
+  }, []);
 
-
-  const calcTotalWaterIntake = waterIntakeLog.reduce((acc,item)=>(acc + item.water),0);
+  const calcTotalWaterIntake = waterIntakeLog.reduce(
+    (acc, item) => acc + item.water,
+    0
+  );
 
   // const now = new Date();
   // now.setHours(0,0,0,0);
 
-  const addWater = async(amount: number) => {
+  const addWater = async (amount: number) => {
     try {
       await addWaterIntake(amount);
-      
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -80,7 +150,6 @@ const WaterIntake = () => {
   };
 
   const progress = (calcTotalWaterIntake / goal) * 100;
-
 
   const getHydrationStatus = () => {
     if (progress < 30) return { text: "Need More Water", color: "#FF5252" };
@@ -127,14 +196,14 @@ const WaterIntake = () => {
                           size={20}
                           color="#2196F3"
                         />
-                       <View>
-                         <Text variant="bodyMedium" style={styles.timeText}>
-                          {entry.createdAt.toString().slice(0,10)}
-                        </Text>
-                        <Text variant="bodyMedium" style={styles.timeText}>
-                          {entry.createdAt.toString().slice(12,19)}
-                        </Text>
-                       </View>
+                        <View>
+                          <Text variant="bodyMedium" style={styles.timeText}>
+                            {entry.createdAt.toString().slice(0, 10)}
+                          </Text>
+                          <Text variant="bodyMedium" style={styles.timeText}>
+                            {entry.createdAt.toString().slice(12, 19)}
+                          </Text>
+                        </View>
                       </View>
                       <Text variant="bodyLarge" style={styles.amountText}>
                         +{entry.water} ml
@@ -168,64 +237,6 @@ const WaterIntake = () => {
                 Close
               </Button>
             </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
-  );
-
-  // Custom Amount Modal
-  const CustomModal = () => (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={customModalVisible}
-      onRequestClose={() => setCustomModalVisible(false)}
-    >
-      <TouchableWithoutFeedback onPress={() => setCustomModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback>
-            <Surface style={styles.customModal} elevation={5}>
-              <Text variant="titleLarge" style={styles.modalTitle}>
-                Add Custom Amount
-              </Text>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter amount"
-                  keyboardType="number-pad"
-                  value={customAmount}
-                  onChangeText={setCustomAmount}
-                  placeholderTextColor="#94A3B8"
-                />
-                <Text variant="bodyLarge" style={styles.unitText}>
-                  ml
-                </Text>
-              </View>
-
-              <View style={styles.buttonRow}>
-                <Button
-                  mode="outlined"
-                  onPress={() => setCustomModalVisible(false)}
-                  labelStyle={{ color: "#06407a" }}
-                  style={styles.cancelButton}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  mode="contained"
-                  onPress={handleCustomAdd}
-                  labelStyle={{ color: "#FFFFFF" }}
-                  style={styles.addButton}
-                  disabled={
-                    !customAmount || isNaN(Number.parseInt(customAmount))
-                  }
-                >
-                  Add
-                </Button>
-              </View>
-            </Surface>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
@@ -305,7 +316,6 @@ const WaterIntake = () => {
       </View>
 
       <View style={styles.actionsContainer}>
-
         <Button
           mode="contained"
           onPress={() => setCustomModalVisible(true)}
@@ -329,7 +339,13 @@ const WaterIntake = () => {
       </Button>
 
       <LogModal />
-      <CustomModal />
+      <CustomModal
+        visible={customModalVisible}
+        onClose={() => setCustomModalVisible(false)}
+        value={customAmount}
+        onChange={setCustomAmount}
+        onSubmit={handleCustomAdd}
+      />
     </ScrollView>
   );
 };

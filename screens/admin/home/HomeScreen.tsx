@@ -19,16 +19,7 @@ import { AdminCardStats } from "../../../types/user/exercise/Workout";
 const screenWidth = Dimensions.get("window").width;
 
 interface DashboardStats {
-  totalExercises: number;
-  totalNutrition: number;
-  activeUsers: number;
-  weeklyGrowth: number;
-  monthlyGrowth: number;
-  popularCategories: { name: string; count: number; color: string }[];
-  exercisesByCategory: { name: string; count: number }[];
-  nutritionByType: { name: string; count: number }[];
-  weeklyActivity: number[];
-  userEngagement: number;
+  nutritionByType: { name: string; count: number; color: string }[];
 }
 
 export default function HomeScreen() {
@@ -45,34 +36,12 @@ export default function HomeScreen() {
   })
 
   const [stats, setStats] = useState<DashboardStats>({
-    totalExercises: 156,
-    totalNutrition: 89,
-    activeUsers: 1247,
-    weeklyGrowth: 12.5,
-    monthlyGrowth: 8.3,
-    popularCategories: [
-      { name: "Strength", count: 45, color: "#FF6384" },
-      { name: "Cardio", count: 38, color: "#36A2EB" },
-      { name: "Flexibility", count: 32, color: "#FFCE56" },
-      { name: "Core", count: 28, color: "#4BC0C0" },
-      { name: "HIIT", count: 13, color: "#9966FF" },
-    ],
-    exercisesByCategory: [
-      { name: "Chest", count: 25 },
-      { name: "Back", count: 22 },
-      { name: "Legs", count: 30 },
-      { name: "Arms", count: 18 },
-      { name: "Core", count: 28 },
-      { name: "Cardio", count: 33 },
-    ],
     nutritionByType: [
-      { name: "Protein", count: 32 },
-      { name: "Carbs", count: 28 },
-      { name: "Fats", count: 15 },
-      { name: "Vitamins", count: 14 },
+      { name: "Protein", count: 32, color: "#4CAF50" },
+      { name: "Carbs", count: 28, color: "#FF9800" },
+      { name: "Fats", count: 15, color: "#F44336" },
+      { name: "Vitamins", count: 14, color: "#2196F3" },
     ],
-    weeklyActivity: [65, 78, 82, 95, 88, 92, 105],
-    userEngagement: 0.78,
   });
 useEffect(() => {
   const fetchDashboardStats = async () => {
@@ -134,18 +103,13 @@ useEffect(() => {
     },
   };
 
-  const pieData = stats.popularCategories.map((category) => ({
-    name: category.name,
-    population: category.count,
-    color: category.color,
+  const pieData = stats.nutritionByType.map((nutrition) => ({
+    color: nutrition.color,
     legendFontColor: "#7F7F7F",
     legendFontSize: 12,
   }));
 
-  const progressData = {
-    labels: ["Exercises", "Nutrition", "Users", "Engagement"],
-    data: [0.8, 0.6, 0.9, stats.userEngagement],
-  };
+  
 
   return (
     <View style={styles.container}>
@@ -216,52 +180,6 @@ useEffect(() => {
                 style={styles.chart}
               />
             )}
-          </Card.Content>
-        </Card>
-
-        {/* Progress Overview */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <Title style={styles.chartTitle}>Progress Overview</Title>
-            <ProgressChart
-              data={progressData}
-              width={screenWidth - 60}
-              height={220}
-              strokeWidth={16}
-              radius={32}
-              chartConfig={chartConfig}
-              hideLegend={false}
-              style={styles.chart}
-            />
-          </Card.Content>
-        </Card>
-
-        {/* Quick Stats */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <Title style={styles.chartTitle}>Quick Statistics</Title>
-            <View style={styles.quickStats}>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>Most Popular Exercise:</Text>
-                <Chip mode="outlined">Push-ups</Chip>
-              </View>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>Top Nutrition Category:</Text>
-                <Chip mode="outlined">Protein</Chip>
-              </View>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>Average Session Duration:</Text>
-                <Text style={styles.statValue}>45 minutes</Text>
-              </View>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>User Retention Rate:</Text>
-                <Text style={styles.statValue}>82%</Text>
-              </View>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>New Users This Week:</Text>
-                <Text style={styles.statValue}>156</Text>
-              </View>
-            </View>
           </Card.Content>
         </Card>
 

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { IconButton, Surface } from "react-native-paper";
 import { window } from "../../../constants/sizes"; // make sure this imports your screen width
-import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Exercise";
 import { CardWorkoutStats } from "../../../types/user/exercise/Workout";
+import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Workout";
 
 // Distinct colors for each card
 const cardColors = ["#3b82f6", "#f97316", "#22c55e", "#8b5cf6"];

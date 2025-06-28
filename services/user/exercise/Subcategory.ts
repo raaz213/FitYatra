@@ -43,3 +43,14 @@ export const getExerciseSubcategoriesByCategory = async (
     throw error;
   }
 };
+
+export const getUserExerciseSubcategories = async (categoryId:string): Promise<Subcategory[]> => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/api/exercise/subcategories/user-subcategories/${categoryId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

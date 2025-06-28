@@ -37,10 +37,21 @@ export interface TotalUserCalories {
   totalDailyCalories: number;
   date : string;
 }
-AdminCardStats
-export interface  {
+export interface AdminCardStats {
   totalExercise: number;
   totalUser: number;
   totalNutrition: number;
   engagementRate: string;
+}
+export interface WorkoutHistory {
+  exercise: Exercise;
+  startTime: Date;
+  endTime: Date;
+  duration: number;
+  caloriesBurned: number;
+  createdAt: Date;
+}
+export interface BodyMeasurement {
+  height: number;
+  weight: number;
 }
