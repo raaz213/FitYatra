@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
 
 
@@ -80,10 +80,10 @@ export default ExerciseList;
 const styles = StyleSheet.create({
   exerciseList: {
     gap: 16,
-    paddingBottom: 24,
+    paddingBottom: 10,
   },
   exerciseCard: {
-    borderRadius: 16,
+    borderRadius: 5,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },

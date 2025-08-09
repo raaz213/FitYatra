@@ -1,34 +1,24 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
 import {
-  TextInput,
-  Button,
-  Text,
-  Card,
-  useTheme,
-  DataTable,
-  Chip,
-  IconButton,
-} from "react-native-paper";
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { TextInput, DataTable, Text, useTheme } from "react-native-paper";
 import { Edit, Plus, Tag, Trash2 } from "lucide-react-native";
-import { StatusBar } from "expo-status-bar";
 import DropDownPicker from "react-native-dropdown-picker";
 import {
   addNutritionSubcategory,
   fetchNutritionSubcategories,
-} from "../../../services/user/nutrition/Subcategory";
-import {
-  formData,
-  Subcategory,
-} from "../../../types/user/nutrition/Subcategory";
-import { Toast } from "toastify-react-native";
-import { fetchNutritionCategories } from "../../../services/user/nutrition/Category";
-import { Category } from "../../../types/user/nutrition/Category";
+} from "../../../services/both/nutrition/Subcategory";
+import type { Subcategory } from "../../../types/both/nutrition/Subcategory";
+import { fetchNutritionCategories } from "../../../services/both/nutrition/Category";
+import type { Category } from "../../../types/both/nutrition/Category";
 
 export default function NutritionSubcategoryScreen() {
-  const theme = useTheme();
+
   const [name, setName] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -38,21 +28,22 @@ export default function NutritionSubcategoryScreen() {
   const fetchCategories = async () => {
     try {
       const response = await fetchNutritionCategories();
-      const dropDownItems = response.map((category) => ({
+      const dropDownItems = response.map((category: Category) => ({
         label: category.name,
         value: category._id,
       }));
       setItems(dropDownItems);
     } catch (error) {
-      Toast.error("Failed to fetch categories. Please try again.");
+      Alert.alert("Failed to fetch categories. Please try again.");
     }
   };
+
   const fetchSubcategories = async () => {
     try {
       const response = await fetchNutritionSubcategories();
       setSubcategories(response);
     } catch (error) {
-      Toast.error("Failed to fetch subcategories. Please try again.");
+      Alert.alert("Failed to fetch subcategories. Please try again.");
     }
   };
 
@@ -64,54 +55,64 @@ export default function NutritionSubcategoryScreen() {
   const handleSave = async () => {
     try {
       await addNutritionSubcategory({ name, category: selectedCategory });
-      Toast.success("Subcategory created successfully!");
+      Alert.alert("Subcategory created successfully!");
       setName("");
       setSelectedCategory("");
       setOpen(false);
+      fetchSubcategories();
     } catch (e) {
-      Toast.error("Failed to create subcategory. Please try again.");
+      Alert.alert("Failed to create subcategory. Please try again.");
     }
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>FitYatra</Text>
-        <Text style={styles.headerSubtitle}>Nutrition Subcategories</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Nutrition Subcategories</Text>
+        </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Form Section */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text style={styles.title}>Create New Subcategory</Text>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Create New Subcategory Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Add New Subcategory</Text>
+          </View>
 
-            <View style={styles.form}>
-              {/* Subcategory Name */}
-              <View style={styles.inputContainer}>
-                <Tag
-                  size={20}
-                  color={theme.colors.primary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  label="Subcategory Name"
-                  value={name}
-                  onChangeText={setName}
-                  style={styles.input}
-                  mode="outlined"
-                  placeholder="e.g., Lean Meats, Whole Grains"
-                />
+          <View style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <Tag size={18} color="#6366F1" />
+                </View>
+                <Text style={styles.inputLabel}>Subcategory Name</Text>
               </View>
+              <TextInput
+                label="Subcategory Name"
+                value={name}
+                onChangeText={setName}
+                style={styles.textInput}
+                mode="outlined"
+                placeholder="e.g., Lean Meats, Whole Grains"
+                outlineColor="#E5E7EB"
+                activeOutlineColor="#6366F1"
+              />
+            </View>
 
-              {/* Parent Category Selection */}
-              <View style={styles.inputContainer}>
-                <Tag
-                  size={20}
-                  color={theme.colors.primary}
-                  style={styles.inputIcon}
-                />
+            <View style={styles.inputContainer}>
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <Tag size={18} color="#6366F1" />
+                </View>
+                <Text style={styles.inputLabel}>Category</Text>
+              </View>
+              <View style={styles.dropdownContainer}>
                 <DropDownPicker
                   open={open}
                   value={selectedCategory}
@@ -120,90 +121,89 @@ export default function NutritionSubcategoryScreen() {
                   setValue={setSelectedCategory}
                   setItems={setItems}
                   placeholder="Select a category"
-                  style={{ width: "90%" }}
-                  dropDownContainerStyle={{ width: "90%" }}
+                  style={styles.dropdown}
+                  dropDownContainerStyle={styles.dropdownList}
+                  textStyle={styles.dropdownText}
+                  placeholderStyle={styles.dropdownPlaceholder}
                 />
               </View>
-
-              {/* Action Buttons */}
-              <View style={styles.buttonContainer}>
-                <Button
-                  mode="contained"
-                  onPress={handleSave}
-                  style={[styles.button, styles.saveButton]}
-                  icon={({ size, color }) => <Plus size={size} color={color} />}
-                >
-                  Create Subcategory
-                </Button>
-              </View>
             </View>
-          </Card.Content>
-        </Card>
-        {/* Subcategories Table */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text style={styles.tableTitle}>Nutrition Subcategories</Text>
-            <DataTable>
-              <DataTable.Header>
-                <DataTable.Title style={{ flex: 1.2 }}>Name</DataTable.Title>
-                <DataTable.Title style={{ flex: 1 }}>
-                  Parent Category
-                </DataTable.Title>
-                <DataTable.Title style={{ flex: 0.8 }}>Actions</DataTable.Title>
-              </DataTable.Header>
 
-              {subcategories.map((subcategory, index) => {
-              
-                return (
-                  <DataTable.Row key={index}>
-                    <DataTable.Cell style={{ flex: 1.2 }}>
+            <TouchableOpacity onPress={handleSave} style={styles.addButton}>
+              <Plus size={18} color="white" />
+              <Text style={styles.addButtonText}>Create Subcategory</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Nutrition Subcategories Table Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Nutrition Subcategories</Text>
+            <View style={styles.countChip}>
+              <Text style={styles.countText}>{subcategories.length}</Text>
+            </View>
+          </View>
+
+          {subcategories.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>No subcategories found</Text>
+            </View>
+          ) : (
+            <View style={styles.tableContainer}>
+              <DataTable>
+                <DataTable.Header style={styles.tableHeader}>
+                  <DataTable.Title
+                    style={[styles.tableHeaderCell, { flex: 1.2, justifyContent: 'flex-start' }]}
+                  >
+                    <Text style={styles.tableHeaderText}>Name</Text>
+                  </DataTable.Title>
+                  <DataTable.Title
+                    style={[styles.tableHeaderCell, { flex: 1, justifyContent: "flex-start"}]}
+                  >
+                    <Text style={styles.tableHeaderText}>Category</Text>
+                  </DataTable.Title>
+                  <DataTable.Title
+                    style={[styles.tableHeaderCell, { flex: 0.8 }]}
+                  >
+                    <Text style={styles.tableHeaderText}>Actions</Text>
+                  </DataTable.Title>
+                </DataTable.Header>
+
+                {subcategories.map((subcategory, index) => (
+                  <DataTable.Row key={index} style={styles.tableRow}>
+                    <DataTable.Cell style={[styles.tableCell, { flex: 1.2, justifyContent: "flex-start" }]}>
                       <Text style={styles.subcategoryName}>
                         {subcategory.name}
                       </Text>
                     </DataTable.Cell>
-
-                    <DataTable.Cell style={{ flex: 1 }}>
-                      <Chip mode="outlined" style={styles.parentChip} compact>
-                        {subcategory.category.name}
-                      </Chip>
+                    <DataTable.Cell style={[styles.tableCell, { flex: 1, justifyContent: "flex-start" }]}>
+                      <View style={styles.parentCategoryChip}>
+                        <Text style={styles.parentCategoryChipText}>
+                          {subcategory.category.name}
+                        </Text>
+                      </View>
                     </DataTable.Cell>
-
-                    <DataTable.Cell style={{ flex: 0.8 }}>
-                      <View style={styles.actionButtons}>
-                        <IconButton
-                          icon={({ size, color }) => (
-                            <Edit size={16} color={theme.colors.primary} />
-                          )}
-                          size={20}
-                          style={styles.actionButton}
-                          // onPress={() => handleEdit(subcategory)} /
-                        />
-                        <IconButton
-                          icon={({ size, color }) => (
-                            <Trash2 size={16} color={theme.colors.error} />
-                          )}
-                          size={20}
-                          style={styles.actionButton}
-                          // onPress={() => handleDelete(subcategory)}
-                        />
+                    <DataTable.Cell style={[styles.tableCell, { flex: 0.8 }]}>
+                      <View style={styles.actionButtonsContainer}>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.editButton]}
+                        >
+                          <Edit size={16} color="#6366F1" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.deleteButton]}
+                        >
+                          <Trash2 size={16} color="#EF4444" />
+                        </TouchableOpacity>
                       </View>
                     </DataTable.Cell>
                   </DataTable.Row>
-                );
-              })}
-
-              {subcategories.length === 0 && (
-                <DataTable.Row>
-                  <DataTable.Cell style={{ flex: 1, justifyContent: "center" }}>
-                    <Text style={styles.noDataText}>
-                      No subcategories found
-                    </Text>
-                  </DataTable.Cell>
-                </DataTable.Row>
-              )}
-            </DataTable>
-          </Card.Content>
-        </Card>
+                ))}
+              </DataTable>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
@@ -212,184 +212,202 @@ export default function NutritionSubcategoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8FAFC",
   },
   header: {
-    backgroundColor: "#0047AB",
-    paddingVertical: 16,
+    backgroundColor: "#06407a",
+    paddingVertical: 8,
     paddingHorizontal: 20,
     elevation: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   headerTitle: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-    letterSpacing: 2,
-  },
-  headerSubtitle: {
     color: "white",
     fontSize: 14,
     opacity: 0.8,
     marginTop: 4,
   },
-  content: {
+  headerContent: {
+    alignItems: "center",
+  },
+  scrollView: {
     flex: 1,
-    padding: 16,
   },
-  card: {
-    marginBottom: 16,
-    elevation: 2,
+  scrollContent: {
+    paddingBottom: 100,
   },
-  title: {
+  section: {
+    backgroundColor: "white",
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#333",
+    fontWeight: "600",
+    color: "#111827",
   },
-  form: {
-    marginBottom: 8,
+  countChip: {
+    backgroundColor: "#EEF2FF",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  countText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#6366F1",
+  },
+  formContainer: {
+    gap: 16,
   },
   inputContainer: {
+    marginBottom: 4,
+  },
+  inputHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
+    alignItems: "center",
+    marginBottom: 8,
   },
-  inputIcon: {
-    marginRight: 12,
-    marginTop: 16,
-  },
-  input: {
-    flex: 1,
-  },
-  dropdownContainer: {
-    flex: 1,
+  inputIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: "500",
-    marginBottom: 8,
-    color: "#333",
+    color: "#374151",
+  },
+  textInput: {
+    backgroundColor: "white",
+  },
+  dropdownContainer: {
+    zIndex: 1000, // Ensure dropdown is above other elements
   },
   dropdown: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 16,
+    borderColor: "#E5E7EB",
+    borderRadius: 8,
+    backgroundColor: "white",
+    minHeight: 56,
+  },
+  dropdownList: {
+    borderColor: "#E5E7EB",
+    borderRadius: 8,
     backgroundColor: "white",
   },
   dropdownText: {
     fontSize: 16,
-    color: "#333",
+    color: "#111827",
   },
-  selectedChip: {
-    alignSelf: "flex-start",
+  dropdownPlaceholder: {
+    fontSize: 16,
+    color: "#6B7280",
+  },
+  addButton: {
+    backgroundColor: "#06407a",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 8,
     marginTop: 8,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-    marginTop: 8,
+  addButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
   },
-  button: {
-    flex: 1,
+  emptyState: {
+    paddingVertical: 40,
+    alignItems: "center",
   },
-  resetButton: {
-    borderColor: "#D32F2F",
+  emptyStateText: {
+    fontSize: 16,
+    color: "#6B7280",
+    fontStyle: "italic",
   },
-  saveButton: {
-    backgroundColor: "#0047AB",
+  tableContainer: {
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#FAFAFA",
   },
-  searchContainer: {
-    marginBottom: 12,
+  tableHeader: {
+    backgroundColor: "#F3F4F6",
+    paddingVertical: 12,
   },
-  searchbar: {
-    elevation: 0,
-    backgroundColor: "#f8f9fa",
+  tableHeaderCell: {
+    justifyContent: "center",
   },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  statsText: {
-    fontSize: 12,
-    color: "#666",
-    fontWeight: "500",
-  },
-  tableTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-    color: "#333",
-  },
-  subcategoryName: {
+  tableHeaderText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
-    marginBottom: 2,
+    color: "#374151",
   },
-  createdDate: {
-    fontSize: 10,
-    color: "#999",
+  tableRow: {
+    backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+    paddingVertical: 12,
   },
-  parentChip: {
-    alignSelf: "flex-start",
-    height: 28,
+  tableCell: {
+    justifyContent: "center",
   },
-  itemCount: {
+  subcategoryName: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#0047AB",
+    fontWeight: "500",
+    color: "#111827",
   },
-  actionButtons: {
+  parentCategoryChip: {
+    backgroundColor: "#EEF2FF",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    borderColor: "#C7D2FE",
+  },
+  parentCategoryChipText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#6366F1",
+  },
+  actionButtonsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
+    gap: 8,
   },
   actionButton: {
-    margin: 0,
-    marginLeft: 4,
-  },
-  noDataText: {
-    textAlign: "center",
-    color: "#666",
-    fontStyle: "italic",
-    paddingVertical: 20,
-  },
-  groupContainer: {
-    marginBottom: 16,
-  },
-  groupHeader: {
-    marginBottom: 8,
-  },
-  groupChip: {
-    alignSelf: "flex-start",
-  },
-  subcategoryList: {
-    paddingLeft: 16,
-  },
-  subcategoryItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#f8f9fa",
-    marginBottom: 4,
+    padding: 8,
     borderRadius: 6,
   },
-  subcategoryItemName: {
-    fontSize: 14,
-    color: "#333",
-    fontWeight: "500",
+  editButton: {
+    backgroundColor: "#EEF2FF",
   },
-  subcategoryItemCount: {
-    fontSize: 12,
-    color: "#666",
-  },
-  groupDivider: {
-    marginTop: 8,
+  deleteButton: {
+    backgroundColor: "#FEF2F2",
   },
 });

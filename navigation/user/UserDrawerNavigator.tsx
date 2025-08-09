@@ -13,10 +13,8 @@ import NutritionCategoryScreen from "../../screens/user/nutrition/NutritionCateg
 import NutritionFoodsScreen from "../../screens/user/nutrition/NutritionFoodsScreen";
 import NutritionDetailsScreen from "../../screens/user/nutrition/NutritionDetailsScreen";
 import CameraScreen from "../../screens/user/nutrition/CameraScreen";
-import { Button } from "react-native-paper";
 
 const Drawer = createDrawerNavigator();
-
 const Stack = createStackNavigator();
 
 const ExerciseStack = () => {
@@ -39,49 +37,68 @@ const NutritionStack = () => {
       <Stack.Screen name="Camera" component={CameraScreen} />
     </Stack.Navigator>
   );
-}
+};
 
 const UserDrawerNavigator = () => {
-
   return (
     <Drawer.Navigator
       screenOptions={({ navigation }) => ({
         headerShown: true,
         headerTitle: "FitYatra",
         headerTitleStyle: {
-          fontSize: 20,
+          fontSize: 24,
           letterSpacing: 4,
-        
+          fontWeight: 700,
+          color: "#111111"
         },
         headerBackground: () => (
           <LinearGradient
-            colors={["#06407a", "#3b5998", "#06407a"]}
+            colors={["#81ace6ff", "#81ace6ff"]}
             style={{ flex: 1 }}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           />
         ),
-        headerTintColor: "#fff",
-
-        // Remove default left hamburger menu
+      
         headerLeft: () => null,
-
-        // Add custom hamburger menu on the right side
         headerRight: () => (
           <TouchableOpacity
             onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
             style={{ paddingRight: 16 }}
           >
-            <MaterialCommunityIcons name="menu" color={"white"} size={24} />
+            <MaterialCommunityIcons name="menu" color={"#111111"} size={24} />
           </TouchableOpacity>
         ),
       })}
     >
-      <Drawer.Screen name="Dashboard" component={TabNavigator} />
-      <Drawer.Screen name="Exercise" component={ExerciseStack} />
-      <Drawer.Screen name="Nutrition" component={NutritionStack} />
+      <Drawer.Screen
+        name="Dashboard"
+        component={TabNavigator}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="view-dashboard" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Exercise"
+        component={ExerciseStack}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="dumbbell" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Nutrition"
+        component={NutritionStack}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="food-apple-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Drawer.Navigator>
-    
   );
 };
 

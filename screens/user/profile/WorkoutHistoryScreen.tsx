@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { 
-  Modal, 
-  View, 
-  StyleSheet, 
-  FlatList, 
-  ActivityIndicator, 
-  Dimensions,
-  StatusBar,
-  SafeAreaView 
+import {
+  Modal,
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { Text, Card, IconButton, Divider } from "react-native-paper";
 import moment from "moment";
-import { getWorkoutHistory } from "../../../services/user/exercise/Workout";
-
-const { width, height } = Dimensions.get('window');
-
-interface WorkoutHistoryModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
+import { getWorkoutHistory } from "../../../services/both/exercise/Workout";
 
 interface WorkoutHistory {
   exercise?: { name?: string };
@@ -27,25 +18,25 @@ interface WorkoutHistory {
   caloriesBurned: number;
 }
 
-const WorkoutHistoryModal: React.FC<WorkoutHistoryModalProps> = ({ visible, onClose }) => {
+const WorkoutHistoryScreen: React.FC = () => {
   const [history, setHistory] = useState<WorkoutHistory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (visible) {
-      fetchHistory();
-    }
-  }, [visible]);
+    fetchHistory();
+  }, []);
 
   const fetchHistory = async () => {
     setLoading(true);
     try {
       const data = await getWorkoutHistory();
-      
-      // Convert startTime from Date to string for each workout
+
       const formattedData = data.map((workout: any) => ({
         ...workout,
-        startTime: typeof workout.startTime === "string" ? workout.startTime : workout.startTime.toISOString(),
+        startTime:
+          typeof workout.startTime === "string"
+            ? workout.startTime
+            : workout.startTime.toISOString(),
       }));
 
       setHistory(formattedData);
@@ -56,8 +47,17 @@ const WorkoutHistoryModal: React.FC<WorkoutHistoryModalProps> = ({ visible, onCl
     }
   };
 
-  const renderItem = ({ item, index }: { item: WorkoutHistory; index: number }) => (
-    <Card style={[styles.itemCard, { marginTop: index === 0 ? 0 : 16 }]} elevation={3}>
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: WorkoutHistory;
+    index: number;
+  }) => (
+    <Card
+      style={[styles.itemCard, { marginTop: index === 0 ? 0 : 16 }]}
+      elevation={3}
+    >
       <Card.Content style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <View style={styles.exerciseIconContainer}>
@@ -75,9 +75,9 @@ const WorkoutHistoryModal: React.FC<WorkoutHistoryModalProps> = ({ visible, onCl
             {moment(item.startTime).format("h:mm A")}
           </Text>
         </View>
-        
+
         <Divider style={styles.divider} />
-        
+
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <View style={styles.statIconContainer}>
@@ -88,7 +88,7 @@ const WorkoutHistoryModal: React.FC<WorkoutHistoryModalProps> = ({ visible, onCl
               <Text style={styles.statLabel}>minutes</Text>
             </View>
           </View>
-          
+
           <View style={styles.statItem}>
             <View style={styles.statIconContainer}>
               <Text style={styles.statIcon}>🔥</Text>
@@ -122,85 +122,77 @@ const WorkoutHistoryModal: React.FC<WorkoutHistoryModalProps> = ({ visible, onCl
 
   const getTotalStats = () => {
     const totalWorkouts = history.length;
-    const totalDuration = history.reduce((sum, workout) => sum + workout.duration, 0);
-    const totalCalories = history.reduce((sum, workout) => sum + workout.caloriesBurned, 0);
-    
+    const totalDuration = history.reduce(
+      (sum, workout) => sum + workout.duration,
+      0
+    );
+    const totalCalories = history.reduce(
+      (sum, workout) => sum + workout.caloriesBurned,
+      0
+    );
+
     return { totalWorkouts, totalDuration, totalCalories };
   };
 
   const { totalWorkouts, totalDuration, totalCalories } = getTotalStats();
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={false}
-      onRequestClose={onClose}
-      statusBarTranslucent={false}
-    >
-      <StatusBar backgroundColor="#6366f1" barStyle="light-content" />
-      <SafeAreaView style={styles.container}>
-        {/* Header with Gradient Background */}
-        <View style={styles.headerContainer}>
-          <View style={styles.header}>
-            <View style={styles.headerTop}>
-              <View style={styles.headerLeft}>
-                <Text style={styles.headerIcon}>📈</Text>
-                <Text style={styles.headerTitle}>Workout History</Text>
-              </View>
-              <IconButton 
-                icon="close" 
-                iconColor="#ffffff"
-                size={28}
-                onPress={onClose}
-                style={styles.closeButton}
-              />
+    <SafeAreaView style={styles.container}>
+      {/* Header with Gradient Background */}
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.headerIcon}>📈</Text>
+              <Text style={styles.headerTitle}>Workout History</Text>
             </View>
-            
-            {/* Stats Summary */}
-            {!loading && history.length > 0 && (
-              <View style={styles.summaryStats}>
-                <View style={styles.summaryStatItem}>
-                  <Text style={styles.summaryStatValue}>{totalWorkouts}</Text>
-                  <Text style={styles.summaryStatLabel}>Workouts</Text>
-                </View>
-                <View style={styles.summaryStatDivider} />
-                <View style={styles.summaryStatItem}>
-                  <Text style={styles.summaryStatValue}>{totalDuration}</Text>
-                  <Text style={styles.summaryStatLabel}>Minutes</Text>
-                </View>
-                <View style={styles.summaryStatDivider} />
-                <View style={styles.summaryStatItem}>
-                  <Text style={styles.summaryStatValue}>{totalCalories}</Text>
-                  <Text style={styles.summaryStatLabel}>Calories</Text>
-                </View>
-              </View>
-            )}
           </View>
-        </View>
 
-        {/* Content */}
-        <View style={styles.content}>
-          {loading ? (
-            renderLoadingState()
-          ) : history.length === 0 ? (
-            renderEmptyState()
-          ) : (
-            <FlatList
-              data={history}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-            />
+          {/* Stats Summary */}
+          {!loading && history.length > 0 && (
+            <View style={styles.summaryStats}>
+              <View style={styles.summaryStatItem}>
+                <Text style={styles.summaryStatValue}>{totalWorkouts}</Text>
+                <Text style={styles.summaryStatLabel}>Workouts</Text>
+              </View>
+              <View style={styles.summaryStatDivider} />
+              <View style={styles.summaryStatItem}>
+                <Text style={styles.summaryStatValue}>{totalDuration}</Text>
+                <Text style={styles.summaryStatLabel}>Minutes</Text>
+              </View>
+              <View style={styles.summaryStatDivider} />
+              <View style={styles.summaryStatItem}>
+                <Text style={styles.summaryStatValue}>
+                  {totalCalories.toFixed(2)}
+                </Text>
+                <Text style={styles.summaryStatLabel}>Calories</Text>
+              </View>
+            </View>
           )}
         </View>
-      </SafeAreaView>
-    </Modal>
+      </View>
+
+      {/* Content */}
+      <View style={styles.content}>
+        {loading ? (
+          renderLoadingState()
+        ) : history.length === 0 ? (
+          renderEmptyState()
+        ) : (
+          <FlatList
+            data={history}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default WorkoutHistoryModal;
+export default WorkoutHistoryScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -208,7 +200,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
   },
   headerContainer: {
-    backgroundColor: "#6366f1",
     paddingBottom: 24,
     shadowColor: "#000",
     shadowOffset: {
@@ -241,7 +232,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111111",
   },
   closeButton: {
     margin: 0,
@@ -251,7 +242,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(126, 165, 220, 0.1)",
     borderRadius: 16,
     paddingVertical: 20,
     paddingHorizontal: 16,
@@ -263,12 +254,12 @@ const styles = StyleSheet.create({
   summaryStatValue: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111111",
     marginBottom: 4,
   },
   summaryStatLabel: {
     fontSize: 12,
-    color: "rgba(255, 255, 255, 0.8)",
+    color: "#111111",
     fontWeight: "600",
     textTransform: "uppercase",
   },

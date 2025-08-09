@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
 
 interface IllustrationAndFocusAreaProps {
   exerciseData: Exercise;
@@ -40,16 +40,20 @@ const InstructionAndFocusArea: React.FC<IllustrationAndFocusAreaProps> = ({
             FOCUS AREA
           </Text>
           <View style={styles.focusAreas}>
-            <View style={[styles.focusTag, { backgroundColor: "#06407a" }]}>
-              <Text
-                style={[
-                  styles.focusTagText,
-                  { color: theme.colors.background },
-                ]}
-              >
-                {exerciseData.focusArea}
-              </Text>
+          {exerciseData.focusArea.map((item) => (
+    
+              <View style={[styles.focusTag, { backgroundColor: "#06407a" }]}>
+                <Text
+                  style={[
+                    styles.focusTagText,
+                    { color: theme.colors.background },
+                  ]}
+                >
+                  {item}
+                </Text>
+          
             </View>
+          ))}
           </View>
         </Card.Content>
       </Card>
@@ -78,8 +82,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 16,
   },
-  focusAreas: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  focusAreas: {
+     flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 2,
+
+  },
+
   focusTag: {
+   
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,

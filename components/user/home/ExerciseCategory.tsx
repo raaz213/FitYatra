@@ -9,11 +9,28 @@ import {
 } from "react-native";
 import { Text } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
-import { Subcategory } from "../../../types/user/exercise/Subcategory";
 
 const { width } = Dimensions.get("window");
 
-const TodaysWorkout = ({exerciseSubcategories}:{exerciseSubcategories:Subcategory[]}) => {
+const TodaysWorkout = () => {
+  // ✅ Dummy data
+  const exerciseSubcategories = [
+    {
+      _id: "1",
+      name: "Upper Body Strength",
+      dayNumber: "Day 1",
+    },
+    {
+      _id: "2",
+      name: "Lower Body Burn",
+      dayNumber: "Day 2",
+    },
+    {
+      _id: "3",
+      name: "Core & Abs",
+      dayNumber: "Day 3",
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -26,16 +43,14 @@ const TodaysWorkout = ({exerciseSubcategories}:{exerciseSubcategories:Subcategor
       </View>
 
       {/* Workout Sessions */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {exerciseSubcategories.map((session) => (
           <TouchableOpacity key={session._id} style={styles.sessionCard}>
             <View style={styles.imageContainer}>
               <Image
-                source={{ uri: 'https://media.istockphoto.com/id/843435340/photo/body-building-workout.jpg?s=1024x1024&w=is&k=20&c=fBf3rO7V4UDhMXZyqL9ZPZzxTxwR8aYCrRPcZ0zDPZA=' }}
+                source={{
+                  uri: "https://media.istockphoto.com/id/843435340/photo/body-building-workout.jpg?s=1024x1024&w=is&k=20&c=fBf3rO7V4UDhMXZyqL9ZPZzxTxwR8aYCrRPcZ0zDPZA=",
+                }}
                 style={styles.sessionImage}
               />
               <LinearGradient
@@ -64,10 +79,11 @@ const TodaysWorkout = ({exerciseSubcategories}:{exerciseSubcategories:Subcategor
 
 export default TodaysWorkout;
 
+
+
 const styles = StyleSheet.create({
   container: {
     paddingTop: 5,
-    paddingBottom: 20,
   },
   header: {
     flexDirection: "row",
@@ -84,7 +100,7 @@ const styles = StyleSheet.create({
   viewAllButton: {
     fontSize: 16,
     fontWeight: "600",
-    color: "red",
+    color: "#06407a",
   },
  
   sessionCard: {

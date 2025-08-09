@@ -19,7 +19,8 @@ import { Text, useTheme } from "react-native-paper";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { API_URL } from "../../../constants/apiUrl";
-import { startWorkout, stopWorkout } from "../../../services/user/exercise/Workout";
+import { startWorkout, stopWorkout } from "../../../services/both/exercise/Workout";
+import { Pause, Play } from "lucide-react-native";
 
 interface RenderExerciseProps {
   exerciseData: {
@@ -387,9 +388,11 @@ export default function WorkoutStartScreen({ navigation, route }: any) {
               style={styles.pauseButton}
               onPress={() => setIsPaused((prev) => !prev)}
             >
-              <Text style={styles.pauseButtonText}>
-                {isPaused ? "Resume" : "Pause"}
-              </Text>
+               {isPaused ? (
+                <Play size={30} color="#fff" fill="#fff" />
+              ) : (
+                <Pause size={30} color="#fff" fill="#fff" />
+              )}
             </TouchableOpacity>
           )}
 

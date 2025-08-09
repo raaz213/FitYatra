@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import React from "react";
 import { Card, useTheme, Button } from "react-native-paper";
-import { Exercise } from "../../../types/user/exercise/Exercise";
-import { Subcategory } from "../../../types/user/exercise/Subcategory";
+import { Exercise } from "../../../types/both/exercise/Exercise";
+import { Subcategory } from "../../../types/both/exercise/Subcategory";
 
 interface CurrentSubcategoryType {
   currentSubcategory: Subcategory | undefined;
@@ -60,8 +60,8 @@ export default WorkoutCategory;
 
 const styles = StyleSheet.create({
   categoryCard: {
-    marginBottom: 20,
-    borderRadius: 16,
+    marginBottom: 10,
+    borderRadius: 5,
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   categoryContent: {
-    paddingVertical: 16,
+    paddingVertical: 10,
     paddingHorizontal: 16,
   },
   categoryInfo: {

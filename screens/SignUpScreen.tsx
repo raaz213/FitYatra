@@ -203,7 +203,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToLogin}) => {
                   touched.gender && errors.gender && styles.inputError,
                 ]}
               >
-                <Picker.Item label="Select Gender" value="" />
+               
                 <Picker.Item label="Male" value="male" />
                 <Picker.Item label="Female" value="female" />
                 <Picker.Item label="Other" value="other" />
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginLink: {
-    color: "#4CAF50",
+    color: "#06407a",
     fontWeight: "bold",
   },
 });

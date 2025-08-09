@@ -43,15 +43,16 @@ const GoalModal: React.FC<GoalModalProps> = ({
                 value={goalInput == 0 ? "" : goalInput.toString()}
                 onChangeText={(text) => setGoalInput(Number(text))}
                 placeholderTextColor="#94A3B8"
+                style={{backgroundColor: "#FFFFFF"}}
               />
               <Badge style={styles.stepsBadge}>steps</Badge>
             </View>
 
             <View style={styles.buttonContainer}>
-              <Button mode="outlined" onPress={handleClose}>
+              <Button mode="outlined" onPress={handleClose} textColor="#06407a"  style={{ borderColor: "#06407a"}}>
                 Cancel
               </Button>
-              <Button mode="contained" onPress={handleSetGoal}>
+              <Button mode="contained" onPress={handleSetGoal} style={{ backgroundColor: "#06407a"}}>
                 Add
               </Button>
             </View>
@@ -64,6 +65,7 @@ const GoalModal: React.FC<GoalModalProps> = ({
 
 const styles = StyleSheet.create({
   modalContainer: {
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderRadius: 10,
@@ -80,7 +82,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   stepsBadge: {
-    backgroundColor: "blue",
+    backgroundColor: "#06407a",
     position: "absolute",
     top: 25,
     paddingHorizontal: 10,
@@ -89,6 +91,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
+ 
   },
 });
 

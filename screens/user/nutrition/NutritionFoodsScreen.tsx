@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet, Image, TouchableOpacity, SafeAreaView } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import { Appbar, Card, Text, Chip, useTheme } from "react-native-paper";
-import { fetchNutritionSubcategoriesByCategory } from "../../../services/user/nutrition/Subcategory";
-import { Subcategory } from "../../../types/user/nutrition/Subcategory";
-import { getNutritionBySubcategory } from "../../../services/user/nutrition/Diet";
-import { Diet } from "../../../types/user/nutrition/diet";
+import { fetchNutritionSubcategoriesByCategory } from "../../../services/both/nutrition/Subcategory";
+import { Subcategory } from "../../../types/both/nutrition/Subcategory";
+import { getNutritionBySubcategory } from "../../../services/both/nutrition/Diet";
+import { Diet } from "../../../types/both/nutrition/diet";
 import { window } from "../../../constants/sizes";
 import { API_URL } from "../../../constants/apiUrl";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const CARD_WIDTH = (window.width - 48) / 2;
 const COLORS = {
-  background: '#FAFAFA',
-  white: '#FFFFFF',
-  text: '#1A1A1A',
-  textSecondary: '#6B7280',
-  primary: '#2563EB',
-  primaryLight: '#EFF6FF',
-  shadow: 'rgba(0, 0, 0, 0.08)',
+  background: "#FAFAFA",
+  white: "#FFFFFF",
+  text: "#1A1A1A",
+  textSecondary: "#6B7280",
+  primary: "#2563EB",
+  primaryLight: "#EFF6FF",
+  shadow: "rgba(0, 0, 0, 0.08)",
 };
 
 const NutritionFoodsScreen: React.FC = ({ navigation, route }: any) => {
@@ -56,7 +63,7 @@ const NutritionFoodsScreen: React.FC = ({ navigation, route }: any) => {
   }, [selectedSubcategory]);
 
   const handleNutritionDetails = (dietId: string) => {
-    navigation.navigate("NutritionDetails", { dietId: dietId });
+    navigation.navigate("NutritionDetails", { dietId });
   };
 
   const renderFoodCard = (diet: Diet) => (
@@ -77,7 +84,7 @@ const NutritionFoodsScreen: React.FC = ({ navigation, route }: any) => {
           </Text>
           <View style={styles.calorieContainer}>
             <Text style={styles.calorieText}>
-              {diet.totalCalories} kcal
+              {diet.totalCalories ?? 0} kcal
             </Text>
           </View>
           <Text style={styles.benefitText} numberOfLines={2}>
@@ -90,48 +97,59 @@ const NutritionFoodsScreen: React.FC = ({ navigation, route }: any) => {
 
   return (
     <SafeAreaProvider>
-    <SafeAreaView style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <Appbar.BackAction 
-          iconColor={COLORS.text} 
-          onPress={() => navigation.goBack()} 
-        />
-        <Appbar.Content
-          title="Nutrition Foods"
-          titleStyle={styles.headerTitle}
-        />
-      </Appbar.Header>
+      <SafeAreaView style={styles.container}>
+        <Appbar.Header style={styles.header}>
+          <Appbar.BackAction
+            iconColor={COLORS.text}
+            onPress={() => navigation.goBack()}
+          />
+          <Appbar.Content
+            title="Nutrition Foods"
+            titleStyle={styles.headerTitle}
+          />
+        </Appbar.Header>
 
-      <ScrollView 
-        style={styles.content} 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.chipContainer}>
-          {subCategories.map((subcategory) => (
-            <Chip
-              key={subcategory._id}
-              selected={subcategory._id === selectedSubcategory}
-              onPress={() => setSelectedSubcategory(subcategory._id)}
-              style={[
-                styles.chip,
-                subcategory._id === selectedSubcategory && styles.chipSelected
-              ]}
-              textStyle={[
-                styles.chipText,
-                subcategory._id === selectedSubcategory && styles.chipTextSelected
-              ]}
-            >
-              {subcategory.name}
-            </Chip>
-          ))}
-        </View>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.chipContainer}>
+            {subCategories.map((subcategory) => (
+              <Chip
+                key={subcategory._id}
+                selected={subcategory._id === selectedSubcategory}
+                onPress={() => setSelectedSubcategory(subcategory._id)}
+                style={[
+                  styles.chip,
+                  subcategory._id === selectedSubcategory &&
+                    styles.chipSelected,
+                ]}
+                textStyle={[
+                  styles.chipText,
+                  subcategory._id === selectedSubcategory &&
+                    styles.chipTextSelected,
+                ]}
+              >
+                {subcategory.name}
+              </Chip>
+            ))}
+          </View>
 
-        <View style={styles.gridContainer}>
-          {diets.map(renderFoodCard)}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {diets.length === 0 ? (
+            <View style={styles.noDataContainer}>
+              <Text style={styles.noDataText}>No nutrition data found!</Text>
+              <Text style={styles.noDataSubText}>
+                Try selecting another subcategory.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.gridContainer}>
+              {diets.map(renderFoodCard)}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 };
@@ -151,7 +169,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: COLORS.text,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   content: {
     flex: 1,
@@ -160,7 +178,8 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   chipContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: 20,
     paddingVertical: 16,
     gap: 12,
@@ -168,26 +187,26 @@ const styles = StyleSheet.create({
   chip: {
     backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: "#E5E7EB",
   },
   chipSelected: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: "#06407a",
+    borderColor: "#06407a",
   },
   chipText: {
     color: COLORS.textSecondary,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   chipTextSelected: {
     color: COLORS.white,
   },
   gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: 20,
     gap: 4,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   cardContainer: {
     width: CARD_WIDTH,
@@ -203,18 +222,18 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   foodImage: {
-    width: '100%',
+    width: "100%",
     height: 140,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: "#F3F4F6",
   },
   cardContent: {
     padding: 16,
   },
   foodName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 20,
@@ -224,18 +243,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginBottom: 8,
   },
   calorieText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.primary,
+    fontWeight: "600",
+    color: "#06407a",
   },
   benefitText: {
     fontSize: 13,
     color: COLORS.textSecondary,
     lineHeight: 18,
+  },
+  noDataContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 60,
+    paddingHorizontal: 24,
+  },
+  noDataText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: COLORS.text,
+    marginTop: 16,
+  },
+  noDataSubText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    marginTop: 4,
+  },
+  noDataImage: {
+    width: 180,
+    height: 180,
+    opacity: 0.8,
   },
 });
 

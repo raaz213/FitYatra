@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { IconButton, Surface } from "react-native-paper";
-import { window } from "../../../constants/sizes"; // make sure this imports your screen width
-import { CardWorkoutStats } from "../../../types/user/exercise/Workout";
-import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Workout";
+import { window } from "../../../constants/sizes"; 
+import { CardWorkoutStats } from "../../../types/both/exercise/Workout";
+import { userCaloriesStatsAnalytics } from "../../../services/both/stats/Stats";
 
-// Distinct colors for each card
-const cardColors = ["#3b82f6", "#f97316", "#22c55e", "#8b5cf6"];
+
 
 const UserStats = () => {
   const [stats, setStats] = useState<CardWorkoutStats>({
@@ -15,13 +14,14 @@ const UserStats = () => {
     totalHoursTrained: 0,
     streakDays: 0,
   });
-  const trainedMin = stats.totalHoursTrained/60;
-  const trainedHr = Math.floor(trainedMin/60);
-  const formatedTrained = `${trainedHr} Hr ${Math.floor(trainedMin%60)} Min`;
+
+  const trainedMin = stats.totalHoursTrained / 60;
+  const trainedHr = Math.floor(trainedMin / 60);
+  const formatedTrained = `${trainedHr} Hr ${Math.floor(trainedMin % 60)} Min`;
 
   const caloriesData = [
     { label: "Workouts", value: stats.totalWorkouts, icon: "dumbbell" },
-    { label: "Calories Burned", value:stats.totalCalories.toFixed(2), icon: "fire" },
+    { label: "Calories Burned", value: stats.totalCalories.toFixed(2), icon: "fire" },
     { label: "Hours Trained", value: formatedTrained, icon: "clock-outline" },
     { label: "Streak Days", value: stats.streakDays, icon: "calendar-check" },
   ];
@@ -44,13 +44,13 @@ const UserStats = () => {
       {caloriesData.map((stat, index) => (
         <Surface
           key={index}
-          style={[styles.statCard, { backgroundColor: cardColors[index] }]}
-          elevation={4}
+          style={[styles.statCard, { backgroundColor: '#FFFFFF' }]}
+
         >
           <IconButton
             icon={stat.icon}
             size={28}
-            iconColor="#ffffff"
+            iconColor="#06407a" 
             style={styles.statIcon}
           />
           <Text style={styles.statValue}>{stat.value}</Text>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   statCard: {
-    width: (window.width - 44) / 2, // adjust for margins + gaps
+    width: (window.width - 44) / 2, 
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -84,12 +84,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#ffffff",
+    color: "#06407a", 
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: "#ffffff",
+    color: "#06407a", 
     textAlign: "center",
   },
 });

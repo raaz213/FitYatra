@@ -2,9 +2,7 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { window } from "../../../constants/sizes";
-import { Subcategory } from "../../../types/user/exercise/Subcategory";
-
-
+import { Subcategory } from "../../../types/both/exercise/Subcategory";
 
 interface WeekCalenderProps {
   setSelectedSubcategory: (id: string) => void;
@@ -15,7 +13,7 @@ interface WeekCalenderProps {
 const WeekCalender: React.FC<WeekCalenderProps> = ({
   setSelectedSubcategory,
   selectedSubcategory,
-  subcategories
+  subcategories,
 }) => {
   const theme = useTheme();
 
@@ -37,11 +35,13 @@ const WeekCalender: React.FC<WeekCalenderProps> = ({
               styles.dayText,
               {
                 color:
-                  selectedSubcategory === subcategory._id ? "#06407a" : theme.colors.onSurface,
+                  selectedSubcategory === subcategory._id
+                    ? "#06407a"
+                    : "#111111",
               },
             ]}
           >
-            {subcategory.dayNumber}
+            day {subcategory.dayNumber}
           </Text>
           <View
             style={[
@@ -61,10 +61,11 @@ const WeekCalender: React.FC<WeekCalenderProps> = ({
                 styles.dateText,
                 {
                   color:
-                         selectedSubcategory === subcategory._id
+                    selectedSubcategory === subcategory._id
                       ? theme.colors.background
                       : theme.colors.onSurface,
-                  fontWeight:      selectedSubcategory === subcategory._id ? "bold" : "600",
+                  fontWeight:
+                    selectedSubcategory === subcategory._id ? "bold" : "600",
                 },
               ]}
             >
@@ -85,14 +86,14 @@ export default WeekCalender;
 const styles = StyleSheet.create({
   weekContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 20,
+    gap: 16,
+  
     marginHorizontal: 8,
-    marginBottom: 4,
+  
   },
   dayContainer: {
     alignItems: "center",
-    width: window.width / 10, 
+    width: window.width / 10,
   },
   dayText: {
     fontSize: 11,

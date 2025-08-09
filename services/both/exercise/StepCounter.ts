@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   GetGoalResponse,
   StepCounterStatsResponse,
-} from "../../../types/user/exercise/StepCounter";
+} from "../../../types/both/exercise/StepCounter";
 
 export const setGoal = async (goal: number): Promise<void> => {
   try {

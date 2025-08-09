@@ -9,8 +9,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import CategoryCard from "../../../components/user/exercise/CategoryCard";
 import StartTrainingButton from "../../../components/user/exercise/StartTrainingButton";
-import { Category } from "../../../types/user/exercise/Category";
-import { fetchAllCategories } from "../../../services/user/exercise/Category";
+import { Category } from "../../../types/both/exercise/Category";
+import { fetchAllCategories } from "../../../services/both/exercise/Category";
 
 
 

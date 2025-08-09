@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Testimonial from './Testimonial';
 import CustomCarousel from '../../../custom/CustomCarousel';
 
@@ -36,7 +36,7 @@ const testimonialsData = [
 
 const TestimonialsList = () => {
   return (
-    <ScrollView>
+    <View>
       <CustomCarousel 
       data={testimonialsData.map((item, index) => ({ item, index }))}
       renderItem={({item, index}: {item: any, index: number}) =>
@@ -63,7 +63,7 @@ const TestimonialsList = () => {
     
        />
      
-    </ScrollView>
+    </View>
   );
 };
 

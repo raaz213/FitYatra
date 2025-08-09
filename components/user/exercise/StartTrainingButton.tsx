@@ -48,7 +48,7 @@ const StartTrainingButton: React.FC<StartTrainingButtonProps> = ({
         style={styles.continueButton}
       >
         <TouchableOpacity
-          style={{ flexDirection: "row", alignItems: "center" }}
+          style={{ flexDirection: "row", alignItems: "center",  }}
           onPress={() => handleWorkoutPress(selectedCategory)}
         >
           <Text style={styles.continueText}>Start Training Now</Text>
@@ -79,7 +79,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     borderRadius: 32,
-    shadowColor: "#8A4FFF",
+    marginBottom: 8,
+    shadowColor: "#06407a",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

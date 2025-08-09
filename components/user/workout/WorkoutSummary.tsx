@@ -1,21 +1,22 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Card, useTheme } from "react-native-paper";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
+import { window } from "../../../constants/sizes";
 
-
-
-
-const WorkoutSummary = ({ exercises, selectedSubcategory}: { exercises: Exercise[], selectedSubcategory: string}) => {
+const WorkoutSummary = ({
+  exercises,
+  selectedSubcategory,
+}: {
+  exercises: Exercise[];
+  selectedSubcategory: string;
+}) => {
   const theme = useTheme();
   return (
-    <Card
+    <View
       style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}
     >
-      <Card.Content style={styles.summaryContent}>
-        <Text style={[styles.summaryTitle, { color: theme.colors.onSurface }]}>
-          Workout Summary
-        </Text>
+      <View style={styles.summaryContent}>
         <View style={styles.summaryStats}>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: "#06407a" }]}>
@@ -41,26 +42,9 @@ const WorkoutSummary = ({ exercises, selectedSubcategory}: { exercises: Exercise
               Minutes
             </Text>
           </View>
-          <View style={styles.statItem}>
-            {/* <Text style={[styles.statNumber, { color: "#06407a" }]}>
-              {selectedSubcategory === 7
-                ? "Low"
-                : selectedDay === 6
-                ? "High"
-                : "Medium"}
-            </Text> */}
-            <Text
-              style={[
-                styles.statLabel,
-                { color: theme.colors.onSurfaceVariant },
-              ]}
-            >
-              Intensity
-            </Text>
-          </View>
         </View>
-      </Card.Content>
-    </Card>
+      </View>
+    </View>
   );
 };
 
@@ -68,16 +52,17 @@ export default WorkoutSummary;
 
 const styles = StyleSheet.create({
   summaryCard: {
-    marginBottom: 32,
-    borderRadius: 16,
+    borderRadius: 5,
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
+    width: window.width,
   },
   summaryContent: {
-    paddingVertical: 20,
+    paddingBottom: 30,
+    paddingTop: 10,
     paddingHorizontal: 20,
   },
   summaryTitle: {

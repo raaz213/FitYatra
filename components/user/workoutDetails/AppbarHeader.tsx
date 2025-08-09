@@ -1,10 +1,15 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Appbar, useTheme } from "react-native-paper";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
 
-
-const AppbarHeader = ({ navigation, exerciseData }: {navigation: any, exerciseData: Exercise }) => {
+const AppbarHeader = ({
+  navigation,
+  exerciseData,
+}: {
+  navigation: any;
+  exerciseData: Exercise;
+}) => {
   const theme = useTheme();
   return (
     <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
@@ -20,5 +25,5 @@ const AppbarHeader = ({ navigation, exerciseData }: {navigation: any, exerciseDa
 export default AppbarHeader;
 
 const styles = StyleSheet.create({
-  headerTitle: { fontSize: 12, fontWeight: "700", letterSpacing: 0.5 },
+  headerTitle: { fontSize: 16, fontWeight: "700", letterSpacing: 0.5 },
 });

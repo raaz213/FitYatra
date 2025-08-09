@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   View,
@@ -5,15 +7,9 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import {
-  TextInput,
-  Button,
-  Text,
-  Card,
-  useTheme,
-  Divider,
-} from "react-native-paper";
+import { TextInput, Text, useTheme } from "react-native-paper";
 import {
   Plus,
   Image as ImageIcon,
@@ -26,16 +22,12 @@ import {
 } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
 import * as ImagePicker from "expo-image-picker";
-import { Exercise } from "../../../types/user/exercise/Exercise";
 import DropDownPicker from "react-native-dropdown-picker";
-import { fetchAllCategories } from "../../../services/user/exercise/Category";
-import { Category } from "../../../types/user/exercise/Category";
-import {
-  getExerciseSubcategories,
-  getExerciseSubcategoriesByCategory,
-} from "../../../services/user/exercise/Subcategory";
-import { Subcategory } from "../../../types/user/exercise/Subcategory";
-import { addExercise } from "../../../services/user/exercise/Exercise";
+import { fetchAllCategories } from "../../../services/both/exercise/Category";
+import type { Category } from "../../../types/both/exercise/Category";
+import { getExerciseSubcategoriesByCategory } from "../../../services/both/exercise/Subcategory";
+import type { Subcategory } from "../../../types/both/exercise/Subcategory";
+import { addExercise } from "../../../services/both/exercise/Exercise";
 import { Toast } from "toastify-react-native";
 
 const focusAreas = [
@@ -64,7 +56,6 @@ const focusAreas = [
 ];
 
 export default function CreateExercise() {
-  const theme = useTheme();
   const [data, setData] = useState<{
     name: string;
     focusArea: string;
@@ -100,7 +91,6 @@ export default function CreateExercise() {
     { label: string; value: string }[]
   >([]);
 
-  
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -170,270 +160,317 @@ export default function CreateExercise() {
         type: `image/${fileType}`,
       } as any);
     }
+
     try {
       await addExercise(formData);
-      Toast.success("exercise added successfully");
+      Alert.alert("exercise added successfully");
     } catch (error) {
-      Toast.error("Error adding exercise");
+      Alert.alert("Error adding exercise");
     }
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>FitYatra</Text>
-        <Text style={styles.headerSubtitle}>Create Exercise</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerSubtitle}>Create Exercise</Text>
+        </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text style={styles.title}>Exercise Details</Text>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Exercise Image Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Exercise Image</Text>
+          </View>
 
-            {/* Exercise Name */}
+          <TouchableOpacity
+            onPress={pickImage}
+            style={styles.imageUploadContainer}
+          >
+            {data.image ? (
+              <Image source={{ uri: data.image }} style={styles.previewImage} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <View style={styles.imageIconContainer}>
+                  <ImageIcon size={32} color="#6B7280" />
+                </View>
+                <Text style={styles.placeholderText}>Tap to select image</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Basic Information Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Basic Information</Text>
+          </View>
+
+          <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <User
-                size={20}
-                color={theme.colors.primary}
-                style={styles.inputIcon}
-              />
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <User size={18} color="#6366F1" />
+                </View>
+                <Text style={styles.inputLabel}>Exercise Name</Text>
+              </View>
               <TextInput
-                label="Exercise Name"
                 value={data.name}
                 onChangeText={(text) => handleChange("name", text)}
-                style={styles.input}
+                style={styles.textInput}
                 mode="outlined"
                 placeholder="e.g., Push-ups, Squats"
+                outlineColor="#E5E7EB"
+                activeOutlineColor="#6366F1"
               />
             </View>
 
-            {/* Image Picker */}
-            <View style={styles.inputContainer}>
-              <ImageIcon
-                size={20}
-                color={theme.colors.primary}
-                style={styles.inputIcon}
-              />
-              <View style={styles.imageSection}>
-                <Text style={styles.inputLabel}>Exercise Image</Text>
-                <TouchableOpacity
-                  onPress={pickImage}
-                  style={styles.imagePicker}
-                >
-                  {data.image ? (
-                    <Image
-                      source={{ uri: data.image }}
-                      style={styles.previewImage}
-                    />
-                  ) : (
-                    <View
-                      style={[
-                        styles.placeholderImage,
-                        { backgroundColor: theme.colors.surfaceVariant },
-                      ]}
-                    >
-                      <ImageIcon
-                        size={32}
-                        color={theme.colors.onSurfaceVariant}
-                      />
-                      <Text
-                        style={{
-                          color: theme.colors.onSurfaceVariant,
-                          marginTop: 8,
-                        }}
-                      >
-                        Tap to select image
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+            <View
+              style={{
+                zIndex: openCategories ? 3000 : openSubCategories ? 1000 : 1000,
+              }}
+            >
+              <View style={styles.inputContainer}>
+                <View style={styles.inputHeader}>
+                  <View style={styles.inputIconContainer}>
+                    <Hash size={18} color="#6366F1" />
+                  </View>
+                  <Text style={styles.inputLabel}>Category</Text>
+                </View>
+                <View style={styles.dropdownContainer}>
+                  <DropDownPicker
+                    open={openCategories}
+                    value={selectedCategory}
+                    items={categories}
+                    setOpen={setOpenCategories}
+                    setValue={setSelectedCategory}
+                    setItems={setCategories}
+                    placeholder="Select Category"
+                    style={styles.dropdown}
+                    dropDownContainerStyle={styles.dropdownList}
+                    textStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownPlaceholder}
+                    dropDownDirection="TOP"
+                    listMode="SCROLLVIEW"
+                    ArrowDownIconComponent={() => (
+                      <ChevronDown size={20} color="#6B7280" />
+                    )}
+                    ArrowUpIconComponent={() => (
+                      <ChevronDown size={20} color="#6B7280" />
+                    )}
+                  />
+                </View>
               </View>
             </View>
-            <View style={[styles.inputContainer, { zIndex: 1000 }]}>
-              <DropDownPicker
-                open={openCategories}
-                value={selectedCategory}
-                items={categories}
-                setOpen={setOpenCategories}
-                setValue={setSelectedCategory}
-                setItems={setCategories}
-                placeholder="Category"
-                style={styles.dropdown}
-                dropDownDirection="BOTTOM"
-                textStyle={styles.dropdownText}
-                ArrowDownIconComponent={() => (
-                  <ChevronDown size={20} color={theme.colors.onSurface} />
-                )}
-                ArrowUpIconComponent={() => (
-                  <ChevronDown size={20} color={theme.colors.onSurface} />
-                )}
-              />
+
+            <View
+              style={{
+                zIndex: openSubCategories ? 3000 : openCategories ? 1000 : 1000,
+                marginTop: 10,
+              }}
+            >
+              <View style={styles.inputContainer}>
+                <View style={styles.inputHeader}>
+                  <View style={styles.inputIconContainer}>
+                    <Hash size={18} color="#6366F1" />
+                  </View>
+                  <Text style={styles.inputLabel}>Subcategory</Text>
+                </View>
+                <View style={styles.dropdownContainer}>
+                  <DropDownPicker
+                    open={openSubCategories}
+                    value={selectedSubCategory}
+                    items={subCategories}
+                    setOpen={setOpenSubCategories}
+                    setValue={setSelectedSubCategory}
+                    setItems={setSubCategories}
+                    placeholder="Select Subcategory"
+                    style={[
+                      styles.dropdown,
+                      !selectedCategory && styles.dropdownDisabled,
+                    ]}
+                    dropDownContainerStyle={styles.dropdownList}
+                    textStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownPlaceholder}
+                    disabled={!selectedCategory}
+                    dropDownDirection="TOP"
+                    listMode="SCROLLVIEW"
+                    ArrowDownIconComponent={() => (
+                      <ChevronDown size={20} color="#6B7280" />
+                    )}
+                    ArrowUpIconComponent={() => (
+                      <ChevronDown size={20} color="#6B7280" />
+                    )}
+                  />
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Exercise Details Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Exercise Details</Text>
+          </View>
+
+          <View style={styles.formContainer}>
+            <View style={styles.row}>
+              <View
+                style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}
+              >
+                <View style={styles.inputHeader}>
+                  <View style={styles.inputIconContainer}>
+                    <Hash size={18} color="#6366F1" />
+                  </View>
+                  <Text style={styles.inputLabel}>Sets</Text>
+                </View>
+                <TextInput
+                  value={data.sets.toString()}
+                  onChangeText={(text) => handleChange("sets", text)}
+                  keyboardType="numeric"
+                  style={styles.textInput}
+                  mode="outlined"
+                  placeholder="3"
+                  outlineColor="#E5E7EB"
+                  activeOutlineColor="#6366F1"
+                />
+              </View>
+
+              <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
+                <View style={styles.inputHeader}>
+                  <View style={styles.inputIconContainer}>
+                    <Clock size={18} color="#6366F1" />
+                  </View>
+                  <Text style={styles.inputLabel}>Duration</Text>
+                </View>
+                <TextInput
+                  value={data.duration.toString()}
+                  onChangeText={(text) => handleChange("duration", text)}
+                  keyboardType="numeric"
+                  style={styles.textInput}
+                  mode="outlined"
+                  placeholder="30"
+                  outlineColor="#E5E7EB"
+                  activeOutlineColor="#6366F1"
+                />
+              </View>
             </View>
 
-            <View style={[styles.inputContainer, { zIndex: 500 }]}>
-              <DropDownPicker
-                open={openSubCategories}
-                value={selectedSubCategory}
-                items={subCategories}
-                setOpen={setOpenSubCategories}
-                setValue={setSelectedSubCategory}
-                setItems={setSubCategories}
-                placeholder="Subcategory"
-                dropDownDirection="BOTTOM"
-                style={
-                  selectedCategory
-                    ? styles.dropdown
-                    : { backgroundColor: "#f5f5f5", borderColor: "#e0e0e0" }
-                }
-                textStyle={
-                  selectedCategory ? styles.dropdownText : { color: "#ccc" }
-                }
-                disabled={!selectedCategory}
-                placeholderStyle={
-                  selectedCategory ? styles.dropdownText : { color: "#ccc" }
-                }
-                ArrowDownIconComponent={() => (
-                  <ChevronDown size={20} color={theme.colors.onSurface} />
-                )}
-                ArrowUpIconComponent={() => (
-                  <ChevronDown size={20} color={theme.colors.onSurface} />
-                )}
-              />
-            </View>
-
-            {/* Sets */}
             <View style={styles.inputContainer}>
-              <Hash
-                size={20}
-                color={theme.colors.primary}
-                // placeholderStyle={styles.dropdownPlaceholder}
-                style={styles.inputIcon}
-              />
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <Hash size={18} color="#6366F1" />
+                </View>
+                <Text style={styles.inputLabel}>MET Value</Text>
+              </View>
               <TextInput
-                label="Number of Sets"
-                value={data.sets.toString()}
-                onChangeText={(text) => handleChange("sets", text)}
-                keyboardType="numeric"
-                style={styles.input}
-                mode="outlined"
-                placeholder="e.g., 3, 4, 5"
-              />
-            </View>
-
-            {/* Duration */}
-            <View style={styles.inputContainer}>
-              <Clock
-                size={20}
-                color={theme.colors.primary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                label="Duration"
-                value={data.duration.toString()}
-                onChangeText={(text) => handleChange("duration", text)}
-                style={styles.input}
-                mode="outlined"
-                placeholder="e.g., 30 seconds, 2 minutes"
-              />
-            </View>
-
-            {/* MET value */}
-            <View style={styles.inputContainer}>
-              <Clock
-                size={20}
-                color={theme.colors.primary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                label="MET Value"
                 value={data.metValue.toString()}
                 onChangeText={(text) => handleChange("metValue", text)}
-                style={styles.input}
+                keyboardType="numeric"
+                style={styles.textInput}
                 mode="outlined"
+                placeholder="5.0"
+                outlineColor="#E5E7EB"
+                activeOutlineColor="#6366F1"
               />
             </View>
 
-            {/* Focus Area */}
-            <View style={{ zIndex: 1000 }}>
-              {" "}
-              {/* Use View instead of ScrollView for zIndex container */}
-              <DropDownPicker
-                dropDownContainerStyle={{
-                  alignItems: "flex-start",
-                  zIndex: 3000, // Higher than parent for visibility
-                  elevation: 3000, // For Android
-                }}
-                listMode="MODAL" // Use modal for better visibility
-                open={openFocusArea}
-                value={selectedFocusArea}
-                items={focusArea}
-                setOpen={setOpenFocusArea}
-                setValue={setSelectedFocusArea}
-                setItems={setFocusArea}
-                placeholder="Focus Area"
-                multiple={true}
-                mode="BADGE"
-                style={styles.dropdown}
-                dropDownDirection="BOTTOM"
-                textStyle={styles.dropdownText}
-                ArrowDownIconComponent={() => (
-                  <ChevronDown size={20} color={theme.colors.onSurface} />
-                )}
-                ArrowUpIconComponent={() => (
-                  <ChevronDown size={20} color={theme.colors.onSurface} />
-                )}
-              />
-            </View>
-
-            {/* Instructions */}
             <View style={styles.inputContainer}>
-              <FileText
-                size={20}
-                color={theme.colors.primary}
-                style={styles.inputIcon}
-              />
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <Hash size={18} color="#6366F1" />
+                </View>
+                <Text style={styles.inputLabel}>Focus Areas</Text>
+              </View>
+              <View style={styles.dropdownContainer}>
+                <DropDownPicker
+                  open={openFocusArea}
+                  value={selectedFocusArea}
+                  items={focusArea}
+                  setOpen={setOpenFocusArea}
+                  setValue={setSelectedFocusArea}
+                  setItems={setFocusArea}
+                  placeholder="Select Focus Areas"
+                  multiple={true}
+                  mode="BADGE"
+                  style={styles.dropdown}
+                  dropDownContainerStyle={styles.dropdownList}
+                  textStyle={styles.dropdownText}
+                  placeholderStyle={styles.dropdownPlaceholder}
+                  listMode="MODAL"
+                  ArrowDownIconComponent={() => (
+                    <ChevronDown size={20} color="#6B7280" />
+                  )}
+                  ArrowUpIconComponent={() => (
+                    <ChevronDown size={20} color="#6B7280" />
+                  )}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Instructions & Media Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Instructions & Media</Text>
+          </View>
+
+          <View style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <FileText size={18} color="#6366F1" />
+                </View>
+                <Text style={styles.inputLabel}>Instructions</Text>
+              </View>
               <TextInput
-                label="Instructions"
                 value={data.instructions}
                 onChangeText={(text) => handleChange("instructions", text)}
                 multiline
                 numberOfLines={4}
-                style={styles.textArea}
+                style={[styles.textInput, styles.textArea]}
                 mode="outlined"
-                placeholder="Detailed step-by-step instructions for performing the exercise..."
+                placeholder="Detailed step-by-step instructions..."
+                outlineColor="#E5E7EB"
+                activeOutlineColor="#6366F1"
               />
             </View>
 
-            {/* YouTube URL */}
             <View style={styles.inputContainer}>
-              <Youtube size={20} color="#FF0000" style={styles.inputIcon} />
+              <View style={styles.inputHeader}>
+                <View style={styles.inputIconContainer}>
+                  <Youtube size={18} color="#EF4444" />
+                </View>
+                <Text style={styles.inputLabel}>YouTube URL (Optional)</Text>
+              </View>
               <TextInput
-                label="YouTube URL (Optional)"
                 value={data.videoUrl}
                 onChangeText={(text) => handleChange("videoUrl", text)}
-                style={styles.input}
+                style={styles.textInput}
                 mode="outlined"
                 placeholder="https://youtube.com/watch?v=..."
                 keyboardType="url"
+                outlineColor="#E5E7EB"
+                activeOutlineColor="#6366F1"
               />
             </View>
+          </View>
+        </View>
 
-            <Divider style={styles.divider} />
-
-            {/* Action Buttons */}
-            <View style={styles.buttonContainer}>
-              <Button
-                onPress={handleSubmit}
-                mode="contained"
-                style={[styles.button, styles.saveButton]}
-                icon={({ size, color }) => <Plus size={size} color={color} />}
-              >
-                Create Exercise
-              </Button>
-            </View>
-          </Card.Content>
-        </Card>
+        {/* Submit Button */}
+        <View style={styles.submitSection}>
+          <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+            <Plus size={20} color="white" />
+            <Text style={styles.submitButtonText}>Create Exercise</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -442,102 +479,172 @@ export default function CreateExercise() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8FAFC",
   },
   header: {
-    backgroundColor: "#0047AB",
-    paddingVertical: 16,
+    backgroundColor: "#06407a",
+    paddingVertical: 8,
     paddingHorizontal: 20,
     elevation: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   headerTitle: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-    letterSpacing: 2,
-  },
-  headerSubtitle: {
     color: "white",
     fontSize: 14,
     opacity: 0.8,
     marginTop: 4,
   },
-  content: {
+  headerContent: {
+    alignItems: "center",
+  },
+  headerSubtitle: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 16,
+    marginTop: 4,
+  },
+  scrollView: {
     flex: 1,
-    padding: 16,
   },
-  card: {
-    marginBottom: 16,
-    elevation: 2,
+  scrollContent: {
+    paddingBottom: 100,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
+  section: {
+    backgroundColor: "white",
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
     marginBottom: 20,
   },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
   },
-  inputIcon: {
-    marginRight: 8,
-    marginTop: 12,
-  },
-  input: {
-    flex: 1,
-  },
-  textArea: {
-    flex: 1,
-    minHeight: 80,
-  },
-  imageSection: {
-    flex: 1,
-    flexDirection: "column",
-  },
-  imagePicker: {
-    marginTop: 8,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 4,
-  },
-  placeholderImage: {
-    height: 180,
+  imageUploadContainer: {
     borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderStyle: "dashed",
   },
   previewImage: {
     width: "100%",
     height: 180,
-    borderRadius: 8,
+    resizeMode: "cover",
+  },
+  imagePlaceholder: {
+    height: 180,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+  },
+  imageIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  placeholderText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
+  formContainer: {
+    gap: 16,
+  },
+  inputContainer: {
+    position: "relative",
+    marginBottom: 4,
+  },
+  inputHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  inputIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  textInput: {
+    backgroundColor: "white",
+  },
+  textArea: {
+    minHeight: 100,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  dropdownContainer: {
+    zIndex: 10,
   },
   dropdown: {
-    flex: 1,
-    borderColor: "#ccc",
-    borderWidth: 1,
+    borderColor: "#E5E7EB",
     borderRadius: 8,
-    paddingHorizontal: 12,
+    backgroundColor: "white",
+    minHeight: 56,
+  },
+  dropdownDisabled: {
+    backgroundColor: "#F9FAFB",
+    borderColor: "#E5E7EB",
+  },
+  dropdownList: {
+    borderColor: "#E5E7EB",
+    borderRadius: 8,
+    backgroundColor: "white",
+    zIndex: 5000,
+    elevation: 5,
   },
   dropdownText: {
-    fontSize: 14,
+    fontSize: 16,
+    color: "#111827",
   },
-  divider: {
-    marginVertical: 20,
+  dropdownPlaceholder: {
+    fontSize: 16,
+    color: "#6B7280",
   },
-  buttonContainer: {
+  submitSection: {
+    paddingHorizontal: 16,
+    marginTop: 24,
+  },
+  submitButton: {
+    backgroundColor: "#06407a",
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
-    marginTop: 12,
+    paddingVertical: 14,
+    borderRadius: 8,
   },
-  button: {
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  saveButton: {
-    backgroundColor: "#0047AB",
+  submitButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
   },
 });

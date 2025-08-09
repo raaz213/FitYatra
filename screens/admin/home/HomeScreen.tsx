@@ -1,39 +1,40 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
-import { Card, Title, Text, useTheme, Chip } from "react-native-paper";
-import { LineChart, ProgressChart } from "react-native-chart-kit";
+import { Text, useTheme } from "react-native-paper";
+import { LineChart } from "react-native-chart-kit";
 import {
   TrendingUp,
   Users,
   Dumbbell,
   Apple,
   Activity,
-  RefreshCw,
 } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
-import { getAdminCardStats, totalAllUserCalories } from "../../../services/user/exercise/Workout";
-import { AdminCardStats } from "../../../types/user/exercise/Workout";
+import type { AdminCardStats } from "../../../types/both/exercise/Workout";
+import {
+  getAdminCardStats,
+  totalAllUserCalories,
+} from "../../../services/both/stats/Stats";
 
-const screenWidth = Dimensions.get("window").width;
+const { width: screenWidth } = Dimensions.get("window");
 
 interface DashboardStats {
   nutritionByType: { name: string; count: number; color: string }[];
 }
 
 export default function HomeScreen() {
-  const theme = useTheme();
+
   const [allUserCalories, setAllUserCalories] = useState<{
     labels: string[];
     datasets: { data: number[] }[];
   }>({ labels: [], datasets: [{ data: [] }] });
-  const [adminCardStats , setAdminCardStats] = useState<AdminCardStats>({
+
+  const [adminCardStats, setAdminCardStats] = useState<AdminCardStats>({
     totalExercise: 0,
     totalUser: 0,
     totalNutrition: 0,
     engagementRate: "0%",
-  })
+  });
 
   const [stats, setStats] = useState<DashboardStats>({
     nutritionByType: [
@@ -43,27 +44,35 @@ export default function HomeScreen() {
       { name: "Vitamins", count: 14, color: "#2196F3" },
     ],
   });
-useEffect(() => {
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await getAdminCardStats();
-      setAdminCardStats(response);
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-    }
-  }
-  fetchDashboardStats();
-}, []);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const response = await getAdminCardStats();
+        setAdminCardStats(response);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
   useEffect(() => {
     const fetchTotalUserCalories = async () => {
       try {
         const response = await totalAllUserCalories();
-
-        const labels = response.map((item) => item.date);
+        const labels = response.map((item) => {
+          // Format date to show only day and month (e.g., "Jan 15")
+          const date = new Date(item.date);
+          return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
+        });
         const data = response.map((item) =>
           isNaN(item.totalDailyCalories)
             ? 0
-            : parseFloat(item.totalDailyCalories.toString())
+            : Number.parseFloat(item.totalDailyCalories.toString())
         );
 
         const filterCaloriesData = {
@@ -71,18 +80,16 @@ useEffect(() => {
           datasets: [
             {
               data: data,
-              color: (opacity = 1) => `rgba(0, 71, 171, ${opacity})`,
-              strokeWidth: 2,
+              color: (opacity = 1) => `rgba(6, 64, 122, ${opacity})`,
+              strokeWidth: 3,
             },
           ],
         };
-
         setAllUserCalories(filterCaloriesData);
       } catch (error) {
         console.error("Error fetching total user calories:", error);
       }
     };
-
     fetchTotalUserCalories();
   }, []);
 
@@ -91,120 +98,156 @@ useEffect(() => {
     backgroundGradientFrom: "#ffffff",
     backgroundGradientTo: "#ffffff",
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(0, 71, 171, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    color: (opacity = 1) => `rgba(6, 64, 122, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(55, 65, 81, ${opacity})`,
     style: {
-      borderRadius: 16,
+      borderRadius: 12,
     },
     propsForDots: {
-      r: "6",
+      r: "4",
       strokeWidth: "2",
-      stroke: "#0047AB",
+      stroke: "#06407a",
+    },
+    propsForBackgroundLines: {
+      strokeDasharray: "",
+      stroke: "#E5E7EB",
+      strokeWidth: 1,
     },
   };
 
-  const pieData = stats.nutritionByType.map((nutrition) => ({
-    color: nutrition.color,
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 12,
-  }));
-
-  
+  // Calculate chart width for horizontal scrolling
+  const chartWidth = Math.max(
+    screenWidth - 64,
+    allUserCalories.labels.length * 60
+  );
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Admin Dashboard</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Admin Dashboard</Text>
+        </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Key Metrics Cards */}
-        <View style={styles.metricsGrid}>
-          <Card style={[styles.metricCard, { backgroundColor: "#E3F2FD" }]}>
-            <Card.Content style={styles.metricContent}>
-              <View style={styles.metricHeader}>
-                <Dumbbell size={24} color="#0047AB" />
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Key Metrics Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Key Metrics</Text>
+          </View>
+
+          <View style={styles.metricsGrid}>
+            <View style={[styles.metricCard, { backgroundColor: "#EEF2FF" }]}>
+              <View style={styles.metricIconContainer}>
+                <Dumbbell size={24} color="#6366F1" />
               </View>
-              <Text style={styles.metricValue}>{adminCardStats.totalExercise}</Text>
+              <Text style={styles.metricValue}>
+                {adminCardStats.totalExercise}
+              </Text>
               <Text style={styles.metricLabel}>Total Exercises</Text>
-            </Card.Content>
-          </Card>
+            </View>
 
-          <Card style={[styles.metricCard, { backgroundColor: "#E8F5E8" }]}>
-            <Card.Content style={styles.metricContent}>
-              <View style={styles.metricHeader}>
-                <Apple size={24} color="#4CAF50" />
+            <View style={[styles.metricCard, { backgroundColor: "#F0FDF4" }]}>
+              <View style={styles.metricIconContainer}>
+                <Apple size={24} color="#22C55E" />
               </View>
-              <Text style={styles.metricValue}>{adminCardStats.totalNutrition}</Text>
+              <Text style={styles.metricValue}>
+                {adminCardStats.totalNutrition}
+              </Text>
               <Text style={styles.metricLabel}>Nutrition Items</Text>
-            </Card.Content>
-          </Card>
+            </View>
 
-          <Card style={[styles.metricCard, { backgroundColor: "#FFF3E0" }]}>
-            <Card.Content style={styles.metricContent}>
-              <View style={styles.metricHeader}>
-                <Users size={24} color="#FF9800" />
+            <View style={[styles.metricCard, { backgroundColor: "#FFF7ED" }]}>
+              <View style={styles.metricIconContainer}>
+                <Users size={24} color="#F97316" />
               </View>
               <Text style={styles.metricValue}>
                 {adminCardStats.totalUser.toLocaleString()}
               </Text>
               <Text style={styles.metricLabel}>Active Users</Text>
-            </Card.Content>
-          </Card>
+            </View>
 
-          <Card style={[styles.metricCard, { backgroundColor: "#F3E5F5" }]}>
-            <Card.Content style={styles.metricContent}>
-              <View style={styles.metricHeader}>
-                <Activity size={24} color="#9C27B0" />
+            <View style={[styles.metricCard, { backgroundColor: "#FAF5FF" }]}>
+              <View style={styles.metricIconContainer}>
+                <Activity size={24} color="#A855F7" />
               </View>
               <Text style={styles.metricValue}>
                 {adminCardStats.engagementRate}
               </Text>
               <Text style={styles.metricLabel}>Engagement Rate</Text>
-            </Card.Content>
-          </Card>
+            </View>
+          </View>
         </View>
 
-        {/* Daily Activity Chart */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <Title style={styles.chartTitle}>Daily Activity</Title>
-            {allUserCalories.labels.length > 0 && (
+        {/* Daily Activity Chart Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Daily Activity</Text>
+            <View style={styles.trendContainer}>
+              <TrendingUp size={16} color="#22C55E" />
+              <Text style={styles.trendText}>+12.5%</Text>
+            </View>
+          </View>
+
+          {allUserCalories.labels.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.chartScrollView}
+            >
               <LineChart
                 data={allUserCalories}
-                width={screenWidth - 64}
+                width={chartWidth}
                 height={220}
                 chartConfig={chartConfig}
                 bezier
                 style={styles.chart}
+                withHorizontalLabels={true}
+                withVerticalLabels={true}
+                withDots={true}
+                withShadow={false}
+                withInnerLines={true}
+                withOuterLines={false}
               />
-            )}
-          </Card.Content>
-        </Card>
+            </ScrollView>
+          ) : (
+            <View style={styles.emptyChart}>
+              <Text style={styles.emptyChartText}>No data available</Text>
+            </View>
+          )}
+        </View>
 
-        {/* Nutrition Distribution */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <Title style={styles.chartTitle}>Nutrition Distribution</Title>
-            <View style={styles.nutritionGrid}>
-              {stats.nutritionByType.map((item, index) => (
-                <View key={index} style={styles.nutritionItem}>
-                  <View
-                    style={[
-                      styles.nutritionIcon,
-                      { backgroundColor: pieData[index]?.color || "#ccc" },
-                    ]}
-                  >
-                    <Apple size={20} color="white" />
-                  </View>
+        {/* Nutrition Distribution Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Nutrition Distribution</Text>
+          </View>
+
+          <View style={styles.nutritionGrid}>
+            {stats.nutritionByType.map((item, index) => (
+              <View key={index} style={styles.nutritionCard}>
+                <View
+                  style={[
+                    styles.nutritionIconContainer,
+                    { backgroundColor: item.color },
+                  ]}
+                >
+                  <Apple size={20} color="white" />
+                </View>
+                <View style={styles.nutritionContent}>
                   <Text style={styles.nutritionName}>{item.name}</Text>
                   <Text style={styles.nutritionCount}>{item.count}</Text>
                 </View>
-              ))}
-            </View>
-          </Card.Content>
-        </Card>
+              </View>
+            ))}
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -213,10 +256,10 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8FAFC",
   },
   header: {
-    backgroundColor: "#0047AB",
+    backgroundColor: "#06407a",
     paddingVertical: 8,
     paddingHorizontal: 20,
     elevation: 4,
@@ -224,123 +267,149 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   headerTitle: {
     color: "white",
     fontSize: 14,
     opacity: 0.8,
     marginTop: 4,
   },
-
-  content: {
+  headerContent: {
+    alignItems: "center",
+  },
+  scrollView: {
     flex: 1,
-    padding: 16,
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  section: {
+    backgroundColor: "white",
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  trendContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F0FDF4",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  trendText: {
+    fontSize: 12,
+    color: "#22C55E",
+    fontWeight: "600",
+    marginLeft: 4,
   },
   metricsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 16,
+    gap: 12,
   },
   metricCard: {
     width: "48%",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  metricIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 12,
-    elevation: 2,
-  },
-  metricContent: {
-    padding: 12,
-  },
-  metricHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  trendContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  trendText: {
-    fontSize: 12,
-    color: "#4CAF50",
-    fontWeight: "600",
-    marginLeft: 2,
   },
   metricValue: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: "700",
+    color: "#111827",
     marginBottom: 4,
   },
   metricLabel: {
     fontSize: 12,
-    color: "#666",
+    color: "#6B7280",
     fontWeight: "500",
+    textAlign: "center",
   },
-  chartCard: {
-    marginBottom: 16,
-    elevation: 2,
-  },
-  chartTitle: {
-    fontSize: 18,
-    marginBottom: 12,
-    color: "#333",
+  chartScrollView: {
+    marginHorizontal: -20,
+  
   },
   chart: {
+    borderRadius: 12,
     marginVertical: 8,
-    borderRadius: 16,
   },
-  quickStats: {
-    gap: 12,
-  },
-  statRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  emptyChart: {
+    height: 220,
+    justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    backgroundColor: "#F9FAFB",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderStyle: "dashed",
   },
-  statLabel: {
-    fontSize: 14,
-    color: "#666",
-    flex: 1,
-  },
-  statValue: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
+  emptyChartText: {
+    fontSize: 16,
+    color: "#6B7280",
+    fontStyle: "italic",
   },
   nutritionGrid: {
+    gap: 12,
+  },
+  nutritionCard: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  nutritionItem: {
-    width: "48%",
     alignItems: "center",
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 8,
+    backgroundColor: "#F9FAFB",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
-  nutritionIcon: {
+  nutritionIconContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginRight: 16,
+  },
+  nutritionContent: {
+    flex: 1,
   },
   nutritionName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 4,
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#111827",
+    marginBottom: 2,
   },
   nutritionCount: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#0047AB",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#6366F1",
   },
 });

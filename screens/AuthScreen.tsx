@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   activeToggleText: {
-    color: "#2d5a4a",
+    color: "#06407a",
   },
   footer: {
     paddingBottom: 20,

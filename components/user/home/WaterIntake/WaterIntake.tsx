@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -10,16 +9,21 @@ import {
   TouchableWithoutFeedback,
   TextInput,
 } from "react-native";
-import { Text, Button, Surface, IconButton } from "react-native-paper";
+import { Text } from "react-native-paper";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { window } from "../../../../constants/sizes";
-import {
-  addWaterIntake,
-  getWaterIntake,
-} from "../../../../services/user/exercise/WaterInake";
-import { GetWaterIntake } from "../../../../types/user/exercise/WaterIntake";
+
+import { addWaterIntake, getWaterIntakeLog } from "../../../../services/both/exercise/WaterInake";
+
+// TypeScript type for water intake log entry
+type WaterEntry = {
+  _id: string;
+  user: string;
+  water: number;
+  createdAt: string;
+  updatedAt: string;
+};
 
 const CustomModal = ({
   visible,
@@ -34,20 +38,17 @@ const CustomModal = ({
   onChange: (text: string) => void;
   onSubmit: () => void;
 }) => (
-  <Modal
-    animationType="fade"
-    transparent={true}
-    visible={visible}
-    onRequestClose={onClose}
-  >
+  <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.modalOverlay}>
         <TouchableWithoutFeedback>
-          <Surface style={styles.customModal} elevation={5}>
-            <Text variant="titleLarge" style={styles.modalTitle}>
-              Add Custom Amount
-            </Text>
-
+          <View style={styles.customModal}>
+            <View style={styles.customModalHeader}>
+              <View style={styles.modalIconContainer}>
+                <MaterialCommunityIcons name="water-plus" size={24} color="#FFFFFF" />
+              </View>
+              <Text style={styles.customModalTitle}>Add Custom Amount</Text>
+            </View>
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
@@ -57,31 +58,26 @@ const CustomModal = ({
                 onChangeText={onChange}
                 placeholderTextColor="#94A3B8"
               />
-              <Text variant="bodyLarge" style={styles.unitText}>
-                ml
-              </Text>
+              <View style={styles.unitContainer}>
+                <Text style={styles.unitText}>ml</Text>
+              </View>
             </View>
-
             <View style={styles.buttonRow}>
-              <Button
-                mode="outlined"
-                onPress={onClose}
-                labelStyle={{ color: "#06407a" }}
-                style={styles.cancelButton}
-              >
-                Cancel
-              </Button>
-              <Button
-                mode="contained"
+              <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.addButton,
+                  (!value || isNaN(Number(value))) && styles.addButtonDisabled,
+                ]}
                 onPress={onSubmit}
-                labelStyle={{ color: "#FFFFFF" }}
-                style={styles.addButton}
-                disabled={!value || isNaN(Number.parseInt(value))}
+                disabled={!value || isNaN(Number(value))}
               >
-                Add
-              </Button>
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
             </View>
-          </Surface>
+          </View>
         </TouchableWithoutFeedback>
       </View>
     </TouchableWithoutFeedback>
@@ -89,83 +85,68 @@ const CustomModal = ({
 );
 
 const WaterIntake = () => {
-  const [intake, setIntake] = useState(0); // ml
-  const [goal, setGoal] = useState(3000); // ml
-  const [intakeLog, setIntakeLog] = useState([
-    { time: "08:30 AM", amount: 250 },
-    { time: "10:15 AM", amount: 500 },
-    { time: "12:45 PM", amount: 250 },
-  ]);
-
-  // Modal states
-  const [logModalVisible, setLogModalVisible] = useState(false);
-  const [customModalVisible, setCustomModalVisible] = useState(false);
+  const [waterIntakeLog, setWaterIntakeLog] = useState<WaterEntry[]>([]);
+  const [LogModalVisible, setLogModalVisible] = useState(false);
+  const [AddModalVisible, setAddModalVisible] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
-  const [waterIntakeLog, setWaterIntakeLog] = useState<GetWaterIntake[]>([]);
+  const [goal, setGoal] = useState(3000);
+
+  // Fetch water intake logs from backend for today
+  const fetchWaterLog = async () => {
+    try {
+      const logs = await getWaterIntakeLog();
+      setWaterIntakeLog(
+        logs.map((entry: any) => ({
+          _id: entry._id,
+          user: entry.user ?? "",
+          water: entry.water,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching water intake log:", error);
+    }
+  };
 
   useEffect(() => {
-    const getWaterLog = async () => {
-      try {
-        const response = await getWaterIntake();
+    fetchWaterLog();
 
-        const now = moment();
-        const tenMinutesAgo = moment().subtract(2, "minutes");
-
-        const recentLogs = response.filter((entry: GetWaterIntake) =>
-          moment(entry.createdAt).isBetween(tenMinutesAgo, now)
-        );
-
-        setWaterIntakeLog(recentLogs);
-      } catch (error) {
-        console.log("Error fetching water intake:", error);
-      }
-    };
-
-    getWaterLog();
+    // Optional: Refresh water intake logs every minute
+    const interval = setInterval(fetchWaterLog, 60000);
+    return () => clearInterval(interval);
   }, []);
 
-  const calcTotalWaterIntake = waterIntakeLog.reduce(
-    (acc, item) => acc + item.water,
-    0
-  );
+  // Calculate total water intake for today
+  const totalIntake = waterIntakeLog.reduce((acc, entry) => acc + entry.water, 0);
 
-  // const now = new Date();
-  // now.setHours(0,0,0,0);
-
-  const addWater = async (amount: number) => {
-    try {
-      await addWaterIntake(amount);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleCustomAdd = () => {
-    const amount = Number.parseInt(customAmount);
-    if (!isNaN(amount) && amount > 0) {
-      addWater(amount);
-      setCustomAmount("");
-      setCustomModalVisible(false);
-    }
-  };
-
-  const progress = (calcTotalWaterIntake / goal) * 100;
+  const progress = Math.min((totalIntake / goal) * 100, 100);
 
   const getHydrationStatus = () => {
-    if (progress < 30) return { text: "Need More Water", color: "#FF5252" };
-    if (progress < 70) return { text: "Getting There", color: "#FFB300" };
-    if (progress < 100) return { text: "Almost There", color: "#4CAF50" };
+    if (progress < 30) return { text: "Need More Water", color: "#EF4444" };
+    if (progress < 70) return { text: "Getting There", color: "#F59E0B" };
+    if (progress < 100) return { text: "Almost There", color: "#10B981" };
     return { text: "Goal Reached!", color: "#06407a" };
   };
 
   const hydrationStatus = getHydrationStatus();
 
-  // Log Modal
+  const handleAddWater = async (amount: number) => {
+    try {
+      await addWaterIntake(amount);
+      setCustomAmount("");
+      setAddModalVisible(false);
+      await fetchWaterLog(); 
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const LogModal = () => (
     <Modal
       animationType="slide"
-      transparent={true}
-      visible={logModalVisible}
+      transparent
+      visible={LogModalVisible}
       onRequestClose={() => setLogModalVisible(false)}
     >
       <TouchableWithoutFeedback onPress={() => setLogModalVisible(false)}>
@@ -173,14 +154,18 @@ const WaterIntake = () => {
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text variant="titleLarge" style={styles.modalTitle}>
-                  Today's Water Log
-                </Text>
-                <IconButton
-                  icon="close"
-                  size={24}
+                <View style={styles.modalHeaderLeft}>
+                  <View style={styles.logModalIconContainer}>
+                    <MaterialCommunityIcons name="clipboard-list" size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.modalTitle}>Today's Water Log</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.closeButton}
                   onPress={() => setLogModalVisible(false)}
-                />
+                >
+                  <MaterialCommunityIcons name="close" size={20} color="#64748B" />
+                </TouchableOpacity>
               </View>
 
               <ScrollView
@@ -188,54 +173,46 @@ const WaterIntake = () => {
                 contentContainerStyle={styles.logScrollContent}
               >
                 {waterIntakeLog.length > 0 ? (
-                  waterIntakeLog.map((entry, index) => (
-                    <Surface key={index} style={styles.logEntry} elevation={1}>
+                  waterIntakeLog.map((entry) => (
+                    <View key={entry._id} style={styles.logEntry}>
                       <View style={styles.logTime}>
-                        <MaterialCommunityIcons
-                          name="water"
-                          size={20}
-                          color="#2196F3"
-                        />
+                        <View style={styles.logEntryIcon}>
+                          <MaterialCommunityIcons name="water" size={16} color="#06407a" />
+                        </View>
                         <View>
-                          <Text variant="bodyMedium" style={styles.timeText}>
-                            {entry.createdAt.toString().slice(0, 10)}
+                          <Text style={styles.timeText}>
+                            {moment(entry.createdAt).format("MMM DD")}
                           </Text>
-                          <Text variant="bodyMedium" style={styles.timeText}>
-                            {entry.createdAt.toString().slice(12, 19)}
+                          <Text style={styles.timeSubText}>
+                            {moment(entry.createdAt).format("HH:mm")}
                           </Text>
                         </View>
                       </View>
-                      <Text variant="bodyLarge" style={styles.amountText}>
-                        +{entry.water} ml
-                      </Text>
-                    </Surface>
+                      <View style={styles.amountContainer}>
+                        <Text style={styles.amountText}>+{entry.water}</Text>
+                        <Text style={styles.amountUnit}>ml</Text>
+                      </View>
+                    </View>
                   ))
                 ) : (
-                  <Text style={styles.emptyText}>
-                    No water intake recorded today
-                  </Text>
+                  <View style={styles.emptyContainer}>
+                    <View style={styles.emptyIconContainer}>
+                      <MaterialCommunityIcons name="water-off" size={48} color="#94A3B8" />
+                    </View>
+                    <Text style={styles.emptyTitle}>No Records Today</Text>
+                    <Text style={styles.emptyText}>
+                      Start tracking your water intake to see your progress here.
+                    </Text>
+                  </View>
                 )}
-
-                <Surface style={styles.logSummary} elevation={1}>
-                  <Text variant="bodyLarge" style={styles.summaryText}>
-                    Total: {calcTotalWaterIntake} ml
-                  </Text>
-                  <Text variant="bodyMedium" style={styles.summaryText}>
-                    Goal: {goal} ml
-                  </Text>
-                  <Text variant="bodyMedium" style={styles.summaryText}>
-                    Remaining: {Math.max(goal - calcTotalWaterIntake, 0)} ml
-                  </Text>
-                </Surface>
               </ScrollView>
 
-              <Button
-                mode="contained"
+              <TouchableOpacity
+                style={styles.modalCloseButton}
                 onPress={() => setLogModalVisible(false)}
-                style={styles.modalButton}
               >
-                Close
-              </Button>
+                <Text style={styles.modalCloseButtonText}>Close</Text>
+              </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -244,147 +221,179 @@ const WaterIntake = () => {
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          💧 Water Intake
-        </Text>
-        <Text variant="bodyMedium" style={styles.date}>
-          {moment().format("dddd, MMMM D")}
-        </Text>
-      </View>
-
-      <Surface style={styles.progressContainer} elevation={3}>
-        <View style={styles.progressInner}>
-          <AnimatedCircularProgress
-            size={180}
-            width={15}
-            fill={progress}
-            tintColor="#06407a"
-            backgroundColor="#E0E0E0"
-            rotation={0}
-            lineCap="round"
-            backgroundWidth={8}
-          >
-            {() => (
-              <View style={styles.progressTextContainer}>
-                <Text variant="displaySmall" style={styles.progressValue}>
-                  {Math.round(progress)}%
-                </Text>
-                <Text variant="bodyMedium" style={styles.progressLabel}>
-                  {calcTotalWaterIntake} / {goal} ml
-                </Text>
-              </View>
-            )}
-          </AnimatedCircularProgress>
-
-          <View style={styles.statusContainer}>
-            <Text
-              variant="titleMedium"
-              style={[styles.statusText, { color: hydrationStatus.color }]}
-            >
-              {hydrationStatus.text}
-            </Text>
-            <Text variant="bodyMedium" style={styles.remainingText}>
-              {Math.max(goal - calcTotalWaterIntake, 0)} ml remaining
-            </Text>
+        <View style={styles.headerContent}>
+          <View style={styles.headerIcon}>
+            <MaterialCommunityIcons name="water" size={32} color="#FFFFFF" />
+          </View>
+          <View style={styles.headerText}>
+            <Text style={styles.title}>Water Intake</Text>
+            <Text style={styles.date}>{moment().format("dddd, MMMM D")}</Text>
           </View>
         </View>
-      </Surface>
+      </View>
 
-      <Text variant="titleMedium" style={styles.sectionTitle}>
-        Quick Add
-      </Text>
-      <View style={styles.quickAddContainer}>
-        {[250, 500, 750].map((amount) => (
+      <View style={styles.contentContainer}>
+        <View style={styles.progressContainer}>
+          <View style={styles.progressInner}>
+            <AnimatedCircularProgress
+              size={200}
+              width={16}
+              fill={progress}
+              tintColor="#06407a"
+              backgroundColor="#E2E8F0"
+              rotation={0}
+              lineCap="round"
+              backgroundWidth={8}
+            >
+              {() => (
+                <View style={styles.progressTextContainer}>
+                  <Text style={styles.progressValue}>{Math.round(progress)}%</Text>
+                  <Text style={styles.progressLabel}>
+                    {totalIntake} / {goal} ml
+                  </Text>
+                </View>
+              )}
+            </AnimatedCircularProgress>
+
+            <View style={styles.statusContainer}>
+              <Text style={[styles.statusText, { color: hydrationStatus.color }]}>
+                {hydrationStatus.text}
+              </Text>
+              <Text style={styles.remainingText}>
+                {Math.max(goal - totalIntake, 0)} ml remaining
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Add</Text>
+          <View style={styles.quickAddContainer}>
+            {[250, 500, 750].map((amount) => (
+              <TouchableOpacity
+                key={amount}
+                style={styles.quickAddButton}
+                onPress={() => handleAddWater(amount)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.quickAddIcon}>
+                  <MaterialCommunityIcons name="cup-water" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={styles.quickAddText}>{amount} ml</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.buttonSection}>
           <TouchableOpacity
-            key={amount}
-            style={styles.quickAddButton}
-            onPress={() => addWater(amount)}
-            activeOpacity={0.7}
+            style={styles.customButton}
+            onPress={() => setAddModalVisible(true)}
           >
-            <MaterialCommunityIcons
-              name="cup-water"
-              size={28}
-              color="#06407a"
-            />
-            <Text variant="bodyLarge" style={styles.quickAddText}>
-              {amount} ml
-            </Text>
+            <MaterialCommunityIcons name="plus" size={20} color="#FFFFFF" />
+            <Text style={styles.customButtonText}>Custom Amount</Text>
           </TouchableOpacity>
-        ))}
-      </View>
 
-      <View style={styles.actionsContainer}>
-        <Button
-          mode="contained"
-          onPress={() => setCustomModalVisible(true)}
-          icon="plus"
-          style={styles.customButton}
-          contentStyle={styles.buttonContent}
-        >
-          Custom
-        </Button>
+          <TouchableOpacity
+            style={styles.logButton}
+            onPress={() => setLogModalVisible(true)}
+          >
+            <MaterialCommunityIcons name="history" size={20} color="#06407a" />
+            <Text style={styles.logButtonText}>View Water Log</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <Button
-        mode="outlined"
-        onPress={() => setLogModalVisible(true)}
-        icon="history"
-        labelStyle={{ color: "#06407a" }}
-        style={styles.logButton}
-        contentStyle={styles.logButtonContent}
-      >
-        View Water Log
-      </Button>
 
       <LogModal />
       <CustomModal
-        visible={customModalVisible}
-        onClose={() => setCustomModalVisible(false)}
+        visible={AddModalVisible}
+        onClose={() => setAddModalVisible(false)}
         value={customAmount}
         onChange={setCustomAmount}
-        onSubmit={handleCustomAdd}
+        onSubmit={() => {
+          const amount = parseInt(customAmount, 10);
+          if (amount > 0) {
+            handleAddWater(amount);
+          }
+        }}
       />
-    </ScrollView>
+    </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 20,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FFFFFF",
     borderRadius: 5,
-  },
-  contentContainer: {
-    paddingBottom: 30,
   },
   header: {
+    backgroundColor: "#06407a",
+    paddingTop: 30,
+    paddingBottom: 24,
     paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: "#06407a",
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  headerText: {
+    flex: 1,
   },
   title: {
-    fontWeight: "bold",
-    color: "#06407a",
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    letterSpacing: -0.5,
   },
   date: {
-    color: "#444757",
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.8)",
+    fontWeight: "500",
     marginTop: 4,
   },
-  progressContainer: {
-    marginHorizontal: 24,
-    marginTop: 8,
-    borderRadius: 5,
-    padding: 24,
-    backgroundColor: "transparent",
-    shadowColor: "transparent",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
 
-    elevation: 0,
+  contentContainer: {
+    flex: 1,
+    paddingBottom: 20,
+  },
+  progressContainer: {
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 20,
+    marginTop: 20,
+    borderRadius: 20,
+    padding: 32,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   progressInner: {
     alignItems: "center",
@@ -395,206 +404,475 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   progressValue: {
-    fontWeight: "bold",
+    fontSize: 36,
+    fontWeight: "800",
     color: "#06407a",
+    letterSpacing: -1,
   },
   progressLabel: {
-    color: "#06407a",
+    fontSize: 16,
+    color: "#64748B",
     marginTop: 4,
+    fontWeight: "500",
   },
   statusContainer: {
-    marginTop: 20,
+    marginTop: 24,
     alignItems: "center",
   },
   statusText: {
-    fontWeight: "600",
-    marginBottom: 4,
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 8,
+    letterSpacing: -0.3,
   },
   remainingText: {
+    fontSize: 16,
     color: "#64748B",
+    fontWeight: "500",
+  },
+  section: {
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 20,
+    marginTop: 16,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  buttonSection: {
+    marginHorizontal: 20,
+    marginTop: 16,
+
+
   },
   sectionTitle: {
-    fontWeight: "600",
-    color: "#06407a",
-    marginTop: 6,
-    marginBottom: 16,
-    paddingHorizontal: 24,
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 20,
+    letterSpacing: -0.3,
   },
   quickAddContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 24,
+    gap: 12,
   },
   quickAddButton: {
-    width: (window.width - 64) / 3.3,
-    height: 90,
+    flex: 1,
+    height: 100,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#E3F2FD",
-    borderWidth: 1,
-    borderColor: "#BBDEFB",
-    shadowColor: "#64748B",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
+    backgroundColor: "#F0F9FF",
+    borderWidth: 2,
+    borderColor: "#E0F2FE",
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  quickAddIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#06407a",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+    shadowColor: "#06407a",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   quickAddText: {
-    color: "#06407a",
-    fontWeight: "600",
-    marginTop: 8,
-  },
-  actionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 24,
-    marginTop: 24,
-  },
-  resetButton: {
-    flex: 1,
-    marginRight: 8,
-    borderRadius: 12,
-    borderColor: "#06407a",
+    fontSize: 16,
+    color: "#0E7490",
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
   customButton: {
-    flex: 1,
-    marginLeft: 8,
-    borderRadius: 12,
     backgroundColor: "#06407a",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: "#06407a",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  buttonContent: {
-    height: 48,
+  customButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    marginLeft: 8,
+    letterSpacing: 0.2,
   },
   logButton: {
-    marginHorizontal: 24,
-    marginTop: 16,
-    borderRadius: 12,
-    borderColor: "#06407a",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#E0E7FF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    borderRadius: 16,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  logButtonContent: {
-    height: 48,
+  logButtonText: {
+    color: "#06407a",
+    fontSize: 16,
+    fontWeight: "700",
+    marginLeft: 8,
+    letterSpacing: 0.2,
   },
-
   // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   modalContent: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 24,
-    width: "90%",
-    maxHeight: "80%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    width: "100%",
+    maxWidth: 400,
+    maxHeight: "85%",
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 25,
+    elevation: 20,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  modalHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  logModalIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#06407a",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   modalTitle: {
-    fontWeight: "bold",
-    color: "#06407a",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1E293B",
+    letterSpacing: -0.3,
   },
-  modalButton: {
-    marginTop: 16,
-    borderRadius: 12,
-    backgroundColor: "#2196F3",
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#F8FAFC",
+    justifyContent: "center",
+    alignItems: "center",
   },
   logScrollContent: {
+    padding: 24,
     paddingBottom: 8,
   },
   logEntry: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 16,
     marginBottom: 8,
     backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   logTime: {
     flexDirection: "row",
     alignItems: "center",
   },
+  logEntryIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#E0F2FE",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
   timeText: {
-    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "600",
     color: "#1E293B",
+    letterSpacing: -0.2,
+  },
+  timeSubText: {
+    fontSize: 14,
+    color: "#64748B",
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  amountContainer: {
+    alignItems: "flex-end",
   },
   amountText: {
-    fontWeight: "500",
-    color: "#2196F3",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#06407a",
+    letterSpacing: -0.3,
   },
-  emptyText: {
-    textAlign: "center",
+  amountUnit: {
+    fontSize: 12,
     color: "#64748B",
-    fontStyle: "italic",
-    paddingVertical: 24,
+    fontWeight: "500",
+    marginTop: 2,
   },
   logSummary: {
-    backgroundColor: "#F1F5F9",
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 16,
+    padding: 20,
     marginTop: 16,
-    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
-  summaryText: {
+  summaryHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: "700",
     color: "#1E293B",
-    marginBottom: 6,
+    marginLeft: 8,
+    letterSpacing: -0.3,
   },
-
+  summaryStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  summaryStatItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  summaryStatValue: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#06407a",
+    marginBottom: 4,
+    letterSpacing: -0.4,
+  },
+  summaryStatLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748B",
+    textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#F1F5F9",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#374151",
+    marginBottom: 8,
+    textAlign: "center",
+    letterSpacing: -0.3,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#64748B",
+    textAlign: "center",
+    lineHeight: 24,
+    fontWeight: "500",
+  },
+  modalCloseButton: {
+    backgroundColor: "#06407a",
+    marginHorizontal: 24,
+    marginBottom: 24,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    shadowColor: "#06407a",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  modalCloseButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.2,
+  },
   // Custom modal styles
   customModal: {
-    backgroundColor: "white",
-    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
     padding: 24,
-    width: "85%",
-    shadowColor: "#0F172A",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    width: "100%",
+    maxWidth: 350,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 25,
+    elevation: 20,
+  },
+  customModalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  modalIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#06407a",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  customModalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1E293B",
+    letterSpacing: -0.3,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 24,
+    marginBottom: 24,
   },
   input: {
     flex: 1,
     height: 56,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "#E2E8F0",
-    borderRadius: 12,
+    borderRadius: 16,
     paddingHorizontal: 16,
     fontSize: 16,
     backgroundColor: "#F8FAFC",
     color: "#1E293B",
+    fontWeight: "500",
+  },
+  unitContainer: {
+    marginLeft: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
   },
   unitText: {
-    marginLeft: 12,
     fontSize: 16,
     color: "#64748B",
+    fontWeight: "600",
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: 12,
   },
   cancelButton: {
     flex: 1,
-    marginRight: 8,
-    borderRadius: 12,
-    borderColor: "#CBD5E1",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#E2E8F0",
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "#64748B",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
   addButton: {
     flex: 1,
-    marginLeft: 8,
-    borderRadius: 12,
     backgroundColor: "#06407a",
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    shadowColor: "#06407a",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  addButtonDisabled: {
+    backgroundColor: "#CBD5E1",
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  addButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
 });
 

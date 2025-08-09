@@ -9,18 +9,17 @@ import TestimonialsList from "../../components/user/home/Testimonials/Testimonia
 import WaterIntake from "../../components/user/home/WaterIntake/WaterIntake";
 import { StatusBar } from "expo-status-bar";
 import ExerciseCategory from "../../components/user/home/ExerciseCategory";
-import { fetchAllCategories } from "../../services/user/exercise/Category";
-import { Category } from "../../types/user/exercise/Category";
-import { getUserExerciseSubcategories } from "../../services/user/exercise/Subcategory";
+import { fetchAllCategories } from "../../services/both/exercise/Category";
+import { Category } from "../../types/both/exercise/Category";
 import { WorkoutContext } from "../../context/WorkoutContext";
-import { Subcategory } from "../../types/user/exercise/Subcategory";
+import { Subcategory } from "../../types/both/exercise/Subcategory";
 
 const HomeScreen = () => {
-  const [exerciseCategories, setExerciseCategories] = useState<
-    Category[]
+  const [exerciseCategories, setExerciseCategories] = useState<Category[]>([]);
+  const { categoryId }: any = useContext(WorkoutContext);
+  const [exerciseSubcategories, setExerciseSubcategories] = useState<
+    Subcategory[]
   >([]);
-  const {categoryId}:any = useContext(WorkoutContext);
-  const [exerciseSubcategories, setExerciseSubcategories] = useState<Subcategory[]>([]);
 
   const fetchCategories = async () => {
     const response = await fetchAllCategories();
@@ -31,59 +30,45 @@ const HomeScreen = () => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-  const fetchExerciseSubcategories = async () => {
-    try {
-      const response = await getUserExerciseSubcategories(categoryId)
-      setExerciseSubcategories(response);
-    } catch (error) {
-      console.error("Error fetching exercise subcategories:", error);
-    }
-  }
-  fetchExerciseSubcategories();
-  }, []);
-
   return (
     <LinearGradient colors={["#d3e1ed", "#d3e1ed"]} style={styles.gradient}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={{ marginBottom: 20 }}>
           <MySearchBar />
         </View>
-
         {/* Today's Workout Section */}
-        <View style={{ marginVertical: 20 }}>
-          <ExerciseCategory exerciseSubcategories={exerciseSubcategories}/>
+        <View style={{ marginBottom: 20 }}>
+          <ExerciseCategory />
         </View>
 
         {/* Featured Content */}
-        <View style={styles.featuredContentSection}>
+        <View style={{ marginBottom: 20 }}>
           <FeaturedContent exerciseCategories={exerciseCategories} />
         </View>
 
         {/* Step Tracker */}
-        <View style={styles.stepTrackerSection}>
+        <View style={{ marginBottom: 20 }}>
           <StepTracker />
         </View>
 
-        <View style={styles.waterIntakeSection}>
+        <View style={{ marginBottom: 20 }}>
           <WaterIntake />
         </View>
 
-        {/* Testimonials */}
-        <View style={styles.testimonialSection}>
+        <View style={{ marginBottom: 0 }}>
           <TestimonialsList />
         </View>
       </ScrollView>
     </LinearGradient>
   );
 };
-
+export default HomeScreen;
 const styles = StyleSheet.create({
   gradient: {
     flex: 1,
@@ -93,30 +78,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  header: {
-    marginTop: 24,
-  },
-
-  featuredContentSection: {
-    marginTop: -30,
-  },
-  featuredTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "white",
-    letterSpacing: 0.3,
-  },
-  stepTrackerSection: {
-    marginTop: 6,
-  },
-  waterIntakeSection: {
-    marginTop: 14,
-  },
-  testimonialSection: {
-    marginTop: 14,
+    paddingTop: 20,
+    
   },
 });
-
-export default HomeScreen;

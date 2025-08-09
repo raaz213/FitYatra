@@ -10,8 +10,8 @@ import BottomNavigation from "../../../components/user/workoutDetails/BottomNavi
 import { LinearGradient } from "expo-linear-gradient";
 import {
   getExerciseById,
-} from "../../../services/user/exercise/Exercise";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+} from "../../../services/both/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
 
 
 export default function WorkoutDetailsScreen({ navigation, route }: any) {

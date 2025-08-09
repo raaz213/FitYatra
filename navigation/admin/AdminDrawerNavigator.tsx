@@ -12,7 +12,6 @@ import {
   DrawerContentComponentProps,
 } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
 import {
   ChevronDown,
   ChevronRight,
@@ -209,7 +208,12 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
             </View>
           )}
         </View>
-        <Button onPress={() => logoutUser(navigation)} mode="outlined">
+        <Button
+          textColor="black"
+          style={{ marginTop: 10 }}
+          onPress={() => logoutUser(navigation)}
+          mode="outlined"
+        >
           Logout
         </Button>
       </ScrollView>

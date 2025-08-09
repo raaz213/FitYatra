@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../../../constants/apiUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { GetWaterIntake } from "../../../types/user/exercise/WaterIntake";
+import { GetWaterIntake } from "../../../types/both/exercise/WaterIntake";
 
 
 export const addWaterIntake = async (water: number): Promise<void> => {
@@ -21,7 +21,7 @@ export const addWaterIntake = async (water: number): Promise<void> => {
   }
 };
 
-export const getWaterIntake = async (): Promise<GetWaterIntake[]> => {
+export const getWaterIntakeLog = async (): Promise<GetWaterIntake[]> => {
   try {
     const token = await AsyncStorage.getItem("token");
     const response = await axios.get(`${API_URL}/api/water-intake/get-log`, {

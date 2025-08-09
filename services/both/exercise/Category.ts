@@ -1,18 +1,21 @@
 import axios from "axios";
 import { API_URL } from "../../../constants/apiUrl";
-import { Category } from "../../../types/user/exercise/Category";
+import { Category } from "../../../types/both/exercise/Category";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
-export const addExerciseCategoryResponse = async (formData: FormData): Promise<Category> => {
+export const addExerciseCategory = async (
+  formData: FormData
+): Promise<Category> => {
   try {
-    console.log(formData)
+    const token = await AsyncStorage.getItem("token");
     const response = await axios.post(
       `${API_URL}/api/exercise/categories/add`,
       formData,
       {
-        headers:{
-          'Content-Type': 'multipart/form-data',
-        }
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
     return response.data;
@@ -22,10 +25,10 @@ export const addExerciseCategoryResponse = async (formData: FormData): Promise<C
 };
 
 export const fetchAllCategories = async (): Promise<Category[]> => {
-  try{
+  try {
     const response = await axios.get(`${API_URL}/api/exercise/categories/list`);
     return response.data;
-  }catch(e){
+  } catch (e) {
     throw e;
-  } 
-}
+  }
+};

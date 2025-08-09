@@ -5,13 +5,10 @@ import {
   TouchableOpacity,
   Animated,
   ImageBackground,
+  Text,
 } from "react-native";
-import { Text } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-
-import { window } from "../../../constants/sizes";
-import { Category } from "../../../types/user/exercise/Category";
+import { Category } from "../../../types/both/exercise/Category";
 import { API_URL } from "../../../constants/apiUrl";
 
 const CARD_HEIGHT = 260;
@@ -47,13 +44,11 @@ const CategoryCard: React.FC<{
         imageStyle={styles.backgroundImage}
       >
         <LinearGradient
-          colors={["rgba(0,0,0,0.2)", "rgba(0,0,0,0.7)"]}
+          colors={["rgba(0,0,0,0.3)", "rgba(0,0,0,0.8)"]}
           style={[styles.card, isSelected && styles.selectedCard]}
         >
           <View style={styles.cardContent}>
-            <View style={styles.mainContent}>
-              <Text style={styles.cardTitle}>{category.name}</Text>
-            </View>
+            <Text style={styles.cardTitle}>{category.name}</Text>
           </View>
         </LinearGradient>
       </ImageBackground>
@@ -65,16 +60,16 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: "100%",
     height: CARD_HEIGHT,
-    // marginHorizontal: 16,
     marginBottom: 20,
-    shadowColor: "#000",
+    borderRadius: 16,
+    shadowColor: "#000000",
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 6,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 16,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
   },
   cardBackground: {
     flex: 1,
@@ -88,98 +83,38 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     borderRadius: 16,
-    padding: 20,
-    justifyContent: "center",
+    padding: 24,
+    justifyContent: "flex-end",
   },
   selectedCard: {
     borderWidth: 3,
-    borderColor: "#1e3c72",
-
-    shadowColor: "#1e3c72",
-    shadowOpacity: 0.4,
+    borderColor: "#06407a",
+    shadowColor: "#06407a",
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 10,
   },
   cardContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flex: 1,
-  },
-  mainContent: {
-    flex: 1,
     justifyContent: "center",
-  },
-  cardTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#ffffff",
-    marginBottom: 12,
-    letterSpacing: 0.5,
-    textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 20,
-    marginTop: 4,
-  },
-  statItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    // backdropFilter is not supported in React Native
-  },
-  statText: {
-    fontSize: 13,
-    color: "#ffffff",
-    fontWeight: "600",
-    opacity: 0.95,
-  },
-  rightContent: {
     alignItems: "flex-end",
-    justifyContent: "space-between",
-    height: "100%",
-    paddingVertical: 12,
+    flex: 1,
   },
-  difficultyBadge: {
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  difficultyText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#ffffff",
+
+  cardTitle: {
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    backgroundColor: "transparent",
+    paddingVertical: 10,
+    borderWidth: 2,
+    borderColor: "white",
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    textShadowColor: "rgba(0,0,0,0.6)",
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 3,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  repsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  repsText: {
-    fontSize: 13,
-    color: "#ffffff",
-    fontWeight: "600",
-    opacity: 0.95,
   },
 });
 

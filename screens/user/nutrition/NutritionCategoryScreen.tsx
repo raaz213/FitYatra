@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } fr
 import { Provider as PaperProvider, DefaultTheme, FAB } from "react-native-paper"
 import { Ionicons } from "@expo/vector-icons"
 import DietCard from "../../../components/user/nutritionCategory/DietCard"
-import { fetchNutritionCategories } from "../../../services/user/nutrition/Category"
+import { fetchNutritionCategories } from "../../../services/both/nutrition/Category"
 import { useEffect, useState } from "react"
-import { Category } from "../../../types/user/nutrition/Category"
+import { Category } from "../../../types/both/nutrition/Category"
 
 // Custom theme
 const theme = {
@@ -57,7 +57,7 @@ useEffect(() => {
             <TouchableOpacity style={styles.cameraCard} onPress={openCamera}>
               <View style={styles.cameraCardContent}>
                 <View style={styles.cameraIconContainer}>
-                  <Ionicons name="camera" size={24} color="#4CAF50" />
+                  <Ionicons name="camera" size={24} color="#06407a" />
                 </View>
                 <View style={styles.cameraTextContainer}>
                   <Text style={styles.cameraTitle}>Scan Food</Text>
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#E8F5E8",
+    backgroundColor: "#d9e6f0ff",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
   },
   cardsContainer: {
     paddingHorizontal: 20,
+    backgroundColor: "#ffffff",
     paddingTop: 16,
     gap: 16,
   },
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#06407a",
   },
 })
 

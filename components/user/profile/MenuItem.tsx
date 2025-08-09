@@ -1,17 +1,16 @@
 import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { Card, Divider, List } from "react-native-paper";
-import WorkoutHistoryModel from "./WorkoutHistoryModel";
-import BodyMeasurementModal from "./BodyMeasurementModal";
 
-const MenuItem = ({navigation}:any) => {
-    const [logModalVisible, setLogModelVisible] = useState(false);
-  const [bodyMeasurementModalVisible, setBodyMeasurementModalVisible] = useState(false);
+const MenuItem = ({ navigation }: any) => {
+  const [logModalVisible, setLogModelVisible] = useState(false);
+  const [bodyMeasurementModalVisible, setBodyMeasurementModalVisible] =
+    useState(false);
 
   const handlePress = () => {
     navigation.navigate("PersonalRecord");
-  }
-  
+  };
+
   return (
     <Card style={styles.card}>
       <Card.Content style={styles.menuContent}>
@@ -24,9 +23,8 @@ const MenuItem = ({navigation}:any) => {
             <List.Icon {...props} icon="history" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => setLogModelVisible(true)}
+          onPress={() => navigation.navigate("WorkoutHistory")}
           style={styles.menuItem}
-          
         />
         <Divider />
         <List.Item
@@ -51,29 +49,8 @@ const MenuItem = ({navigation}:any) => {
             <List.Icon {...props} icon="human" color="#06407a" />
           )}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => setBodyMeasurementModalVisible(true)}
+          onPress={() => navigation.navigate("BodyMeasurement")}
           style={styles.menuItem}
-        />
-        <Divider />
-        <List.Item
-          title="Nutrition Tracking"
-          description="Log your meals and calories"
-          titleStyle={styles.menuText}
-          descriptionStyle={styles.menuText}
-          left={(props) => (
-            <List.Icon {...props} icon="food-apple" color="#06407a" />
-          )}
-          right={(props) => <List.Icon {...props} icon="chevron-right" color="#f0f0f0" />}
-          onPress={() => {}}
-          style={styles.menuItem}
-        />
-        <WorkoutHistoryModel
-        visible={logModalVisible}
-        onClose={() => setLogModelVisible(false)}
-      />
-        <BodyMeasurementModal
-          visible={bodyMeasurementModalVisible}
-          onClose={() => setBodyMeasurementModalVisible(false)}
         />
       </Card.Content>
     </Card>
@@ -96,6 +73,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   menuText: {
-    color: "#171717",
+    color: "#06407a",
   },
 });

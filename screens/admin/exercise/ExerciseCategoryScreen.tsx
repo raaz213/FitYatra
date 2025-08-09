@@ -5,25 +5,20 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import {
-  TextInput,
-  Button,
-  DataTable,
-  Text,
-  Card,
-  Divider,
-  useTheme,
-} from "react-native-paper";
+import { TextInput, DataTable, Text, useTheme } from "react-native-paper";
 import { Plus, Image as ImageIcon, Edit, Trash2 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Toast } from "toastify-react-native";
-import { addExerciseCategoryResponse, fetchAllCategories  } from "../../../services/user/exercise/Category";
-import { Category } from "../../../types/user/exercise/Category";
+import {
+  addExerciseCategory,
+  fetchAllCategories,
+} from "../../../services/both/exercise/Category";
+import type { Category } from "../../../types/both/exercise/Category";
 import { API_URL } from "../../../constants/apiUrl";
 
-
 export default function ExerciseCategoryScreen() {
+  
   const theme = useTheme();
   const [name, setName] = useState("");
   const [image, setImage] = useState<string | null>(null);
@@ -41,10 +36,11 @@ export default function ExerciseCategoryScreen() {
       setImage(result.assets[0].uri);
     }
   };
-  
+
   const handleAddCategory = async () => {
     const formData = new FormData();
     formData.append("name", name);
+
     if (image) {
       const fileName = image.split("/").pop() || "photo.jpg";
       const fileType = fileName.split(".").pop();
@@ -54,14 +50,14 @@ export default function ExerciseCategoryScreen() {
         type: `image/${fileType}`,
       } as any);
     }
+
     try {
-      
-      await addExerciseCategoryResponse(formData);
-      Toast.success("Category added successfully!");
+      await addExerciseCategory(formData);
+      Alert.alert("Category added successfully!");
       setName("");
       setImage(null);
     } catch (error) {
-      Toast.error("Failed to add category. Please try again.");
+      Alert.alert("Failed to add category. Please try again.");
     }
   };
 
@@ -74,107 +70,130 @@ export default function ExerciseCategoryScreen() {
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.title}>Exercise Categories</Text>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Exercise categories</Text>
+        </View>
+      </View>
 
-          <View style={styles.form}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Add Category Section */}
+        <View style={styles.addSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Add New Category</Text>
+          </View>
+
+          <View style={styles.formContainer}>
             <TextInput
               label="Category Name"
               value={name}
               onChangeText={setName}
-              style={styles.input}
+              style={styles.textInput}
               mode="outlined"
+              outlineColor="#E5E7EB"
+              activeOutlineColor="#6366F1"
             />
 
-            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+            <TouchableOpacity
+              onPress={pickImage}
+              style={styles.imageUploadContainer}
+            >
               {image ? (
                 <Image source={{ uri: image }} style={styles.previewImage} />
               ) : (
-                <View
-                  style={[
-                    styles.placeholderImage,
-                    { backgroundColor: theme.colors.surfaceVariant },
-                  ]}
-                >
-                  <ImageIcon size={24} color={theme.colors.onSurfaceVariant} />
-                  <Text
-                    style={{
-                      color: theme.colors.onSurfaceVariant,
-                      marginTop: 8,
-                    }}
-                  >
-                    Select Image
-                  </Text>
+                <View style={styles.imagePlaceholder}>
+                  <ImageIcon size={24} color="#6B7280" />
+                  <Text style={styles.placeholderText}>Select Image</Text>
                 </View>
               )}
             </TouchableOpacity>
 
-            <Button
+            <TouchableOpacity
               onPress={handleAddCategory}
-              mode="contained"
-              style={styles.button}
-              icon={() => <Plus size={18} color="white" />}
+              style={styles.addButton}
             >
-              Add Category{" "}
-            </Button>
+              <Plus size={18} color="white" />
+              <Text style={styles.addButtonText}>Add Category</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Categories List Section */}
+        <View style={styles.listSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Categories</Text>
           </View>
 
-          <Divider style={styles.divider} />
+          <View style={styles.tableContainer}>
+            <DataTable>
+              <DataTable.Header style={styles.tableHeader}>
+                <DataTable.Title
+                  style={[styles.tableHeaderCell, { flex: 0.2 }]}
+                >
+                  <Text style={styles.tableHeaderText}>Image</Text>
+                </DataTable.Title>
+                <DataTable.Title
+                  style={[styles.tableHeaderCell, { flex: 0.5 }]}
+                >
+                  <Text style={styles.tableHeaderText}>Name</Text>
+                </DataTable.Title>
+                <DataTable.Title
+                  style={[styles.tableHeaderCell, { flex: 0.3 }]}
+                >
+                  <Text style={styles.tableHeaderText}>Actions</Text>
+                </DataTable.Title>
+              </DataTable.Header>
 
-          <Text style={styles.tableTitle}>Categories</Text>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title style={{ flex: 0.2 }}>Image</DataTable.Title>
-              <DataTable.Title style={{ flex: 0.5 }}>Name</DataTable.Title>
-              <DataTable.Title style={{ flex: 0.3 }}>Actions</DataTable.Title>
-            </DataTable.Header>
-
-            {categories.map((category, index) => (
-              <DataTable.Row key={index}>
-                <DataTable.Cell style={{ flex: 0.2 }}>
-                  <Image
-                    source={{ uri: `${API_URL}/uploads/${category.image}` }}
-                    style={styles.tableImage}
-                  />
-                </DataTable.Cell>
-                <DataTable.Cell style={{ flex: 0.5 }}>
-                  {category.name}
-                </DataTable.Cell>
-                <DataTable.Cell style={{ flex: 0.3 }}>
-                  <View style={styles.actionButtons}>
-                    <TouchableOpacity
-                     
-                      style={styles.iconButton}
-                    >
-                      <Edit size={18} color={theme.colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      
-                      style={styles.iconButton}
-                    >
-                      <Trash2 size={18} color={theme.colors.error} />
-                    </TouchableOpacity>
-                  </View>
-                </DataTable.Cell>
-              </DataTable.Row>
-            ))}
-
-          </DataTable>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+              {categories.map((category, index) => (
+                <DataTable.Row key={index} style={styles.tableRow}>
+                  <DataTable.Cell style={[styles.tableCell, { flex: 0.2 }]}>
+                    <View style={styles.categoryImageContainer}>
+                      <Image
+                        source={{ uri: `${API_URL}/uploads/${category.image}` }}
+                        style={styles.categoryImage}
+                      />
+                    </View>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={[styles.tableCell, { flex: 0.5 }]}>
+                    <Text style={styles.categoryName}>{category.name}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={[styles.tableCell, { flex: 0.3 }]}>
+                    <View style={styles.actionButtonsContainer}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.editButton]}
+                      >
+                        <Edit size={18} color={"#06407a"} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.deleteButton]}
+                      >
+                        <Trash2 size={18} color={theme.colors.error} />
+                      </TouchableOpacity>
+                    </View>
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </DataTable>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: "#F8FAFC",
   },
   header: {
-    backgroundColor: "#0047AB",
+    backgroundColor: "#06407a",
     paddingVertical: 8,
     paddingHorizontal: 20,
     elevation: 4,
@@ -182,66 +201,161 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   headerTitle: {
     color: "white",
     fontSize: 14,
     opacity: 0.8,
     marginTop: 4,
   },
+  headerContent: {
+    alignItems: "center",
+  },
 
-  card: {
-    marginBottom: 16,
+  scrollView: {
+    flex: 1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+  scrollContent: {
+    paddingBottom: 100,
   },
-  form: {
-    marginBottom: 24,
+  addSection: {
+    backgroundColor: "white",
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  input: {
-    marginBottom: 16,
+  listSection: {
+    backgroundColor: "white",
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  imagePicker: {
-    marginBottom: 16,
+  sectionHeader: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  formContainer: {
+    gap: 16,
+  },
+  textInput: {
+    backgroundColor: "white",
+  },
+  imageUploadContainer: {
+    borderRadius: 8,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderStyle: "dashed",
   },
   previewImage: {
     width: "100%",
     height: 150,
-    borderRadius: 8,
-    marginBottom: 8,
+    resizeMode: "cover",
   },
-  placeholderImage: {
-    width: "100%",
+  imagePlaceholder: {
     height: 150,
-    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    backgroundColor: "#F9FAFB",
   },
-  button: {
+  placeholderText: {
     marginTop: 8,
+    color: "#6B7280",
+    fontSize: 14,
+    fontWeight: "500",
   },
-  divider: {
-    marginVertical: 16,
-  },
-  tableTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  tableImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 4,
-  },
-  actionButtons: {
+  addButton: {
+    backgroundColor: "#06407a",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 8,
+    marginTop: 8,
   },
-  iconButton: {
+  addButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  tableContainer: {
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#FAFAFA",
+  },
+  tableHeader: {
+    backgroundColor: "#F3F4F6",
+    paddingVertical: 12,
+  },
+  tableHeaderCell: {
+    justifyContent: "center",
+  },
+  tableHeaderText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+  },
+  tableRow: {
+    backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+    paddingVertical: 12,
+  },
+  tableCell: {
+    justifyContent: "center",
+  },
+  categoryImageContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  categoryImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  categoryName: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#111827",
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  actionButton: {
     padding: 8,
-    marginHorizontal: 4,
+    borderRadius: 6,
+  },
+  editButton: {
+    backgroundColor: "#EEF2FF",
+  },
+  deleteButton: {
+    backgroundColor: "#FEF2F2",
   },
 });

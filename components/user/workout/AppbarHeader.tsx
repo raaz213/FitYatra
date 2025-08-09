@@ -1,21 +1,17 @@
-import { StyleSheet } from "react-native";
-import { Appbar, useTheme } from "react-native-paper";
+import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { Appbar, useTheme } from "react-native-paper";
 
-type AppbarHeaderProps = {
-  currentWorkout: {
-    subtitle: string;
-  };
-  navigation:any;
-};
 
-const AppbarHeader: React.FC<AppbarHeaderProps> = ({navigation, currentWorkout}) => {
+const AppbarHeader = ({ navigation, title }: {navigation: any, title:string }) => {
   const theme = useTheme();
   return (
     <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
-      <Appbar.BackAction onPress={() => navigation.goBack()}/>
-      <Appbar.Content title="WORKOUT PLAN" titleStyle={styles.headerTitle} />
-      <Appbar.Action icon="refresh" onPress={() => {}} />
+      <Appbar.BackAction onPress={() => navigation.goBack()} />
+      <Appbar.Content
+        title={title}
+        titleStyle={styles.headerTitle}
+      />
     </Appbar.Header>
   );
 };
@@ -23,10 +19,5 @@ const AppbarHeader: React.FC<AppbarHeaderProps> = ({navigation, currentWorkout})
 export default AppbarHeader;
 
 const styles = StyleSheet.create({
-  headerTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    opacity: 0.8,
-    letterSpacing: 1,
-  },
+  headerTitle: { fontSize: 16, fontWeight: "700", letterSpacing: 0.5 },
 });

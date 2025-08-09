@@ -21,7 +21,7 @@ const EditProfileButton = ({ navigation }: any) => {
         Edit Profile
       </Button>
       <View style={{marginTop:15}}>
-         <Button onPress={() => logoutUser(navigation)} mode="outlined">
+         <Button textColor="#06407a" onPress={() => logoutUser(navigation)} mode="outlined">
         Logout
       </Button>
       </View>

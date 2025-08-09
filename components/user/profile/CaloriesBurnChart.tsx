@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { Card } from "react-native-paper"; 
 import { window } from "../../../constants/sizes";
-import { userCaloriesStatsAnalytics } from "../../../services/user/exercise/Workout";
-
+import { userCaloriesStatsAnalytics } from "../../../services/both/stats/Stats";
 
 const CaloriesBurnChart = () => {
-  const [caloriesData, setCaloriesData] = useState<{ labels: string[]; datasets: { data: number[] }[] }>({
+  const [caloriesData, setCaloriesData] = useState<{
+    labels: string[];
+    datasets: { data: number[] }[];
+  }>({
     labels: [],
     datasets: [{ data: [] }],
   });
-  const [weeklyData, setWeeklyData] = useState<number|null>(null)
-  
+
+  const [weeklyData, setWeeklyData] = useState<number | null>(null);
+
   const caloriesStats = async () => {
     try {
       const response = await userCaloriesStatsAnalytics();
       setWeeklyData(response.averageWeekCalories.averageWeekCalories);
-      // ✅ Sanitize the values
+
       const labels = response.dailyCalories.map((item) => item.date.slice(6));
       const data = response.dailyCalories.map((item) => {
         const value = Number(item.totalDailyCalories);
@@ -40,8 +44,8 @@ const CaloriesBurnChart = () => {
     backgroundGradientFrom: "#ffffff",
     backgroundGradientTo: "#ffffff",
     decimalPlaces: 0,
-    color: (opacity = 1) => `#06407a`,
-    labelColor: (opacity = 1) => `#06407a`,
+    color: () => `#06407a`,
+    labelColor: () => `#06407a`,
     style: {
       borderRadius: 16,
     },
@@ -62,59 +66,55 @@ const CaloriesBurnChart = () => {
     },
   };
 
-  // ✅ Safe Y-label formatter
   const safeFormatYLabel = (value: string) => {
     const parsed = parseFloat(value);
     return isNaN(parsed) || !isFinite(parsed) ? "0" : `${Math.round(parsed)}`;
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Daily Calories Burned</Text>
-        <View style={styles.averageContainer}>
-          <Text style={styles.averageLabel}>Weekly Average</Text>
-          <Text style={styles.averageValue}>{weeklyData?.toFixed(2)} cal</Text>
+    <Card style={styles.card} elevation={2}>
+      <Card.Content>
+        <View style={styles.header}>
+          <Text style={styles.title}>Daily Calories Burned</Text>
+          <View style={styles.averageContainer}>
+            <Text style={styles.averageLabel}>Weekly Average</Text>
+            <Text style={styles.averageValue}>{weeklyData?.toFixed(2)} cal</Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.chartContainer}>
-        {caloriesData.datasets[0].data.length > 0 && (
-          <LineChart
-            data={caloriesData}
-            width={window.width - 40}
-            height={220}
-            yAxisSuffix=" cal"
-            chartConfig={chartConfig}
-            bezier
-            style={styles.chart}
-            fromZero
-            segments={5}
-            formatYLabel={safeFormatYLabel}
-          />
-        )}
-      </View>
-
-      <View style={styles.legend}>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: "#38bdf8" }]} />
-          <Text style={styles.legendText}>Calories Burned</Text>
+        <View style={styles.chartContainer}>
+          {caloriesData.datasets[0].data.length > 0 && (
+            <LineChart
+              data={caloriesData}
+              width={window.width - 64} // adjusted for padding inside Card
+              height={220}
+              yAxisSuffix=" cal"
+              chartConfig={chartConfig}
+              bezier
+              style={styles.chart}
+              fromZero
+              segments={5}
+              formatYLabel={safeFormatYLabel}
+            />
+          )}
         </View>
-      </View>
-    </View>
+
+        <View style={styles.legend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: "#38bdf8" }]} />
+            <Text style={styles.legendText}>Calories Burned</Text>
+          </View>
+        </View>
+      </Card.Content>
+    </Card>
   );
 };
+
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 16,
+  card: {
     margin: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderRadius: 16,
+    backgroundColor: "#ffffff",
   },
   header: {
     flexDirection: "row",

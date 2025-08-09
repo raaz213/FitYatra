@@ -14,7 +14,7 @@ export default function TabBar({
 }: BottomTabBarProps) {
   return (
     <LinearGradient
-      colors={["#06407a", "#3b5998", "#06407a"]}
+      colors={["#81ace6ff", "#81ace6ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
       style={styles.gradient}
@@ -41,7 +41,7 @@ export default function TabBar({
         renderIcon={({ route, focused, color}) =>
           descriptors[route.key].options.tabBarIcon?.({
             focused,
-            color: focused ? '#06407a': '#ffffff',
+            color: focused ? '#06407a': '#111111',
             size: 24,
           }) || null
         }
@@ -58,8 +58,8 @@ export default function TabBar({
           return label;
         }}
         style={styles.bar}
-        activeColor="#848687" 
-        inactiveColor="#FFFFFFAA" 
+        activeColor="#032163ff" 
+        inactiveColor="#111111" 
         
       />
     </LinearGradient>

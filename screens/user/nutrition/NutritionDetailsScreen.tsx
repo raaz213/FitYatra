@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet, Image, Dimensions, SafeAreaView } from "react-native";
 import { Appbar, Card, Text, useTheme } from "react-native-paper";
-import { fetchNutritionDietById } from "../../../services/user/nutrition/Diet";
-import { Diet } from "../../../types/user/nutrition/diet";
+import { fetchNutritionDietById } from "../../../services/both/nutrition/Diet";
+import { Diet } from "../../../types/both/nutrition/diet";
 import { API_URL } from "../../../constants/apiUrl";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -24,7 +24,7 @@ const COLORS = {
 };
 
 const NutritionDetailsScreen: React.FC = ({ route, navigation }: any) => {
-  const theme = useTheme();
+
   const { dietId } = route.params;
   const [diet, setDiet] = useState<Diet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,7 +88,7 @@ const NutritionDetailsScreen: React.FC = ({ route, navigation }: any) => {
           <View style={styles.overlay}>
             <View style={styles.calorieTag}>
               <Text style={styles.calorieText}>
-                {diet.totalCalories} kcal
+                {diet.totalCalories ?? 0}  kcal
               </Text>
             </View>
           </View>
@@ -105,15 +105,15 @@ const NutritionDetailsScreen: React.FC = ({ route, navigation }: any) => {
         <View style={styles.section}>
           <View style={styles.statsContainer}>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{diet.totalCalories}</Text>
+              <Text style={styles.statValue}>{diet.totalCalories ?? 0}</Text>
               <Text style={styles.statLabel}>Calories</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{diet.intake}</Text>
+              <Text style={styles.statValue}>{diet.intake ?? 0}</Text>
               <Text style={styles.statLabel}>Intake (g)</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: COLORS.success }]}>
+              <Text style={[styles.statValue]}>
                 {diet.macronutrient ? 
                   Math.round((diet.macronutrient.protein + diet.macronutrient.carbohydrates + diet.macronutrient.fats)) 
                   : 0
@@ -129,21 +129,21 @@ const NutritionDetailsScreen: React.FC = ({ route, navigation }: any) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Macronutrient Breakdown</Text>
             <View style={styles.macroGrid}>
-              <View style={[styles.macroCard, { backgroundColor: COLORS.primaryLight }]}>
-                <Text style={[styles.macroValue, { color: COLORS.primary }]}>
-                  {diet.macronutrient.protein}g
+              <View style={[styles.macroCard, { backgroundColor: COLORS.white }]}>
+                <Text style={[styles.macroValue]}>
+                  {diet.macronutrient.protein ?? 0}g
                 </Text>
                 <Text style={styles.macroLabel}>Protein</Text>
               </View>
-              <View style={[styles.macroCard, { backgroundColor: COLORS.warningLight }]}>
-                <Text style={[styles.macroValue, { color: COLORS.warning }]}>
-                  {diet.macronutrient.carbohydrates}g
+              <View style={[styles.macroCard, { backgroundColor: COLORS.white }]}>
+                <Text style={[styles.macroValue]}>
+                  {diet.macronutrient.carbohydrates ?? 0}g
                 </Text>
                 <Text style={styles.macroLabel}>Carbs</Text>
               </View>
-              <View style={[styles.macroCard, { backgroundColor: COLORS.successLight }]}>
-                <Text style={[styles.macroValue, { color: COLORS.success }]}>
-                  {diet.macronutrient.fats}g
+              <View style={[styles.macroCard, { backgroundColor: COLORS.white }]}>
+                <Text style={[styles.macroValue]}>
+                  {diet.macronutrient.fats ?? 0}g
                 </Text>
                 <Text style={styles.macroLabel}>Fats</Text>
               </View>
@@ -278,8 +278,13 @@ const styles = StyleSheet.create({
   macroCard: {
     flex: 1,
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 10,
     alignItems: 'center',
+    shadowColor: COLORS.shadow,
+     shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   macroValue: {
     fontSize: 20,
@@ -310,7 +315,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.shadow,
     marginTop: 7,
     marginRight: 12,
   },

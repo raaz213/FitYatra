@@ -1,15 +1,17 @@
 import axios from "axios";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const addExercise = async (formData: FormData): Promise<Exercise> => {
   try {
+    const token = await AsyncStorage.getItem("token");
     const response = await axios.post(
       `${API_URL}/api/exercise/exercises/add`,
       formData,
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -29,8 +31,12 @@ export const getAllExercises = async (
   currentPage: number;
 }> => {
   try {
+    const token = await AsyncStorage.getItem("token");
     const response = await axios.get(`${API_URL}/api/exercise/exercises/list`, {
       params: { page, limit },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return response.data;
   } catch (error: any) {
@@ -46,8 +52,14 @@ export const getExerciseById = async (
   exerciseId: string
 ): Promise<Exercise> => {
   try {
+    const token = await AsyncStorage.getItem("token");
     const response = await axios.get(
-      `${API_URL}/api/exercise/exercises/${exerciseId}`
+      `${API_URL}/api/exercise/exercises/${exerciseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -84,4 +96,3 @@ export const fetchExercisesBySubcategory = async (subcategoryId: string) => {
     throw error;
   }
 };
-

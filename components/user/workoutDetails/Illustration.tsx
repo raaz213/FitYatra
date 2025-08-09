@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Image } from "react-native";
 import WebView from "react-native-webview";
-import { Exercise } from "../../../types/user/exercise/Exercise";
+import { Exercise } from "../../../types/both/exercise/Exercise";
 import { API_URL } from "../../../constants/apiUrl";
 
 interface IllustrationProps {

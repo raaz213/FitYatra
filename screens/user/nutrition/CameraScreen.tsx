@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 30,
     height: 30,
-    borderColor: "#4CAF50",
+    borderColor: "#06407a",
     borderWidth: 3,
   },
   topLeft: {
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#06407a",
   },
   placeholder: {
     width: 50,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
   confidence: {
     fontSize: 14,
-    color: "#4CAF50",
+    color: "#06407a",
     marginLeft: 4,
     fontWeight: "500",
   },

@@ -7,7 +7,7 @@ export interface Exercise {
   metValue: number;
   duration: string;
   instructions: string;
-  focusArea: [string];
+  focusArea: [];
   videoUrl: string;
 }
 

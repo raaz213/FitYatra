@@ -35,7 +35,7 @@ export interface CalorieData {
 
 export interface TotalUserCalories {
   totalDailyCalories: number;
-  date : string;
+  date: string;
 }
 export interface AdminCardStats {
   totalExercise: number;
@@ -54,4 +54,5 @@ export interface WorkoutHistory {
 export interface BodyMeasurement {
   height: number;
   weight: number;
+  createdAt: Date;
 }
